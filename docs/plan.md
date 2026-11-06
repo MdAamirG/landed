@@ -23,9 +23,9 @@ The days below follow the tickets in `.scratch/landed-core/issues/`, in the orde
 
 Tickets 01, 04, 03, 02.
 
-- [ ] FastAPI app, config from environment, health route
-- [ ] SQLAlchemy models for the twelve tables in `docs/data-model.md`, Alembic migration
-- [ ] Seed script: the brief's 3 trips, 3 clients, 3 branches, demo users
+- [x] FastAPI app, config from environment, health route
+- [x] SQLAlchemy models for the twelve tables in `docs/data-model.md`, Alembic migration
+- [x] Seed script: the brief's 3 trips, 3 clients, 3 branches, demo users
 - [ ] `decide()` in `api/app/rules.py`: the decision rule as a pure function, with a pytest case for every rule and edge case
 - [ ] Deploy the API to Render's free tier in Singapore, next to Neon, with an uptime ping every 10 minutes, and run the seed against Neon
 - [ ] Vercel rewrite from `/api/*` to Render, so the sign-in cookie is first-party and CORS isn't needed
