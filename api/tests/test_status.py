@@ -56,7 +56,9 @@ def test_the_system_can_never_invoice_a_trip():
 
 
 def events_for(session, trip):
-    return session.scalars(select(AuditEvent).where(AuditEvent.trip_id == trip.id)).all()
+    # By id: with no ORDER BY, Postgres can return the rows in index order instead.
+    query = select(AuditEvent).where(AuditEvent.trip_id == trip.id).order_by(AuditEvent.id)
+    return session.scalars(query).all()
 
 
 def test_a_move_changes_the_status_and_writes_an_audit_event(db):
