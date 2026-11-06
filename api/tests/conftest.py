@@ -46,6 +46,44 @@ def pytest_configure(config):
     os.environ["DATABASE_URL_POOLED"] = test_url
 
 
+def empty_tables() -> None:
+    """Remove every row. TRUNCATE ... CASCADE saves ordering the tables by foreign key."""
+    from sqlalchemy import text
+
+    from app.db import engine
+    from app.models import Base
+
+    tables = ", ".join(f'"{table.name}"' for table in Base.metadata.sorted_tables)
+    with engine.begin() as connection:
+        connection.execute(text(f"TRUNCATE {tables} RESTART IDENTITY CASCADE"))
+
+
+@pytest.fixture(scope="session", autouse=True)
+def test_database():
+    """Each run brings the test branch up to the latest migration, then starts it empty."""
+    from alembic import command
+    from alembic.config import Config
+
+    command.upgrade(Config(REPO_ROOT / "api" / "alembic.ini"), "head")
+    empty_tables()
+
+
+@pytest.fixture
+def empty_db():
+    """For tests that need exact row counts. Other tests' rows stay until the next run."""
+    empty_tables()
+
+
+@pytest.fixture
+def db():
+    """A session for tests. Factories commit; anything else is undone by the rollback."""
+    from app.db import SessionLocal
+
+    with SessionLocal() as session:
+        yield session
+        session.rollback()
+
+
 @pytest.fixture
 def api_client():
     from fastapi.testclient import TestClient

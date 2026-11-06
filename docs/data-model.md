@@ -112,10 +112,12 @@ Twelve tables in Postgres. `trips` is the centre: a trip has many photo attempts
 | `driver_links` | `id`, `trip_id`, `token_hash`, `expires_at`, `revoked_at`, `sent_at` | Only a hash of the token is stored. Expires 72 hours after `expected_delivery_at`; a retake renews it to 72 hours from then |
 | `users` | `id`, `name`, `email`, `password_hash`, `role`, `branch_id` | Office staff only |
 | `clients` | `id`, `name`, `tally_ledger_name` | Billing cycle is the 1st to 15th and the 16th to month end |
-| `branches`, `vehicles`, `drivers` | `vehicles.ownership` (own or hired), `drivers.phone`, `drivers.language` (hi, mr, en) | Driver phone is personal data, masked like the consignee's |
+| `branches`, `vehicles`, `drivers` | `branches.name`, `vehicles.registration_no`, `vehicles.ownership` (own or hired), `drivers.name`, `drivers.phone`, `drivers.language` (hi, mr, en) | Driver phone is personal data, masked like the consignee's |
 | `import_batches` | `id`, `filename`, `uploaded_by`, `rows_total`, `rows_ok`, `errors` (jsonb) | One per daily trip file |
 | `export_batches` | `id`, `cycle_start`, `cycle_end`, `created_by`, `trip_count`, `total_paise`, `xml` | Trips point to their batch. One batch can hold vouchers for several clients |
 | `audit_events` | `id`, `trip_id`, `actor_type` (user, driver link, system), `actor_id`, `action`, `from_status`, `to_status`, `detail` (jsonb), `at` | Append-only: status changes, field edits, reveals, exports, retake requests |
+
+Beyond the table, these are unique: `clients.name`, `branches.name`, `vehicles.registration_no`, `users.email` and `driver_links.token_hash`. Lookups get indexes on `driver_links.trip_id` and on `audit_events (trip_id, action, at)`, which the upload limit counts from. `pod_fields` values are `jsonb`, because quantity is a number and unit, and remarks are text and a kind.
 
 Three figures come straight from these columns. POD within 24 hours is `received_at` minus `captured_at` on the first attempt. POD-to-invoice days is `invoiced_at` minus that first `received_at`. Lost or disputed counts `disputed` trips plus lost ones, where a POD is lost once it is still missing 20 days after `expected_delivery_at`.
 
