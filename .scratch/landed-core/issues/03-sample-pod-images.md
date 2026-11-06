@@ -19,5 +19,7 @@
 
 These are Aamir's steps, due by Saturday midday. Ticket 07 needs only the rendered images. Ticket 09's final numbers need these photos.
 
-- [ ] Print the five scenarios, then stamp, sign and write on them as each one requires
-- [ ] Photograph them on a phone and add the photos to `samples/pods/`
+- [x] Print the five scenarios, then stamp, sign and write on them as each one requires
+- [x] Photograph them on a phone and add the photos to `samples/pods/`
+
+Replaced on 7 Nov 2026: nobody printed or photographed these sheets. `samples/pods/photos/` holds synthetic phone-style photos, made from the rendered sheets by `samples/photograph_pods.py`. Accuracy measured on them is a first estimate, and it's labelled as an assumption in `docs/data-model.md`.

@@ -199,6 +199,7 @@ These rules apply only when the `DEMO_MODE` env flag is on.
 - A shortage trip bills full freight. Deductions and GST are out of scope.
 - A trip's billing cycle comes from its delivery date.
 - SMS, Tally and payments are mocked, as the brief allows.
+- The sample POD photos are synthetic. `samples/photograph_pods.py` makes them from the rendered sheets, adding a desk, an angle, uneven light, noise and compression. Nobody printed or photographed them, so accuracy and the confidence threshold measured on them are a first estimate, not a field result.
 
 ## Limits to state in the TDD
 

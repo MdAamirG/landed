@@ -15,3 +15,7 @@
 - [ ] The 0.80 threshold is confirmed or changed based on the real photos, and the change reaches `docs/data-model.md` if it moves
 - [ ] If stamps or handwritten remarks are misread, the image resolution setting is raised before any move to a bigger model
 - [ ] The numbers are saved for the TDD
+
+## Comments
+
+- From ticket 03: no real photos are coming. The synthetic photos in `samples/pods/photos/` replace them, so read "real photos" above as those. Label the numbers as a first estimate in the TDD.

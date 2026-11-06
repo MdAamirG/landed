@@ -15,7 +15,7 @@ Deadline: about Sunday night, 8 Nov 2026. Submit by Sunday evening. The brief le
 - [x] Gemini API key
 - [x] Render account (API) and Vercel account (web)
 - [x] Rendered LR template and the five scenarios (clean, blurry, no stamp, "short by 6 cartons", wrong LR number) in `samples/pods/`, so the build isn't blocked
-- [ ] Aamir prints, stamps, signs and photographs the five scenarios by Saturday midday. Real photos are the ones used to tune the threshold
+- [x] Synthetic phone-style photos of the five scenarios in `samples/pods/photos/`, in place of Aamir printing and photographing them. The threshold is tuned on these, as a first estimate
 
 The days below follow the tickets in `.scratch/landed-core/issues/`, in the order listed. The tickets hold the acceptance criteria.
 

@@ -30,6 +30,17 @@ Leave the remarks empty on the clean sheets. Writing "nil" sends the POD to a pe
 
 Save the photos as `photos/<scenario>.jpg`, for example `photos/no-stamp.jpg`.
 
+## Phone-style photos
+
+`photos/` holds one phone-style photo per scenario, made by `samples/photograph_pods.py` from the rendered sheets: the sheet on a desk at a slight angle, with uneven light, a shadow, camera noise and JPEG compression. The `blurry` one also gets camera shake. Each is under 300 KB, and a fixed seed per scenario makes them the same on every run.
+
+They are synthetic, not photographs of printed paper. Accuracy measured on them is a first estimate, and the TDD labels it that way. Photographing the printed sheets (above) would replace them with a stronger test.
+
+```bash
+pip install pillow numpy
+python3 samples/photograph_pods.py
+```
+
 ## Rendering again
 
 After changing `scenarios.json` or the template (`samples/lr-sheet.html` and `samples/lr-sheet.css`):
