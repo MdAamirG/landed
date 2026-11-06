@@ -1,0 +1,26 @@
+.health {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  max-width: 28rem;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.health__card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 24px;
+}
+
+.health__card h1 {
+  font-size: 24px;
+}
+
+.health__card .btn {
+  margin-top: 8px;
+}
