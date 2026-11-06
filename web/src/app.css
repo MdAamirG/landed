@@ -95,6 +95,51 @@
   gap: 10px;
 }
 
+.sign-in__demo--driver {
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+}
+
+.sign-in__demo--driver svg {
+  flex: none;
+  color: var(--color-print);
+}
+
+/* Demo mode: the scenario picker, and the controls on a demo trip's driver screens */
+.demo-scenario {
+  border: 0;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.demo-scenario:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.demo-scenario__title {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.demo-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+}
+
+.demo-controls .btn {
+  width: 100%;
+  min-height: 48px;
+}
+
 /* A message in place of a screen: loading, empty, error or not allowed */
 .notice {
   display: flex;

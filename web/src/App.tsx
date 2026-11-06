@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router";
 
+import DemoPicker from "./demo/DemoPicker";
 import DriverTrip from "./driver/DriverTrip";
 import Billing from "./office/Billing";
 import { DESTINATIONS } from "./office/destinations";
@@ -26,6 +27,7 @@ export default function App() {
         <Route path="/" element={<Navigate to="/office" replace />} />
         <Route path="/status" element={<Status />} />
         <Route path="/d/:token" element={<DriverTrip />} />
+        <Route path="/demo" element={<DemoPicker />} />
 
         {/* Only the office area loads the session. The driver area never touches it. */}
         <Route

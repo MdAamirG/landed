@@ -77,6 +77,17 @@ describe("the pending-photo queue", () => {
     expect(await network.sent[0].blob.text()).toBe("second");
   });
 
+  it("forgets a discarded photo, leaving other trips' photos alone", async () => {
+    const queue = createPhotoQueue(fakeStore(), fakeNetwork().send);
+    await queue.save(shot());
+    await queue.save(shot("TRP-66141"));
+
+    await queue.discard(TRIP);
+
+    expect(await queue.pending(TRIP)).toBeUndefined();
+    expect(await queue.pending("TRP-66141")).toBeDefined();
+  });
+
   it("keeps photos for different trips apart", async () => {
     const store = fakeStore();
     const queue = createPhotoQueue(store, fakeNetwork().send, ids());

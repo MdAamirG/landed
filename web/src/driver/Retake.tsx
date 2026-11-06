@@ -1,3 +1,4 @@
+import DemoControls from "../demo/DemoControls";
 import type { DriverTrip } from "../lib/api";
 
 const MAX_RETAKES = 2;
@@ -52,10 +53,12 @@ export default function Retake({
   trip,
   photoUrl,
   onRetake,
+  onUseSample,
 }: {
   trip: DriverTrip;
   photoUrl: string | null;
   onRetake: () => void;
+  onUseSample: () => void;
 }) {
   const reason = trip.reason_codes.find((code) => code in REASON_TEXT);
   // A blurred or dark photo can't vouch for anything on it, so no field gets a tick.
@@ -119,6 +122,7 @@ export default function Retake({
         <p className="muted retake__count">
           Retake {trip.retakes_used} of {MAX_RETAKES}. After two, the office checks the photo.
         </p>
+        <DemoControls trip={trip} onUseSample={onUseSample} />
       </section>
     </main>
   );

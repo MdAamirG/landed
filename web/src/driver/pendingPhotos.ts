@@ -29,6 +29,7 @@ export type PhotoQueue = {
   pending(tripCode: string): Promise<PendingPhoto | undefined>;
   save(photo: Omit<PendingPhoto, "attemptId" | "triedAt">): Promise<PendingPhoto>;
   trySend(tripCode: string): Promise<SendOutcome>;
+  discard(tripCode: string): Promise<void>; // Only for a demo reset, which kills the photo's link.
 };
 
 function outcomeOf(error: unknown): SendOutcome {
@@ -53,6 +54,7 @@ export function createPhotoQueue(
 
   return {
     pending: (tripCode) => store.get(tripCode),
+    discard: (tripCode) => store.remove(tripCode),
 
     async save(photo) {
       // The store has one slot per trip, so this also replaces any unsent photo.

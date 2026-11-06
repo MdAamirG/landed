@@ -30,6 +30,14 @@ export type PodStatus =
   | "disputed"
   | "invoiced";
 
+/** What a demo trip's driver screen sends with its sample photo. */
+export type DemoSample = {
+  scenario: string;
+  captured_at: string;
+  gps_lat: number;
+  gps_lng: number;
+};
+
 export type DriverTrip = {
   trip_code: string;
   registration_no: string;
@@ -41,6 +49,7 @@ export type DriverTrip = {
   pod_status: PodStatus;
   retakes_used: number;
   reason_codes: string[];
+  demo_sample: DemoSample | null;
 };
 
 export type Role = "billing_executive" | "operations_head";
@@ -126,6 +135,18 @@ export async function logout(): Promise<void> {
 export async function isDemoMode(): Promise<boolean> {
   const options = (await (await request("/auth/options")).json()) as { demo_mode: boolean };
   return options.demo_mode;
+}
+
+export type DemoScenario = { id: string; trip_code: string; title: string; expected: string };
+
+export async function getDemoScenarios(): Promise<DemoScenario[]> {
+  return (await (await request("/demo/scenarios")).json()) as DemoScenario[];
+}
+
+/** Resets the scenario's trip and returns a token for its fresh driver link. */
+export async function startDemoScenario(scenarioId: string): Promise<string> {
+  const response = await request(`/demo/scenarios/${scenarioId}/start`, { method: "POST" });
+  return ((await response.json()) as { driver_token: string }).driver_token;
 }
 
 /** The token goes in a header, not the API path, so it stays out of the API's request logs. */

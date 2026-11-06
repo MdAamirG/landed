@@ -1,11 +1,13 @@
+import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState, type FormEvent } from "react";
-import { Navigate } from "react-router";
+import { Link, Navigate } from "react-router";
 
 import { ApiError, demoLogin, isDemoMode, login, type OfficeUser, type Role } from "../lib/api";
 import { ROLE_LABELS } from "./destinations";
 import { useSession } from "./session";
 
 const DEMO_ROLES: Role[] = ["billing_executive", "operations_head"];
+const QR_SIZE_PX = 84;
 
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError && error.status === 401) {
@@ -100,6 +102,22 @@ export default function SignIn() {
                 </button>
               ))}
             </div>
+          </div>
+        )}
+
+        {demoMode && (
+          <div className="sign-in__demo sign-in__demo--driver">
+            <QRCodeSVG
+              value={`${window.location.origin}/demo`}
+              size={QR_SIZE_PX}
+              title="QR code that opens the driver demo"
+              bgColor="transparent"
+              fgColor="currentColor"
+            />
+            <p>
+              The driver app opens from an SMS link, with nothing to install.{" "}
+              <Link to="/demo">Open the driver demo</Link>
+            </p>
           </div>
         )}
       </div>

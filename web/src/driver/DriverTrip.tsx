@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { useParams } from "react-router";
 
+import DemoControls from "../demo/DemoControls";
+import { samplePhoto } from "../demo/samples";
 import {
   ApiError,
   getDriverTrip,
@@ -15,6 +17,7 @@ import {
   problemWith,
   stripText,
   type DeviceCheck,
+  type GpsFix,
   type PhotoProblem,
 } from "./capture";
 import type { PendingPhoto, SendOutcome } from "./pendingPhotos";
@@ -43,6 +46,7 @@ type Screen =
 type Shot = { file: File; capturedAt: Date };
 
 const SEND_ANYWAY_AFTER_FAILURES = 2;
+const SAMPLE_GPS_ACCURACY_M = 12; // A sample has no real fix, so it claims a phone's usual one.
 
 type DoneMessage = "verified" | "with-office" | "sms-later";
 
@@ -154,11 +158,13 @@ function TakePhoto({
   notice,
   hasLocation,
   onPhoto,
+  onUseSample,
 }: {
   trip: Trip;
   notice?: string;
   hasLocation: boolean;
   onPhoto: (photo: File) => void;
+  onUseSample: () => void;
 }) {
   const camera = useRef<HTMLInputElement>(null);
   const online = useOnline();
@@ -194,6 +200,7 @@ function TakePhoto({
         <span className="driver__shoot-hi">फोटो लें</span>
         <span className="driver__shoot-en">Take POD photo</span>
       </button>
+      <DemoControls trip={trip} onUseSample={onUseSample} />
       <div className="driver__hint">
         <svg
           width="30"
@@ -250,6 +257,7 @@ function Done({ trip, message }: { trip: Trip; message: DoneMessage }) {
         {trip.trip_code}, {trip.destination}
       </p>
       {sent && <p className="driver__sent">{sent}</p>}
+      <DemoControls trip={trip} />
     </main>
   );
 }
@@ -281,10 +289,12 @@ function RetakeScreen({
   trip,
   lastPhoto,
   onPhoto,
+  onUseSample,
 }: {
   trip: Trip;
   lastPhoto: Blob | null;
   onPhoto: (photo: File) => void;
+  onUseSample: () => void;
 }) {
   const camera = useRef<HTMLInputElement>(null);
   const photoUrl = useMemo(() => (lastPhoto ? URL.createObjectURL(lastPhoto) : null), [lastPhoto]);
@@ -292,7 +302,12 @@ function RetakeScreen({
   return (
     <>
       <CameraInput input={camera} onPhoto={onPhoto} />
-      <Retake trip={trip} photoUrl={photoUrl} onRetake={() => camera.current?.click()} />
+      <Retake
+        trip={trip}
+        photoUrl={photoUrl}
+        onRetake={() => camera.current?.click()}
+        onUseSample={onUseSample}
+      />
     </>
   );
 }
@@ -348,13 +363,19 @@ export default function DriverTrip() {
 
   /** Compress and print the strip, then save it before any attempt to send it. */
   const send = useCallback(
-    async (trip: Trip, shot: Shot, photo: ImageBitmap, deviceCheck: DeviceCheck) => {
-      const text = stripText(trip.trip_code, shot.capturedAt, location);
+    async (
+      trip: Trip,
+      shot: Shot,
+      photo: ImageBitmap,
+      deviceCheck: DeviceCheck,
+      gps: GpsFix | null = location,
+    ) => {
+      const text = stripText(trip.trip_code, shot.capturedAt, gps);
       const pending = await photoQueue.save({
         blob: await compressWithStrip(photo, text),
         originalBytes: shot.file.size,
         capturedAt: shot.capturedAt,
-        gps: location,
+        gps,
         deviceCheck,
         tripCode: trip.trip_code,
         token,
@@ -394,6 +415,31 @@ export default function DriverTrip() {
         await send(trip, shot, await decodePhoto(shot.file), "sent_anyway");
       } catch {
         setScreen({ name: "trip", trip, notice: "That photo couldn't be read. Please try again." });
+      }
+    },
+    [send],
+  );
+
+  /** A demo trip's sample, sent with the sheet's date from the gate (see DemoSampleOut). */
+  const sendSample = useCallback(
+    async (trip: Trip) => {
+      const sample = trip.demo_sample;
+      if (!sample) return;
+      setScreen({ name: "preparing", trip });
+      try {
+        const file = await samplePhoto(sample.scenario);
+        const photo = await decodePhoto(file);
+        // No stop at the phone check here: the blurred sample is meant to reach the real AI check.
+        const problem = problemWith(photoMeasurements(photo));
+        await send(
+          trip,
+          { file, capturedAt: new Date(sample.captured_at) },
+          photo,
+          problem ? "sent_anyway" : "passed",
+          { lat: sample.gps_lat, lng: sample.gps_lng, accuracyM: SAMPLE_GPS_ACCURACY_M },
+        );
+      } catch {
+        setScreen({ name: "trip", trip, notice: "The sample photo didn't load. Try again." });
       }
     },
     [send],
@@ -454,8 +500,16 @@ export default function DriverTrip() {
     case "trip": {
       const { trip, notice } = screen;
       const onPhoto = (file: File) => void handlePhoto(trip, file);
+      const onUseSample = () => void sendSample(trip);
       if (trip.pod_status === "retake_requested" && !notice) {
-        return <RetakeScreen trip={trip} lastPhoto={lastPhoto} onPhoto={onPhoto} />;
+        return (
+          <RetakeScreen
+            trip={trip}
+            lastPhoto={lastPhoto}
+            onPhoto={onPhoto}
+            onUseSample={onUseSample}
+          />
+        );
       }
       return NEEDS_PHOTO.includes(trip.pod_status) ? (
         <TakePhoto
@@ -463,6 +517,7 @@ export default function DriverTrip() {
           notice={notice}
           hasLocation={location !== null}
           onPhoto={onPhoto}
+          onUseSample={onUseSample}
         />
       ) : (
         <Done trip={trip} message={doneMessageFor(trip.pod_status)} />
