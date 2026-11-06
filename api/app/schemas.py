@@ -6,7 +6,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
 
-from app.models import PodStatus, Role
+from app.models import DeviceCheck, PodStatus, Role
 
 
 class PingOut(BaseModel):
@@ -63,6 +63,7 @@ class AttemptForm(BaseModel):
     gps_lat: float | None = Field(default=None, ge=-90, le=90)
     gps_lng: float | None = Field(default=None, ge=-180, le=180)
     gps_accuracy_m: float | None = Field(default=None, ge=0)
+    device_check: DeviceCheck | None = None
 
 
 class AttemptOut(BaseModel):

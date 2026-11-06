@@ -18,7 +18,16 @@ from sqlalchemy.orm import Session
 from app import ai
 from app.config import settings
 from app.db import SessionLocal
-from app.models import ActorType, AuditEvent, DriverLink, PodAttempt, PodField, PodStatus, Trip
+from app.models import (
+    ActorType,
+    AiStatus,
+    AuditEvent,
+    DriverLink,
+    PodAttempt,
+    PodField,
+    PodStatus,
+    Trip,
+)
 from app.rules import Facts, decide
 from app.schemas import AttemptForm, PodReading
 from app.status import SYSTEM, Actor, move_trip
@@ -132,9 +141,10 @@ def accept_attempt(
         gps_lat=form.gps_lat,
         gps_lng=form.gps_lng,
         gps_accuracy_m=form.gps_accuracy_m,
+        device_check=form.device_check,
         distance_km=distance_from_consignee(form, trip),
         # A late photo isn't sent to Gemini and moves nothing, so what it found is its outcome.
-        ai_status="skipped" if late else "pending",
+        ai_status=AiStatus.SKIPPED if late else AiStatus.PENDING,
         outcome=trip.pod_status if late else None,
     )
     session.add(attempt)
@@ -206,7 +216,7 @@ def apply_result(session: Session, attempt: PodAttempt, trip: Trip, result: ai.A
         ),
     )
 
-    attempt.ai_status = "done" if result.reading else "failed"
+    attempt.ai_status = AiStatus.DONE if result.reading else AiStatus.FAILED
     attempt.ai_model = result.model
     attempt.ai_latency_ms = result.latency_ms
     attempt.ai_raw = result.raw
@@ -230,7 +240,7 @@ def fail_stuck_attempt(session: Session, attempt_id: UUID) -> None:
     attempt = session.get_one(PodAttempt, attempt_id)
     trip = session.get_one(Trip, attempt.trip_id, with_for_update=True)
     session.refresh(attempt)  # The lock may have waited for the real check to finish.
-    if attempt.ai_status == "pending":
+    if attempt.ai_status == AiStatus.PENDING:
         result = ai.AiResult(None, {"error": "stuck in checking"}, settings.gemini_model, None)
         apply_result(session, attempt, trip, result)
     session.commit()
@@ -241,7 +251,7 @@ def sweep_stuck_attempts(session: Session, trip_id: UUID | None = None) -> None:
     no reliable scheduler. Driver polls pass their trip; office screens sweep every trip.
     """
     stuck = select(PodAttempt.id).where(
-        PodAttempt.ai_status == "pending",
+        PodAttempt.ai_status == AiStatus.PENDING,
         PodAttempt.received_at < datetime.now(UTC) - STUCK_AFTER,
     )
     if trip_id is not None:
@@ -263,7 +273,7 @@ def run_check(attempt_id: UUID) -> None:
         trip = session.get_one(Trip, trip_id, with_for_update=True)
         attempt = session.get_one(PodAttempt, attempt_id)
         # A late result must not overwrite a person's decision, or a newer attempt's check.
-        if trip.pod_status != PodStatus.CHECKING or attempt.ai_status != "pending":
+        if trip.pod_status != PodStatus.CHECKING or attempt.ai_status != AiStatus.PENDING:
             logger.info("Dropped a late AI result for attempt %s", attempt_id)
             return
         apply_result(session, attempt, trip, result)

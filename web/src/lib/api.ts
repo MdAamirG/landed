@@ -1,3 +1,5 @@
+import type { PreparedPhoto } from "../driver/capture";
+
 export type ApiHealth = "healthy" | "database-down" | "api-down";
 
 // Longer than the API's usual response, but short enough to show the error state and a retry.
@@ -125,13 +127,18 @@ function driverHeaders(token: string): HeadersInit {
 export async function uploadAttempt(
   token: string,
   attemptId: string,
-  photo: Blob,
-  capturedAt: Date,
+  photo: PreparedPhoto,
 ): Promise<AttemptResult> {
   const form = new FormData();
   form.set("attempt_id", attemptId);
-  form.set("captured_at", capturedAt.toISOString());
-  form.set("photo", photo, "pod.jpg");
+  form.set("captured_at", photo.capturedAt.toISOString());
+  form.set("device_check", photo.deviceCheck);
+  if (photo.gps) {
+    form.set("gps_lat", String(photo.gps.lat));
+    form.set("gps_lng", String(photo.gps.lng));
+    form.set("gps_accuracy_m", String(photo.gps.accuracyM));
+  }
+  form.set("photo", photo.blob, "pod.jpg");
   const response = await request("/driver/attempts", {
     method: "POST",
     headers: driverHeaders(token),

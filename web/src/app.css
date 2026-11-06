@@ -385,3 +385,9 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+.driver__status {
+  margin-top: auto;
+  padding: 0 4px;
+  font-size: 13px;
+}

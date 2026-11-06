@@ -7,6 +7,7 @@ import {
   type AttemptResult,
   type DriverTrip,
 } from "../lib/api";
+import type { PreparedPhoto } from "./capture";
 
 const POLL_EVERY_MS = 2_000;
 const GIVE_UP_AFTER_MS = 30_000; // The driver isn't kept at the gate after this. The check goes on.
@@ -36,14 +37,26 @@ async function pollUntilDone(token: string, attempt: AttemptResult): Promise<Che
   return { name: "result", attempt: latest };
 }
 
-async function sendAndCheck(token: string, photo: File, attemptId: string): Promise<CheckEnd> {
+async function sendAndCheck(
+  token: string,
+  photo: PreparedPhoto,
+  attemptId: string,
+  onSent: () => void,
+): Promise<CheckEnd> {
   try {
-    const attempt = await uploadAttempt(token, attemptId, photo, new Date());
+    const attempt = await uploadAttempt(token, attemptId, photo);
+    onSent();
     return await pollUntilDone(token, attempt);
   } catch (error) {
     if (error instanceof ApiError && error.status === 401) return { name: "link-dead" };
     return { name: "refused" };
   }
+}
+
+function sizeLabel(bytes: number): string {
+  return bytes >= 1_000_000
+    ? `${(bytes / 1_000_000).toFixed(1)} MB`
+    : `${Math.round(bytes / 1000)} KB`;
 }
 
 function Step({ done, title, detail }: { done: boolean; title: string; detail: string }) {
@@ -84,14 +97,15 @@ export default function PhotoCheck({
 }: {
   trip: DriverTrip;
   token: string;
-  photo: File;
+  photo: PreparedPhoto;
   onEnd: (end: CheckEnd) => void;
 }) {
   const [preview, setPreview] = useState<string | null>(null);
+  const [sent, setSent] = useState(false);
   const started = useRef(false);
 
   useEffect(() => {
-    const url = URL.createObjectURL(photo);
+    const url = URL.createObjectURL(photo.blob);
     setPreview(url);
     return () => URL.revokeObjectURL(url);
   }, [photo]);
@@ -99,7 +113,7 @@ export default function PhotoCheck({
   useEffect(() => {
     if (started.current) return; // StrictMode runs effects twice in development.
     started.current = true;
-    void sendAndCheck(token, photo, crypto.randomUUID()).then(onEnd);
+    void sendAndCheck(token, photo, crypto.randomUUID(), () => setSent(true)).then(onEnd);
   }, [token, photo, onEnd]);
 
   return (
@@ -114,12 +128,23 @@ export default function PhotoCheck({
           <h1>जाँच हो रही है</h1>
           <p className="muted">Checking the photo. Please stay at the gate.</p>
         </div>
-        <Step done title="Photo sent" detail={`${Math.round(photo.size / 1000)} KB`} />
         <Step
-          done={false}
-          title="Reading LR, stamp, quantity, remarks, date and signature"
-          detail="About five seconds"
+          done
+          title={photo.deviceCheck === "passed" ? "Sharp and bright enough" : "Sent as it is"}
+          detail="Checked on the phone, no network needed"
         />
+        <Step
+          done={sent}
+          title="Made smaller and sent"
+          detail={`${sizeLabel(photo.originalBytes)} down to ${sizeLabel(photo.blob.size)}`}
+        />
+        {sent && (
+          <Step
+            done={false}
+            title="Reading LR, stamp, quantity, remarks, date and signature"
+            detail="About five seconds"
+          />
+        )}
       </section>
     </main>
   );

@@ -1,8 +1,7 @@
 """The twelve tables in docs/data-model.md.
 
 Allowed values are text columns with CHECK constraints rather than Postgres enums, because
-changing a CHECK in a migration is simpler than altering an enum type. device_check, ai_status
-and outcome get theirs once the tickets that write them settle their values.
+changing a CHECK in a migration is simpler than altering an enum type.
 """
 
 from datetime import date, datetime
@@ -62,6 +61,20 @@ class ActorType(StrEnum):
     USER = "user"
     DRIVER_LINK = "driver_link"
     SYSTEM = "system"
+
+
+class AiStatus(StrEnum):
+    PENDING = "pending"
+    DONE = "done"
+    FAILED = "failed"
+    SKIPPED = "skipped"  # A late photo, which never goes to the AI.
+
+
+class DeviceCheck(StrEnum):
+    """What the phone's own blur and brightness check said. Empty on an old or fake client."""
+
+    PASSED = "passed"
+    SENT_ANYWAY = "sent_anyway"  # It failed twice, and the driver sent the photo regardless.
 
 
 class PodFieldName(StrEnum):
@@ -221,6 +234,9 @@ class PodAttempt(Base):
     __table_args__ = (
         UniqueConstraint("trip_id", "attempt_no"),
         CheckConstraint("attempt_no >= 1", name="attempt_no"),
+        one_of("device_check", DeviceCheck),
+        one_of("ai_status", AiStatus),
+        one_of("outcome", PodStatus),
     )
 
     # No default: the phone makes this ID, which is what makes offline retries safe.

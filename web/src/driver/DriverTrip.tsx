@@ -2,8 +2,20 @@ import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } fro
 import { useParams } from "react-router";
 
 import { ApiError, getDriverTrip, type DriverTrip as Trip, type PodStatus } from "../lib/api";
+import {
+  compressWithStrip,
+  decodePhoto,
+  photoMeasurements,
+  problemWith,
+  stripText,
+  type DeviceCheck,
+  type PhotoProblem,
+  type PreparedPhoto,
+} from "./capture";
+import PhoneCheckFailed from "./PhoneCheckFailed";
 import PhotoCheck, { type CheckEnd } from "./PhotoCheck";
 import Retake from "./Retake";
+import { useLocationFix } from "./useLocationFix";
 
 // Only these two statuses wait on the driver. Any other means the photo has been dealt with.
 const NEEDS_PHOTO: PodStatus[] = ["awaiting_pod", "retake_requested"];
@@ -13,8 +25,15 @@ type Screen =
   | { name: "unreachable" }
   | { name: "dead-link" }
   | { name: "trip"; trip: Trip; notice?: string }
-  | { name: "checking"; trip: Trip; photo: File }
+  | { name: "preparing"; trip: Trip }
+  | { name: "phone-check-failed"; trip: Trip; shot: Shot; problem: PhotoProblem }
+  | { name: "checking"; trip: Trip; photo: PreparedPhoto }
   | { name: "done"; trip: Trip; message: DoneMessage };
+
+/** A photo as the camera gave it, and the moment it was taken. */
+type Shot = { file: File; capturedAt: Date };
+
+const SEND_ANYWAY_AFTER_FAILURES = 2;
 
 type DoneMessage = "verified" | "with-office" | "sms-later";
 
@@ -88,23 +107,25 @@ function CameraInput({
 function TakePhoto({
   trip,
   notice,
+  hasLocation,
   onPhoto,
 }: {
   trip: Trip;
   notice?: string;
+  hasLocation: boolean;
   onPhoto: (photo: File) => void;
 }) {
   const camera = useRef<HTMLInputElement>(null);
 
   return (
     <main className="driver desk">
+      <CameraInput input={camera} onPhoto={onPhoto} />
       <TripCard trip={trip} />
       {notice && (
         <p className="form-error" role="alert">
           {notice}
         </p>
       )}
-      <CameraInput input={camera} onPhoto={onPhoto} />
       <button
         className="btn btn--ink big driver__shoot"
         type="button"
@@ -148,6 +169,7 @@ function TakePhoto({
           <span className="muted">Receipt, stamp and signature in one photo</span>
         </p>
       </div>
+      <p className="muted driver__status">{hasLocation ? "Location ready" : "Finding location"}</p>
     </main>
   );
 }
@@ -212,7 +234,7 @@ function RetakeScreen({
   onPhoto,
 }: {
   trip: Trip;
-  lastPhoto: File | null;
+  lastPhoto: Blob | null;
   onPhoto: (photo: File) => void;
 }) {
   const camera = useRef<HTMLInputElement>(null);
@@ -229,7 +251,10 @@ function RetakeScreen({
 export default function DriverTrip() {
   const { token = "" } = useParams();
   const [screen, setScreen] = useState<Screen>({ name: "loading" });
-  const [lastPhoto, setLastPhoto] = useState<File | null>(null);
+  const [lastPhoto, setLastPhoto] = useState<Blob | null>(null);
+  const phoneCheckFailures = useRef(0);
+  const retakeCamera = useRef<HTMLInputElement>(null);
+  const location = useLocationFix();
 
   const load = useCallback(() => {
     setScreen({ name: "loading" });
@@ -242,6 +267,57 @@ export default function DriverTrip() {
   }, [token]);
 
   useEffect(load, [load]);
+
+  /** Compress and print the strip, then hand over to the check. */
+  const send = useCallback(
+    async (trip: Trip, shot: Shot, photo: ImageBitmap, deviceCheck: DeviceCheck) => {
+      const text = stripText(trip.trip_code, shot.capturedAt, location);
+      const prepared: PreparedPhoto = {
+        blob: await compressWithStrip(photo, text),
+        originalBytes: shot.file.size,
+        capturedAt: shot.capturedAt,
+        gps: location,
+        deviceCheck,
+      };
+      setLastPhoto(prepared.blob);
+      setScreen({ name: "checking", trip, photo: prepared });
+    },
+    [location],
+  );
+
+  /** The phone check. A failure here needs no network and costs no retake. */
+  const handlePhoto = useCallback(
+    async (trip: Trip, file: File) => {
+      const shot = { file, capturedAt: new Date() };
+      setScreen({ name: "preparing", trip });
+      try {
+        const photo = await decodePhoto(file);
+        const problem = problemWith(photoMeasurements(photo));
+        if (problem) {
+          phoneCheckFailures.current += 1;
+          setScreen({ name: "phone-check-failed", trip, shot, problem });
+        } else {
+          phoneCheckFailures.current = 0;
+          await send(trip, shot, photo, "passed");
+        }
+      } catch {
+        setScreen({ name: "trip", trip, notice: "That photo couldn't be read. Please try again." });
+      }
+    },
+    [send],
+  );
+
+  const sendAnyway = useCallback(
+    async (trip: Trip, shot: Shot) => {
+      setScreen({ name: "preparing", trip });
+      try {
+        await send(trip, shot, await decodePhoto(shot.file), "sent_anyway");
+      } catch {
+        setScreen({ name: "trip", trip, notice: "That photo couldn't be read. Please try again." });
+      }
+    },
+    [send],
+  );
 
   const finishCheck = useCallback(
     (trip: Trip, end: CheckEnd) => {
@@ -283,17 +359,41 @@ export default function DriverTrip() {
       return <DeadLink />;
     case "trip": {
       const { trip, notice } = screen;
-      const startCheck = (photo: File) => {
-        setLastPhoto(photo);
-        setScreen({ name: "checking", trip, photo });
-      };
+      const onPhoto = (file: File) => void handlePhoto(trip, file);
       if (trip.pod_status === "retake_requested" && !notice) {
-        return <RetakeScreen trip={trip} lastPhoto={lastPhoto} onPhoto={startCheck} />;
+        return <RetakeScreen trip={trip} lastPhoto={lastPhoto} onPhoto={onPhoto} />;
       }
       return NEEDS_PHOTO.includes(trip.pod_status) ? (
-        <TakePhoto trip={trip} notice={notice} onPhoto={startCheck} />
+        <TakePhoto
+          trip={trip}
+          notice={notice}
+          hasLocation={location !== null}
+          onPhoto={onPhoto}
+        />
       ) : (
         <Done trip={trip} message={doneMessageFor(trip.pod_status)} />
+      );
+    }
+    case "preparing":
+      return (
+        <main className="driver driver--centred desk" role="status">
+          <p className="muted">Checking the photo…</p>
+        </main>
+      );
+    case "phone-check-failed": {
+      const { trip, shot, problem } = screen;
+      return (
+        <>
+          <CameraInput input={retakeCamera} onPhoto={(file) => void handlePhoto(trip, file)} />
+          <PhoneCheckFailed
+            trip={trip}
+            photo={shot.file}
+            problem={problem}
+            canSendAnyway={phoneCheckFailures.current >= SEND_ANYWAY_AFTER_FAILURES}
+            onRetake={() => retakeCamera.current?.click()}
+            onSendAnyway={() => void sendAnyway(trip, shot)}
+          />
+        </>
       );
     }
     case "checking":

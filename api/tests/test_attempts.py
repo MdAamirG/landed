@@ -313,6 +313,19 @@ def test_a_late_result_does_not_overwrite_a_change_made_meanwhile(
     assert attempts_for(db, trip)[0].outcome is None
 
 
+@pytest.mark.parametrize("result", ["passed", "sent_anyway"])
+def test_the_phone_check_result_is_recorded(api_client, db, trip, token, fake_ai, result):
+    fake_ai.reading = clean_reading(trip)
+
+    upload(api_client, token, device_check=result)
+
+    assert attempts_for(db, trip)[0].device_check == result
+
+
+def test_an_unknown_phone_check_result_is_refused(api_client, trip, token, fake_ai):
+    assert upload(api_client, token, device_check="looks fine").status_code == 422
+
+
 def test_distance_matches_a_known_route():
     # Sambhajinagar to Pune is about 210 km in a straight line.
     assert distance_km(19.8762, 75.3433, 18.5204, 73.8567) == pytest.approx(216, abs=10)
