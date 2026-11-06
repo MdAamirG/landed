@@ -273,6 +273,8 @@ The docs leave these open. Each is a default to follow unless changed, and each 
 14. **Client POD link.** There's no table for it and the twelve-table count stands, so it's a signed, stateless link that expires after 7 days. It can't be revoked early. Each one made is logged.
 15. **Trip import.** Each imported trip gets a driver link and a mock SMS. A row naming an unknown client or branch is rejected, and a new vehicle or driver is created on first sight.
 16. **Demo role buttons.** The sign-in screen shows them only in `DEMO_MODE`.
+17. **Session length.** An office session lasts 8 hours, one working day, and the token holds only the user ID. The role is read from the database on each request, so a changed role applies at once.
+18. **Operations head's top bar.** It shows only Missing PODs. The billing executive sees all four destinations. The server enforces roles either way.
 
 ### Screen changes
 
@@ -284,3 +286,5 @@ The docs leave these open. Each is a default to follow unless changed, and each 
 - Photos go to Google for the AI check. The terms for this key's tier still need checking.
 - The first open of a driver link needs network.
 - The model's confidence isn't calibrated, so 0.80 is a starting value tuned on sample photos.
+- Sign out clears the cookie but can't cancel the token, so a copied token works until it expires. Sessions are short for this reason.
+- Sign-in has no attempt limit, so password guessing is only slowed by the hash.

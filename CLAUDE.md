@@ -31,6 +31,7 @@ The candidate (Aamir) must explain every design choice in an interview. Prefer s
 api/
   app/
     main.py config.py db.py models.py schemas.py
+    auth.py       # passwords, the session cookie, require_role()
     rules.py      # decide(): the AI decision rule, pure, no I/O
     status.py     # move_trip(): the only code that changes pod_status
     ai.py         # Gemini call, timeout, schema validation

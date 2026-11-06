@@ -23,3 +23,4 @@
 ## Comments
 
 - From ticket 03: `samples/pods/scenarios.json` holds each demo trip's details and LR number. The sample sheets are dated 6 Nov 2026, and check 5 compares that with the capture date. When a reviewer uses a sample photo, send the scenario's `delivery_date` as `captured_at`. Otherwise the clean sheet goes to review with `date_mismatch` instead of verifying. A reviewer's own photo keeps its real capture time.
+- From ticket 05: the sign-in screen doesn't have `Main.html`'s QR and "Open the driver demo" block yet. Add it here, shown only in `DEMO_MODE`, in `web/src/office/SignIn.tsx` below the demo role buttons.
