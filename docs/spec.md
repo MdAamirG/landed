@@ -275,6 +275,8 @@ The docs leave these open. Each is a default to follow unless changed, and each 
 16. **Demo role buttons.** The sign-in screen shows them only in `DEMO_MODE`.
 17. **Session length.** An office session lasts 8 hours, one working day, and the token holds only the user ID. The role is read from the database on each request, so a changed role applies at once.
 18. **Operations head's top bar.** It shows only Missing PODs. The billing executive sees all four destinations. The server enforces roles either way.
+19. **Verified filter.** Review lists verified trips as well, beyond the Disputed filter the stories ask for. Pull back needs a way to reach a verified trip before export.
+20. **Resolving a dispute.** Resolve is Approve: it moves the trip to `verified` and applies the same six-field check, so a dispute can't be closed on a blank POD.
 
 ### Screen changes
 

@@ -234,10 +234,13 @@ export type ReviewQueueItem = {
   ownership: "own" | "hired";
   status_reason: string | null;
   waiting_since: string;
+  late_photos: number;
 };
 
-export async function getReviewQueue(): Promise<ReviewQueueItem[]> {
-  return (await (await request("/review/queue")).json()) as ReviewQueueItem[];
+export type ReviewFilter = "needs_review" | "disputed" | "verified";
+
+export async function getReviewQueue(filter: ReviewFilter): Promise<ReviewQueueItem[]> {
+  return (await (await request(`/review/queue?filter=${filter}`)).json()) as ReviewQueueItem[];
 }
 
 export async function getReviewTrip(tripId: string): Promise<ReviewTrip> {
@@ -261,8 +264,14 @@ export async function saveField(
   return (await response.json()) as ReviewTrip;
 }
 
-export async function approveTrip(tripId: string, version: number): Promise<ReviewTrip> {
-  const response = await postJson(`/review/trips/${tripId}/approve`, { version });
+export type ReviewAction = "approve" | "retake" | "dispute" | "pull-back";
+
+export async function actOnTrip(
+  tripId: string,
+  action: ReviewAction,
+  version: number,
+): Promise<ReviewTrip> {
+  const response = await postJson(`/review/trips/${tripId}/${action}`, { version });
   return (await response.json()) as ReviewTrip;
 }
 

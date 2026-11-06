@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 
 import {
+  actOnTrip,
   ApiError,
-  approveTrip,
   attemptPhotoUrl,
   getReviewQueue,
   getReviewTrip,
@@ -13,8 +13,10 @@ import {
   type PodFieldName,
   type Quantity,
   type Remarks,
+  type ReviewAction,
   type ReviewAttempt,
   type ReviewField,
+  type ReviewFilter,
   type ReviewQueueItem,
   type ReviewTrip,
 } from "../lib/api";
@@ -41,9 +43,32 @@ function waitedFor(iso: string): string {
   return hours < 48 ? `${hours} h` : `${Math.round(hours / 24)} d`;
 }
 
-function reasonLabel(code: string | null): string {
-  return code ? (REASON_LABELS[code] ?? code) : "Needs a person";
+function reasonLabel(code: string): string {
+  return REASON_LABELS[code] ?? code;
 }
+
+const MAX_RETAKES = 2;
+
+const FILTERS: { value: ReviewFilter; label: string; emptyTitle: string; emptyText: string }[] = [
+  {
+    value: "needs_review",
+    label: "Needs review",
+    emptyTitle: "Nothing to review",
+    emptyText: "PODs with a shortage, damage or an unsure read land here.",
+  },
+  {
+    value: "disputed",
+    label: "Disputed",
+    emptyTitle: "No open disputes",
+    emptyText: "A POD a client disputes stays here, out of billing, until it is resolved.",
+  },
+  {
+    value: "verified",
+    label: "Verified",
+    emptyTitle: "Nothing verified",
+    emptyText: "Verified PODs wait here for export. Pull one back if it was passed by mistake.",
+  },
+];
 
 function Skeleton() {
   return (
@@ -97,7 +122,13 @@ function Queue({
               {item.destination}, {item.client_name}
               {item.ownership === "hired" ? ", hired" : ""}
             </span>
-            <span className="tag">{reasonLabel(item.status_reason)}</span>
+            {/* A trip the rule passed, or one pulled back by hand, has no reason to show. */}
+            {item.status_reason && <span className="tag">{reasonLabel(item.status_reason)}</span>}
+            {item.late_photos > 0 && (
+              <span className="tag">
+                {item.late_photos === 1 ? "Late photo" : `${item.late_photos} late photos`}
+              </span>
+            )}
           </button>
         </li>
       ))}
@@ -465,7 +496,7 @@ function Desk({
   const [loaded, setLoaded] = useState<Loadable<ReviewTrip>>({ state: "loading" });
   const [viewing, setViewing] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const [approving, setApproving] = useState(false);
+  const [acting, setActing] = useState(false);
   const [generation, setGeneration] = useState(0); // Up by one each time drafts must reset.
 
   // Changes go one at a time, each with the version the last one returned. Clicking Approve right
@@ -515,11 +546,12 @@ function Desk({
     return result;
   }
 
-  async function approveNow(tripId: string) {
-    setApproving(true);
-    const approved = await queueChange((current) => approveTrip(tripId, current));
-    setApproving(false);
-    if (approved) onDone();
+  /** A decision that moves the trip, so when it lands the trip has left this list. */
+  async function act(tripId: string, action: ReviewAction) {
+    setActing(true);
+    const moved = await queueChange((current) => actOnTrip(tripId, action, current));
+    setActing(false);
+    if (moved) onDone();
   }
 
   if (loaded.state === "loading") return <Skeleton />;
@@ -528,7 +560,10 @@ function Desk({
   const trip = loaded.value;
   const current = trip.attempts.find((attempt) => attempt.id === trip.current_attempt_id) ?? null;
   const attempt = trip.attempts.find((row) => row.id === viewing) ?? current;
-  const editable = attempt !== null && attempt.id === trip.current_attempt_id && !attempt.late;
+  const canEdit = trip.pod_status === "needs_review" || trip.pod_status === "disputed";
+  const editable =
+    canEdit && attempt !== null && attempt.id === trip.current_attempt_id && !attempt.late;
+  const retakesLeft = MAX_RETAKES - trip.retakes_used;
 
   return (
     <>
@@ -614,18 +649,54 @@ function Desk({
         )}
 
         <div className="review__actions">
-          <button
-            className="btn btn--ink"
-            type="button"
-            disabled={approving || current === null}
-            onClick={() => void approveNow(trip.id)}
-          >
-            {approving ? "Saving…" : approveLabel(trip, current)}
-          </button>
+          {canEdit && (
+            <button
+              className="btn btn--ink"
+              type="button"
+              disabled={acting || current === null}
+              onClick={() => void act(trip.id, "approve")}
+            >
+              {acting ? "Saving…" : approveLabel(trip, current)}
+            </button>
+          )}
+          {trip.pod_status === "needs_review" && (
+            <button
+              className="btn btn--card"
+              type="button"
+              disabled={acting || retakesLeft <= 0}
+              onClick={() => void act(trip.id, "retake")}
+            >
+              Ask for retake
+            </button>
+          )}
+          {trip.pod_status === "verified" && (
+            <button
+              className="btn btn--ink"
+              type="button"
+              disabled={acting}
+              onClick={() => void act(trip.id, "pull-back")}
+            >
+              Pull back to review
+            </button>
+          )}
+          {(trip.pod_status === "needs_review" || trip.pod_status === "verified") && (
+            <button
+              className="btn btn--card"
+              type="button"
+              disabled={acting}
+              onClick={() => void act(trip.id, "dispute")}
+            >
+              Mark disputed
+            </button>
+          )}
         </div>
         <p className="muted review__note">
-          Edits and reveals are logged. Approving sends the trip to billing, never an invoice to the
-          client.
+          Edits and reveals are logged.
+          {canEdit && " Approving sends the trip to billing, never an invoice to the client."}
+          {trip.pod_status === "needs_review" &&
+            (retakesLeft > 0
+              ? ` ${retakesLeft === 1 ? "One retake" : "Two retakes"} left.`
+              : " Both retakes are used, so approve, correct or mark it disputed.")}
         </p>
       </section>
     </>
@@ -636,13 +707,14 @@ export default function Review() {
   const { setUser } = useSession();
   const [queue, setQueue] = useState<Loadable<ReviewQueueItem[]>>({ state: "loading" });
   const [selected, setSelected] = useState<string | null>(null);
+  const [filter, setFilter] = useState<ReviewFilter>("needs_review");
 
   const signedOut = useCallback(() => setUser(null), [setUser]);
 
   const loadQueue = useCallback(async () => {
     setQueue({ state: "loading" });
     try {
-      const items = await getReviewQueue();
+      const items = await getReviewQueue(filter);
       setQueue({ state: "ready", value: items });
       // Keep the current trip if it is still waiting, otherwise move to the oldest.
       setSelected((current) =>
@@ -652,19 +724,32 @@ export default function Review() {
       if (error instanceof ApiError && error.status === 401) signedOut();
       else setQueue({ state: "error" });
     }
-  }, [signedOut]);
+  }, [signedOut, filter]);
 
   useEffect(() => {
     void loadQueue();
   }, [loadQueue]);
 
   const items = queue.state === "ready" ? queue.value : [];
+  const shown = FILTERS.find(({ value }) => value === filter) ?? FILTERS[0];
 
   return (
     <>
       <div className="head">
         <h1>Review</h1>
-        {queue.state === "ready" && items.length > 0 && (
+        <div className="groove" role="group" aria-label="Show">
+          {FILTERS.map(({ value, label }) => (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={value === filter}
+              onClick={() => setFilter(value)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        {filter === "needs_review" && queue.state === "ready" && items.length > 0 && (
           <p className="muted">
             {items.length === 1 ? "One POD needs" : `${items.length} PODs need`} a person. The
             oldest came in {waitedFor(items[0].waiting_since)} ago.
@@ -675,8 +760,8 @@ export default function Review() {
       {queue.state === "error" && <ErrorState onRetry={() => void loadQueue()} />}
       {queue.state === "ready" && items.length === 0 && (
         <div className="notice">
-          <h1>Nothing to review</h1>
-          <p className="muted">PODs with a shortage, damage or an unsure read land here.</p>
+          <h1>{shown.emptyTitle}</h1>
+          <p className="muted">{shown.emptyText}</p>
           <Link className="btn btn--card" to="/office/billing">
             Go to billing
           </Link>

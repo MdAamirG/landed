@@ -24,7 +24,7 @@ from app.models import (
     Trip,
     User,
 )
-from app.rules import MAX_DISTANCE_KM, ReasonCode
+from app.rules import MAX_DISTANCE_KM, MAX_RETAKES, ReasonCode
 from app.status import Actor, IllegalMove, move_trip
 
 EDITABLE = {PodStatus.NEEDS_REVIEW, PodStatus.DISPUTED}  # Never after export.
@@ -123,7 +123,33 @@ def edit_field(
     session.commit()
 
 
+def move_by_hand(session: Session, trip: Trip, target: PodStatus, user: User) -> None:
+    try:
+        move_trip(session, trip, target, Actor(ActorType.USER, user.id))
+    except IllegalMove as error:
+        session.rollback()
+        raise HTTPException(status.HTTP_409_CONFLICT, str(error)) from error
+    session.commit()
+
+
+def ask_for_retake(session: Session, trip_id: UUID, version: int, user: User) -> None:
+    trip = locked_trip(session, trip_id, version)
+    if trip.retakes_used >= MAX_RETAKES:
+        raise HTTPException(status.HTTP_409_CONFLICT, "Both retakes have been used")
+    move_by_hand(session, trip, PodStatus.RETAKE_REQUESTED, user)
+
+
+def mark_disputed(session: Session, trip_id: UUID, version: int, user: User) -> None:
+    move_by_hand(session, locked_trip(session, trip_id, version), PodStatus.DISPUTED, user)
+
+
+def pull_back(session: Session, trip_id: UUID, version: int, user: User) -> None:
+    """How an executive corrects a POD the AI wrongly passed, before it is exported."""
+    move_by_hand(session, locked_trip(session, trip_id, version), PodStatus.NEEDS_REVIEW, user)
+
+
 def approve(session: Session, trip_id: UUID, version: int, user: User) -> None:
+    """Also how a dispute is resolved: the same six fields must hold up either way."""
     trip = locked_trip(session, trip_id, version)
     attempt = latest_checked_attempt(session, trip.id)
     rows = (
@@ -139,12 +165,7 @@ def approve(session: Session, trip_id: UUID, version: int, user: User) -> None:
             status.HTTP_422_UNPROCESSABLE_CONTENT, f"Fill in first: {', '.join(missing)}"
         )
 
-    try:
-        move_trip(session, trip, PodStatus.VERIFIED, Actor(ActorType.USER, user.id))
-    except IllegalMove as error:
-        session.rollback()
-        raise HTTPException(status.HTTP_409_CONFLICT, str(error)) from error
-    session.commit()
+    move_by_hand(session, trip, PodStatus.VERIFIED, user)
 
 
 def reveal_contact(session: Session, trip_id: UUID, user: User) -> Trip:

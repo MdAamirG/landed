@@ -97,6 +97,7 @@ class ReviewQueueItemOut(BaseModel):
     ownership: Ownership
     status_reason: str | None
     waiting_since: datetime
+    late_photos: int
 
 
 class ReviewFieldOut(BaseModel):

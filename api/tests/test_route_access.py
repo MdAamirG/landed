@@ -38,8 +38,10 @@ OFFICE_ROUTES = [
         "/api/review/trips/{trip_id}/fields/{field}",
         BILLING_ONLY,
     ),
-    ("POST", f"/api/review/trips/{NO_ID}/approve", "/api/review/trips/{trip_id}/approve", BILLING_ONLY),
-    ("POST", f"/api/review/trips/{NO_ID}/reveal", "/api/review/trips/{trip_id}/reveal", BILLING_ONLY),
+    *(
+        ("POST", f"/api/review/trips/{NO_ID}/{action}", f"/api/review/trips/{{trip_id}}/{action}", BILLING_ONLY)
+        for action in ("approve", "retake", "dispute", "pull-back", "reveal")
+    ),
 ]
 
 # Each of these takes a driver token, and opens only that token's trip. test_driver.py covers

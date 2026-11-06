@@ -1,8 +1,8 @@
-from typing import Annotated
+from typing import Annotated, Literal
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.auth import require_role
@@ -22,7 +22,16 @@ from app.models import (
     User,
     Vehicle,
 )
-from app.review import approve, edit_field, latest_checked_attempt, reveal_contact, trip_checks
+from app.review import (
+    approve,
+    ask_for_retake,
+    edit_field,
+    latest_checked_attempt,
+    mark_disputed,
+    pull_back,
+    reveal_contact,
+    trip_checks,
+)
 from app.schemas import (
     ContactOut,
     FieldEditIn,
@@ -115,14 +124,25 @@ def trip_out(db: Session, trip: Trip) -> ReviewTripOut:
 
 
 @router.get("/queue", response_model=list[ReviewQueueItemOut])
-def queue(_: BillingExecutive, db: Db) -> list[ReviewQueueItemOut]:
+def queue(
+    _: BillingExecutive,
+    db: Db,
+    filter: Literal["needs_review", "disputed", "verified"] = "needs_review",
+) -> list[ReviewQueueItemOut]:
     sweep_stuck_attempts(db)  # Spec assumption 3: the 60-second rule runs on read.
     trips = db.execute(
         select(Trip, Client.name, Vehicle.ownership)
         .join(Client, Trip.client_id == Client.id)
         .join(Vehicle, Trip.vehicle_id == Vehicle.id)
-        .where(Trip.pod_status == PodStatus.NEEDS_REVIEW)
+        .where(Trip.pod_status == PodStatus(filter))
     ).all()
+    late_photos = dict(
+        db.execute(
+            select(PodAttempt.trip_id, func.count())
+            .where(PodAttempt.attempt_no > LAST_CHECKED_ATTEMPT_NO)
+            .group_by(PodAttempt.trip_id)
+        ).all()
+    )
 
     items = []
     for trip, client_name, ownership in trips:
@@ -136,6 +156,7 @@ def queue(_: BillingExecutive, db: Db) -> list[ReviewQueueItemOut]:
                 ownership=ownership,
                 status_reason=trip.status_reason,
                 waiting_since=attempt.received_at if attempt else trip.expected_delivery_at,
+                late_photos=late_photos.get(trip.id, 0),
             )
         )
     return sorted(items, key=lambda item: item.waiting_since)
@@ -172,6 +193,24 @@ def correct_field(
 @router.post("/trips/{trip_id}/approve", response_model=ReviewTripOut)
 def approve_trip(trip_id: UUID, body: VersionIn, user: BillingExecutive, db: Db) -> ReviewTripOut:
     approve(db, trip_id, body.version, user)
+    return trip_out(db, db.get_one(Trip, trip_id))
+
+
+@router.post("/trips/{trip_id}/retake", response_model=ReviewTripOut)
+def retake_trip(trip_id: UUID, body: VersionIn, user: BillingExecutive, db: Db) -> ReviewTripOut:
+    ask_for_retake(db, trip_id, body.version, user)
+    return trip_out(db, db.get_one(Trip, trip_id))
+
+
+@router.post("/trips/{trip_id}/dispute", response_model=ReviewTripOut)
+def dispute_trip(trip_id: UUID, body: VersionIn, user: BillingExecutive, db: Db) -> ReviewTripOut:
+    mark_disputed(db, trip_id, body.version, user)
+    return trip_out(db, db.get_one(Trip, trip_id))
+
+
+@router.post("/trips/{trip_id}/pull-back", response_model=ReviewTripOut)
+def pull_back_trip(trip_id: UUID, body: VersionIn, user: BillingExecutive, db: Db) -> ReviewTripOut:
+    pull_back(db, trip_id, body.version, user)
     return trip_out(db, db.get_one(Trip, trip_id))
 
 
