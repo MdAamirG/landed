@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Landed</title>
+<meta name="description" content="Landed: proof-of-delivery capture and billing for a truck fleet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;family=Noto+Sans+Devanagari:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+/* Hallmark · v2.0.0 · theme: coral (dealt 1/3, seed proof-of-delivery-capture-billing-app-11b3 r0) · draw: a3d6c8 · shape: Workbench · hero: Counter · nav: floating pill · footer: colophon block · genre: modern-minimal · posture: restrained · job: try the demo · signature: the signed lorry receipt with Verified pressed in coral · swaps: pricing table to the cost on the board (no price was given; the figures are the client brief's own), General Sans to Instrument Sans (Google Fonts only) */
+/* critique: one action per screen; the product is built, not described; no logos or quotes because none were given */
+:root{--color-paper:oklch(97% 0.006 55);--color-paper-2:oklch(94.5% 0.007 55);--color-paper-3:oklch(91.5% 0.009 55);--color-ink:oklch(21% 0.012 38);--color-ink-2:oklch(29% 0.013 40);--color-muted:oklch(47% 0.013 45);--color-rule:oklch(87% 0.009 55);--color-rule-2:oklch(81% 0.011 55);--color-accent:oklch(74% 0.125 30);--color-accent-2:oklch(54% 0.165 29);--color-focus:oklch(54% 0.17 30);--color-cotton:oklch(98.8% 0.0045 80);--color-desk:oklch(94.3% 0.008 64);--color-print:oklch(23% 0.012 38);--color-board:oklch(22% 0.011 40);--color-board-type:oklch(96.5% 0.006 70);--color-board-muted:oklch(80% 0.01 60);--color-paid:oklch(55.5% 0.15 33);--color-accent-ink:oklch(21% 0.012 38);--color-ok:oklch(50% 0.11 150);--color-ok-wash:oklch(93.5% 0.035 150);--color-retake:oklch(62% 0.13 70);--color-retake-ink:oklch(41% 0.09 62);--color-retake-wash:oklch(94% 0.045 80);--color-plate:oklch(87% 0.14 92);--color-stamp:oklch(45% 0.09 290);--color-board-rule:oklch(96.5% 0.006 70 / 0.18);--shade:32% 0.03 50;--lit:100% 0.005 80;--deep:7% 0.01 40;--font-display:"Instrument Sans","Noto Sans Devanagari",ui-sans-serif,system-ui,sans-serif;--font-body:var(--font-display);--font-outlier:"Geist Mono",ui-monospace,monospace;--radius-stock:8px;--radius-input:6px;--edge-stock:inset 0 1px 0 oklch(var(--lit) / 0.9),inset 0 -1px 0 oklch(var(--shade) / 0.07),0 0 0 0.5px oklch(var(--shade) / 0.22),0 1px 0 oklch(var(--shade) / 0.12);--cast-stock:6px 5px 10px -6px oklch(var(--shade) / 0.3);--cast-stock-lift:12px 10px 18px -8px oklch(var(--shade) / 0.3);--cast-deep:14px 16px 30px -12px oklch(var(--deep) / 0.7);--press-groove:inset 1px 1.5px 2px oklch(var(--shade) / 0.16),inset -1px -1px 0 oklch(var(--lit) / 0.9),0 0 0 0.5px oklch(var(--shade) / 0.2);--tracking-display:-0.03em}
+html,body{overflow-x:clip}body{margin:0;background:var(--color-paper);color:var(--color-ink);font-family:var(--font-body);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}*{box-sizing:border-box}h1,h2,h3{font-family:var(--font-display);font-weight:600;letter-spacing:var(--tracking-display);line-height:1.08;margin:0;overflow-wrap:break-word;min-width:0;text-wrap:balance}::selection{background-color:var(--color-accent);color:var(--color-accent-ink,var(--color-ink))}html{scrollbar-color:var(--color-rule-2) var(--color-paper);caret-color:var(--color-focus)}p{margin:0}button,input,select{font:inherit;color:inherit}:focus-visible{outline:2px solid var(--color-focus);outline-offset:2px}.fig{font-family:var(--font-outlier);font-variant-numeric:tabular-nums}.muted{color:var(--color-muted)}.stock{background-color:var(--color-cotton);background-image:linear-gradient(100deg,var(--color-cotton),oklch(var(--shade) / 0.03));color:var(--color-print);box-shadow:var(--edge-stock),var(--cast-stock);border-radius:var(--radius-stock)}.desk{background-color:var(--color-desk);background-image:radial-gradient(90% 120% at 0% 30%,var(--color-cotton),transparent 62%)}.btn{min-height:40px;padding:0 16px;border:0;border-radius:var(--radius-stock);font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;transition:transform 120ms ease-out,box-shadow 120ms ease-out}.btn--card{background-color:var(--color-cotton);color:var(--color-print);text-shadow:0.5px 0.75px 0 var(--color-cotton);box-shadow:var(--edge-stock),var(--cast-stock)}.btn--ink{background-color:var(--color-board);color:var(--color-board-type);text-shadow:0 -0.75px 0 var(--color-ink);box-shadow:var(--cast-stock)}.btn:hover{transform:translateY(-1px);box-shadow:var(--edge-stock),var(--cast-stock-lift)}.btn:active{transform:translateY(1px)}.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}.settled{display:inline-block;font-weight:600;color:var(--color-paid);text-shadow:0.5px 0.75px 0 var(--color-cotton),-0.5px -0.5px 0 oklch(var(--shade) / 0.25)}.tag{display:inline-flex;align-items:center;gap:4px;min-height:24px;padding:0 8px;border:1px solid var(--color-rule-2);border-radius:6px;font-size:13px;font-weight:500;color:var(--color-ink-2);white-space:nowrap}.groove{display:inline-flex;padding:4px;gap:2px;border-radius:12px;background-color:var(--color-paper-2);box-shadow:var(--press-groove)}.groove button{border:0;background:transparent;min-height:36px;padding:0 16px;border-radius:8px;font-weight:500;color:var(--color-muted);cursor:pointer}.groove button[aria-pressed="true"]{background-color:var(--color-cotton);color:var(--color-print);box-shadow:var(--edge-stock),var(--cast-stock)}a{color:var(--color-ink);text-decoration-color:var(--color-accent);text-underline-offset:3px}a:hover{text-decoration-color:var(--color-accent-2)}@media (prefers-reduced-motion:reduce){.btn{transition:none}.btn:hover,.btn:active{transform:none}}
+.wrapL{max-width:1200px;margin:0 auto;padding:0 40px}.pill{position:sticky;top:16px;z-index:10;max-width:1120px;margin:16px auto 0;display:flex;align-items:center;gap:28px;padding:8px 8px 8px 24px;border-radius:999px}.pill a.l{text-decoration:none;color:var(--color-ink-2);font-size:15px;font-weight:500}.pill a.l:hover{color:var(--color-ink)}.hero{display:grid;grid-template-columns:5fr 7fr;gap:72px;align-items:center;min-height:700px;padding:40px 0 56px}.hero h1{font-size:68px}.lead{font-size:20px;color:var(--color-ink-2);max-width:30ch;margin-top:20px}.acts{display:flex;gap:12px;margin-top:32px;flex-wrap:wrap}.acts .btn{min-height:48px;padding:0 24px;font-size:16px}.sec{padding:120px 0}.sec h2{font-size:44px;max-width:16ch}.pin{display:grid;grid-template-columns:7fr 5fr;gap:80px;align-items:start;margin-top:56px}.pin .vis{position:sticky;top:110px}.panel{padding:28px 0;border-top:1px solid var(--color-rule-2)}.panel h3{font-size:24px}.panel p{color:var(--color-ink-2);margin-top:8px;font-size:17px;max-width:46ch}.board{background-color:var(--color-board);color:var(--color-board-type)}.board h2{color:var(--color-board-type)}.ledger{width:100%;border-collapse:collapse;font-size:17px}.ledger td{padding:16px 0;border-bottom:1px solid var(--color-board-rule);vertical-align:top}.code{font-family:var(--font-outlier);font-size:14px;line-height:1.7;white-space:pre;overflow-x:auto;margin:0;color:var(--color-print)}figcaption{font-size:15px;color:var(--color-muted);margin-top:16px;max-width:60ch}@media (max-width:60rem){.wrapL{padding:0 16px}.pill{margin:12px 12px 0;gap:12px}.pill a.l{display:none}.hero{grid-template-columns:minmax(0,1fr);gap:40px;min-height:0;padding-top:32px}.hero h1{font-size:44px}.sec{padding:72px 0}.sec h2{font-size:32px}.pin,.split,.close{grid-template-columns:minmax(0,1fr) !important;gap:32px !important}.pin .vis{position:static}.big-fig{font-size:64px !important}}.ln{height:2px;background-color:var(--color-rule);margin-top:12px;border-radius:1px}
+</style>
+<div style="background-color: var(--color-paper)">
+<nav class="pill stock" aria-label="Main"><a href="#" style="font-weight: 600; font-size: 19px; letter-spacing: -0.02em; text-decoration: none; margin-right: auto">Landed</a><a href="#how" class="l">How it works</a><a href="#unsure" class="l">When the AI is unsure</a><a href="#tally" class="l">Tally</a><a href="#try" class="btn btn--ink">Try the demo</a></nav>
+<header class="desk" style="margin-top: -72px; padding-top: 72px">
+<div class="wrapL hero">
+<div>
+<h1>Bill the POD from the gate.</h1>
+<p class="lead">Drivers photograph the signed receipt. Landed checks it before they drive away.</p>
+<div class="acts"><a href="#try" class="btn btn--ink">Try the demo</a><a href="#how" style="align-self: center; font-weight: 500">See one delivery</a></div>
+<p class="muted" style="font-size: 14px; margin-top: 16px">Sample data for a 340-truck fleet. No sign-up.</p>
+</div>
+<div style="position: relative; min-height: 600px">
+<div class="stock" style="position: absolute; left: 6%; top: 0; width: 66%; aspect-ratio: 3 / 4; padding: 30px; transform: rotate(-2.5deg)">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><p style="font-weight: 600; font-size: 15px">Lorry receipt</p><p class="fig" style="font-size: 14px">48190</p></div>
+<p style="font-size: 13px; color: var(--color-muted); margin-top: 4px">Chhatrapati Sambhajinagar to Nagpur</p>
+<table style="width: 100%; border-collapse: collapse; margin-top: 22px; font-size: 13px">
+<tr><td style="padding: 8px 0; border-bottom: 1px solid var(--color-rule)">Consignee</td><td style="padding: 8px 0; border-bottom: 1px solid var(--color-rule); text-align: right">Company B</td></tr>
+<tr><td style="padding: 8px 0; border-bottom: 1px solid var(--color-rule)">Cement, 50 kg bags</td><td class="fig" style="padding: 8px 0; border-bottom: 1px solid var(--color-rule); text-align: right">600</td></tr>
+<tr><td style="padding: 8px 0; border-bottom: 1px solid var(--color-rule)">Vehicle</td><td class="fig" style="padding: 8px 0; border-bottom: 1px solid var(--color-rule); text-align: right">MH20 EL 4521</td></tr>
+<tr><td style="padding: 8px 0">Remarks</td><td style="padding: 8px 0; text-align: right">None</td></tr>
+</table>
+<div style="position: absolute; left: 30px; bottom: 34px; width: 108px; height: 108px; border: 3px solid var(--color-stamp); border-radius: 54px; opacity: .7; transform: rotate(-10deg); display: flex; align-items: center; justify-content: center; text-align: center; font-size: 10px; font-weight: 600; color: var(--color-stamp)">Received<br>06 Nov 2026</div>
+<svg style="position: absolute; right: 34px; bottom: 70px; color: var(--color-ink-2)" width="120" height="56" viewBox="0 0 90 44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 30c8-22 14-24 12-6s6 14 14-4 8 6 18 4 10-12 20-8"/></svg>
+<p class="settled" style="position: absolute; right: 26px; top: 44%; font-size: 40px; letter-spacing: -0.02em; transform: rotate(-6deg); padding: 2px 12px; border: 3px solid var(--color-paid); border-radius: 6px; opacity: .92">Verified <span class="fig" style="font-size: 18px; font-weight: 500">11:42</span></p>
+</div>
+<a href="#" class="stock" style="position: absolute; right: 0; top: 30%; width: 46%; padding: 22px; display: flex; gap: 16px; align-items: center; text-decoration: none; transform: rotate(1.5deg)"><svg width="72" height="72" viewBox="0 0 29 29" role="img" aria-label="QR code that opens the driver demo (placeholder)" style="color: var(--color-print); flex: none"><g fill="currentColor"><path d="M1 1h7v7H1zM21 1h7v7h-7zM1 21h7v7H1z"/></g><g fill="var(--color-cotton)"><path d="M2 2h5v5H2zM22 2h5v5h-5zM2 22h5v5H2z"/></g><g fill="currentColor"><path d="M3 3h3v3H3zM23 3h3v3h-3zM3 23h3v3H3zM10 2h2v2h-2zM13 4h2v3h-2zM10 9h3v2h-3zM15 10h2v2h-2zM18 12h3v2h-3zM10 14h2v3h-2zM13 13h2v2h-2zM22 10h3v2h-3zM25 14h3v2h-3zM10 20h2v2h-2zM13 18h3v2h-3zM17 22h2v3h-2zM21 19h3v2h-3zM24 23h4v2h-4zM12 25h3v3h-3zM20 25h2v3h-2zM1 10h2v3H1zM4 14h3v2H4zM17 16h2v2h-2z"/></g></svg><span><span style="display: block; font-weight: 600; font-size: 17px">Try the driver app</span><span class="muted" style="font-size: 14px">Scan with your phone</span></span></a>
+<a href="#" class="stock" style="position: absolute; right: 4%; bottom: 2%; width: 52%; padding: 22px; display: block; text-decoration: none; transform: rotate(-1deg)"><span style="display: block; font-weight: 600; font-size: 17px">Open the billing desk</span><span class="muted" style="display: block; font-size: 14px; margin-top: 2px">Review, approve, export to Tally</span><span style="display: flex; justify-content: space-between; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--color-rule); font-size: 14px"><span class="fig">TRP-66120</span><span class="settled">Verified</span><span class="fig">₹38,500</span></span></a>
+</div>
+</div>
+</header>
+<section id="how" class="sec"><div class="wrapL">
+<h2>One delivery, start to finish.</h2>
+<div class="pin">
+<figure class="vis" style="margin: 0"><div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: end">
+<div class="stock" style="aspect-ratio: 390 / 780; padding: 16px; display: flex; flex-direction: column; gap: 12px; background-color: var(--color-desk)">
+<p class="fig muted" style="font-size: 12px">TRP-66134</p><p style="font-weight: 600; font-size: 18px; line-height: 1.15">Sambhajinagar to Pune</p>
+<div class="btn btn--ink" style="flex: 1; flex-direction: column; border-radius: 12px; min-height: 0"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span style="font-size: 24px; font-weight: 600">फोटो लें</span><span style="font-size: 12px; color: var(--color-board-muted)">Take POD photo</span></div>
+<p class="muted" style="font-size: 11px">No network here. The photo will be saved.</p>
+</div>
+<div class="stock" style="aspect-ratio: 390 / 780; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<span class="ico" style="width: 40px; height: 40px; border-radius: 20px; background-color: var(--color-retake-wash); color: var(--color-retake-ink); display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 11-3-6.2M20 4v5h-5"/></svg></span>
+<p style="font-weight: 600; font-size: 20px">फिर से फोटो लें</p><p class="muted" style="font-size: 13px; margin-top: -6px">The stamp is not visible</p>
+<p style="font-size: 13px; display: flex; gap: 6px; align-items: center"><span style="color: var(--color-ok); display: flex"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span>LR, quantity, date</p>
+<p style="font-size: 13px; display: flex; gap: 6px; align-items: center; color: var(--color-retake-ink); font-weight: 600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Stamp</p>
+<div class="btn btn--ink" style="margin-top: auto; border-radius: 10px">Retake</div>
+</div>
+</div><figcaption>The driver screen at the gate, and the retake it asks for when the stamp is missing.</figcaption></figure>
+<div>
+<div class="panel"><h3>At the gate</h3><p>One big button. Hindi and Marathi voice prompts. No forms, and it works with no signal.</p></div>
+<div class="panel"><h3>Checked in about five seconds</h3><p>LR number, stamp, quantity, remarks, date and signature. A bad photo gets a retake, twice at most.</p></div>
+<div class="panel" style="border-bottom: 1px solid var(--color-rule-2)"><h3>Billed the same week</h3><p>Verified trips line up by client and cycle, ready for Tally.</p></div>
+</div>
+</div>
+</div></section>
+<section id="unsure" class="sec" style="padding-top: 0"><div class="wrapL">
+<h2>When the AI is unsure, a person decides.</h2>
+<figure style="margin: 48px 0 0"><div class="stock" style="padding: 28px; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 4fr); gap: 32px; align-items: start">
+<div style="background-color: var(--color-board); border-radius: 6px; padding: 28px; display: flex; justify-content: center">
+<div class="stock" style="width: 100%; max-width: 260px; aspect-ratio: 3 / 4; padding: 18px; transform: rotate(-1deg); box-shadow: var(--edge-stock), var(--cast-deep); position: relative">
+<p style="font-size: 12px; font-weight: 600">Lorry receipt <span class="fig" style="font-weight: 400">48213</span></p>
+<div class="ln" style="width: 80%"></div><div class="ln" style="width: 64%"></div><div class="ln" style="width: 72%"></div>
+<p style="margin-top: 20px; font-size: 15px; color: var(--color-ink-2); transform: rotate(-3deg)">short by 6 ctns</p>
+<div style="position: absolute; left: 18px; bottom: 20px; width: 70px; height: 70px; border: 2.5px solid var(--color-stamp); border-radius: 35px; opacity: .7; transform: rotate(-12deg)"></div>
+</div>
+</div>
+<div>
+<p style="font-weight: 600; font-size: 17px">What the AI read</p>
+<dl style="margin: 10px 0 0; font-size: 15px">
+<div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--color-rule)"><dt class="muted">LR number</dt><dd class="fig" style="margin: 0">48213</dd></div>
+<div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--color-rule)"><dt class="muted">Received</dt><dd class="fig" style="margin: 0">394 of 400</dd></div>
+<div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--color-rule)"><dt class="muted">Remark</dt><dd style="margin: 0; font-weight: 600; color: var(--color-retake-ink)">Short by 6 cartons</dd></div>
+<div style="display: flex; justify-content: space-between; padding: 10px 0"><dt class="muted">Stamp, signature</dt><dd style="margin: 0">Present</dd></div>
+</dl>
+<div style="display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap"><span class="btn btn--ink">Approve with shortage</span><span class="btn btn--card">Ask for retake</span></div>
+</div>
+</div><figcaption>A shortage or damage remark, or an unsure read, always goes to review. The photo stays the record, and no invoice is ever sent on its own.</figcaption></figure>
+</div></section>
+<section id="tally" class="sec" style="padding-top: 0"><div class="wrapL split" style="display: grid; grid-template-columns: 4fr 6fr; gap: 72px; align-items: center">
+<div><h2>Into Tally, with the photo attached.</h2><p style="font-size: 18px; color: var(--color-ink-2); margin-top: 18px; max-width: 34ch">Export makes draft vouchers. Your team still decides when an invoice goes out.</p></div>
+<figure style="margin: 0"><div class="stock" style="padding: 28px"><pre class="code">&lt;VOUCHER VCHTYPE="Sales" ACTION="Create"&gt;
+  &lt;DATE&gt;20261106&lt;/DATE&gt;
+  &lt;PARTYLEDGERNAME&gt;Company B&lt;/PARTYLEDGERNAME&gt;
+  &lt;NARRATION&gt;TRP-66120, LR 48190, POD attached&lt;/NARRATION&gt;
+  &lt;AMOUNT&gt;38500.00&lt;/AMOUNT&gt;
+&lt;/VOUCHER&gt;</pre>
+<div style="border-top: 1px solid var(--color-rule); margin-top: 20px; padding-top: 16px; display: flex; justify-content: space-between; font-size: 15px"><span class="fig">TRP-66120_POD.jpg</span><span class="fig muted">218 KB</span></div>
+</div><figcaption>A sample export line for one verified trip.</figcaption></figure>
+</div></section>
+<section class="board sec"><div class="wrapL split" style="display: grid; grid-template-columns: 5fr 6fr; gap: 72px; align-items: end">
+<div><p class="big-fig" style="font-size: 104px; font-weight: 600; letter-spacing: -0.05em; line-height: 0.85">₹1.02 crore</p><p style="font-size: 20px; color: var(--color-board-muted); margin-top: 18px">a year, spent waiting for paper, by your own estimate.</p></div>
+<div>
+<table class="ledger"><tr><td>Billing 14 days late on ₹84.48 crore of freight, at 12%</td><td class="fig" style="text-align: right; padding-left: 24px">₹38.9 lakh</td></tr><tr><td>396 PODs lost or disputed a year, half the freight gone each time</td><td class="fig" style="text-align: right; padding-left: 24px">₹63.36 lakh</td></tr></table>
+<p style="font-size: 14px; color: var(--color-board-muted); margin-top: 16px">From your brief: 2,200 trips a month at ₹32,000 average freight.</p>
+</div>
+</div></section>
+<section id="try" class="sec"><div class="wrapL close" style="display: grid; grid-template-columns: 1fr auto; gap: 48px; align-items: center">
+<div><h2>Try it on your phone.</h2><p style="font-size: 18px; color: var(--color-ink-2); margin-top: 14px">Scan to open the driver app, or open the billing desk here.</p><div class="acts"><a href="#" class="btn btn--ink">Open the billing desk</a></div></div>
+<div class="stock" style="padding: 20px"><svg width="148" height="148" viewBox="0 0 29 29" role="img" aria-label="QR code that opens the driver demo (placeholder)" style="color: var(--color-print); flex: none"><g fill="currentColor"><path d="M1 1h7v7H1zM21 1h7v7h-7zM1 21h7v7H1z"/></g><g fill="var(--color-cotton)"><path d="M2 2h5v5H2zM22 2h5v5h-5zM2 22h5v5H2z"/></g><g fill="currentColor"><path d="M3 3h3v3H3zM23 3h3v3h-3zM3 23h3v3H3zM10 2h2v2h-2zM13 4h2v3h-2zM10 9h3v2h-3zM15 10h2v2h-2zM18 12h3v2h-3zM10 14h2v3h-2zM13 13h2v2h-2zM22 10h3v2h-3zM25 14h3v2h-3zM10 20h2v2h-2zM13 18h3v2h-3zM17 22h2v3h-2zM21 19h3v2h-3zM24 23h4v2h-4zM12 25h3v3h-3zM20 25h2v3h-2zM1 10h2v3H1zM4 14h3v2H4zM17 16h2v2h-2z"/></g></svg></div>
+</div></section>
+<footer style="border-top: 1px solid var(--color-rule)"><div class="wrapL" style="padding-top: 40px; padding-bottom: 56px"><p style="max-width: 70ch; font-size: 15px; color: var(--color-ink-2)"><span style="font-weight: 600; color: var(--color-ink)">Landed</span> is a take-home build for Company A, a full-truckload transporter in Chhatrapati Sambhajinagar. It runs on sample data with no real personal data. <a href="#">Source on GitHub</a>. Built by Mohamed Aamir, 2026.</p></div></footer>
+</div>
+</body>
+</html>
