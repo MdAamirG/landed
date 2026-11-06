@@ -20,7 +20,7 @@ The seed is safe to run twice. When a later commit adds a migration, run it befo
 
 1. In Render, choose **New**, then **Blueprint**, and connect the repo. Render reads `render.yaml`.
 2. When asked, paste `DATABASE_URL`, `DATABASE_URL_POOLED`, `GEMINI_API_KEY`, `SESSION_SECRET` and `DRIVER_LINK_SECRET` from your local `.env`. The two secrets must be the same everywhere, so don't generate new ones. Enter `pending` for `WEB_ORIGIN` and `false` for `DEMO_MODE`: nothing reads either yet. `render.yaml` sets `GEMINI_MODEL`.
-3. Check the service URL before deploying the web app. If it isn't `https://landed-api.onrender.com`, because the name was taken, that address belongs to someone else. Put the real URL in `vercel.json` and push, and use it for the uptime monitor below.
+3. Check the service URL before deploying the web app. It's `https://landed-api-80b4.onrender.com`. Render chooses that address, so a recreated service may get a different one. If it changes, put the new URL in `vercel.json` and push, and use it for the uptime monitor below.
 
 Each push that changes `api/` deploys again.
 
@@ -31,16 +31,16 @@ Each push that changes `api/` deploys again.
     - The repo root has no framework for Vercel to detect, so `vercel.json` sets `framework` to null and names the build commands itself.
 2. Add no environment variables. The rewrite is in `vercel.json`, and `VITE_API_URL` only serves the local dev proxy.
 3. Check that the build log lists no Python functions. `.vercelignore` keeps `api/` out, so Vercel doesn't try to run it.
-4. Set `WEB_ORIGIN` on Render to the Vercel URL.
+4. Set `WEB_ORIGIN` on Render to the Vercel URL, `https://landed-lovat.vercel.app`.
 
-Open the Vercel URL. "API reachable" means the browser reached Render through the rewrite, and Render reached Neon.
+Open `https://landed-lovat.vercel.app`. "API reachable" means the browser reached Render through the rewrite, and Render reached Neon.
 
 ## Keep the API awake
 
 Render's free tier spins a service down after 15 minutes without traffic, and waking it takes about a minute. Set an uptime monitor to call this URL every 10 minutes:
 
 ```
-https://landed-api.onrender.com/api/ping
+https://landed-api-80b4.onrender.com/api/ping
 ```
 
 Use `/api/ping`, not `/api/health`. The ping doesn't touch the database, so Neon can still suspend when idle. `/api/health` runs a query, which would use up most of Neon's free compute hours.
