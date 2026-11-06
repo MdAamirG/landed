@@ -4,6 +4,7 @@ import DriverTrip from "./driver/DriverTrip";
 import { DESTINATIONS } from "./office/destinations";
 import { OfficeHome, OfficeLayout, RoleGate } from "./office/OfficeLayout";
 import Placeholder from "./office/Placeholder";
+import Review from "./office/Review";
 import { SessionProvider } from "./office/session";
 import SignIn from "./office/SignIn";
 import Status from "./Status";
@@ -33,7 +34,11 @@ export default function App() {
                 path={destination.path}
                 element={
                   <RoleGate roles={destination.roles}>
-                    <Placeholder title={destination.label} />
+                    {destination.path === "review" ? (
+                      <Review />
+                    ) : (
+                      <Placeholder title={destination.label} />
+                    )}
                   </RoleGate>
                 }
               />

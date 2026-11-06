@@ -38,7 +38,7 @@ Tickets 05, 06, 07, 08, 10, 11, 12.
 - [x] Driver link tokens (hashed, expiring 72 hours after expected delivery) and the upload endpoint (idempotent on attempt ID, 300 KB limit, image type check, returns at once)
 - [x] Gemini vision call returning the Pydantic schema, in a background task, with a 20-second timeout, the `ai_unavailable` fallback and the 60-second rule for stuck attempts
 - [x] Driver PWA: trip screen, camera (`<input type="file" accept="image/*" capture="environment">`), canvas compression under 300 KB with the GPS and time strip below the receipt, phone-side blur and brightness check with send-anyway after two failures, IndexedDB queue holding one pending photo per trip, retry on reconnect, on app open and every 30 seconds, polling every 2 seconds, result screens
-- [ ] Review screen: photo beside editable fields, every reason code, approve, reveal contact (logged)
+- [x] Review screen: photo beside editable fields, every reason code, approve, reveal contact (logged)
 
 ## Sunday: rest of review, billing, dashboard, demo, submit
 

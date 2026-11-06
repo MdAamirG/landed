@@ -427,3 +427,232 @@
 .driver__tried {
   font-size: 13px;
 }
+
+/* Review: the queue, the photo and what the AI read */
+.review {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr) 340px;
+  gap: 28px;
+  align-items: start;
+}
+
+.review__queue {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--color-rule);
+}
+
+.review__queue button {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-bottom: 1px solid var(--color-rule);
+  background-color: transparent;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.review__queue button[aria-current="true"] {
+  background-color: var(--color-paper-3);
+}
+
+.review__queue-top {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.review__queue-top .fig:first-child {
+  font-weight: 500;
+}
+
+.review__pane-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.review__tools {
+  display: flex;
+  gap: 6px;
+}
+
+.review__board {
+  background-color: var(--color-board);
+  border-radius: var(--radius-stock);
+  min-height: 600px;
+  max-height: 80dvh;
+  overflow: auto;
+  display: flex;
+  padding: 24px;
+  color: var(--color-board-muted);
+}
+
+/* Centred with auto margins, because a centred flex item taller than the panel can't be scrolled
+   back to its top. */
+.review__photo,
+.review__board > p {
+  margin: auto;
+}
+
+.review__photo {
+  flex: none;
+  transition: transform 120ms ease-out;
+}
+
+.review__caption {
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+.review__fields h2 {
+  font-size: 18px;
+}
+
+.review__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 64px;
+  gap: 4px 10px;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.review__row > label {
+  grid-column: 1 / 3;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+.review__control {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+}
+
+.inp {
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  border: 1px solid var(--color-rule-2);
+  border-radius: var(--radius-input);
+  padding: 0 10px;
+  background-color: var(--color-cotton);
+  color: var(--color-print);
+}
+
+.inp:disabled {
+  background-color: var(--color-paper-2);
+  color: var(--color-muted);
+}
+
+.inp--flagged {
+  background-color: var(--color-retake-wash);
+  border-color: var(--color-retake);
+}
+
+.review__confidence {
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+.review__confidence--check {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.review__ai-said {
+  grid-column: 1 / 3;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+.review__block {
+  border-top: 1px solid var(--color-rule);
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+.review__reasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.review__check {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 14px;
+  padding: 4px 0;
+  color: var(--color-ink-2);
+}
+
+.review__check--bad {
+  color: var(--color-retake-ink);
+  font-weight: 500;
+}
+
+.review__contact {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  padding-top: 12px;
+}
+
+.review__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+
+.review__actions .btn--ink {
+  flex: 1;
+}
+
+.review__note {
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+.skeleton-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.skeleton-row span {
+  display: block;
+  height: 12px;
+  border-radius: 4px;
+  background-color: var(--color-paper-3);
+}
+
+@media (max-width: 75rem) {
+  .review {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .review__board {
+    min-height: 320px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .review__photo {
+    transition: none;
+  }
+}

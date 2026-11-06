@@ -1,12 +1,12 @@
 """Pydantic models for what the API sends and receives."""
 
-from datetime import date
-from typing import Annotated, Literal
+from datetime import date, datetime
+from typing import Annotated, Any, Literal
 from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
 
-from app.models import DeviceCheck, PodStatus, Role
+from app.models import DeviceCheck, Ownership, PodFieldName, PodStatus, Role
 
 
 class PingOut(BaseModel):
@@ -72,6 +72,88 @@ class AttemptOut(BaseModel):
     outcome: PodStatus | None  # Empty until the check finishes.
     reason_codes: list[str]
     retakes_used: int
+
+
+class VersionIn(BaseModel):
+    """The trip version on the executive's screen. A stale one gets a 409."""
+
+    version: int
+
+
+class FieldEditIn(VersionIn):
+    value: Any  # Each field has its own shape, so app/review.py validates this one.
+
+
+class ContactOut(BaseModel):
+    name: str
+    phone: str
+
+
+class ReviewQueueItemOut(BaseModel):
+    id: UUID
+    trip_code: str
+    destination: str
+    client_name: str
+    ownership: Ownership
+    status_reason: str | None
+    waiting_since: datetime
+
+
+class ReviewFieldOut(BaseModel):
+    field: PodFieldName
+    ai_value: Any
+    ai_confidence: float | None
+    final_value: Any
+    edited: bool
+
+
+class ReviewAttemptOut(BaseModel):
+    id: UUID
+    attempt_no: int
+    late: bool
+    captured_at: datetime
+    received_at: datetime
+    size_bytes: int
+    distance_km: float | None
+    device_check: DeviceCheck | None
+    ai_status: str | None
+    ai_latency_ms: int | None
+    reason_codes: list[str]
+    clock_corrected: bool
+    fields: list[ReviewFieldOut]
+
+
+class TripCheckOut(BaseModel):
+    label: str
+    ok: bool
+
+
+class ReviewTripOut(BaseModel):
+    """An executive's view of a trip. Consignee and driver contacts here are always masked."""
+
+    id: UUID
+    trip_code: str
+    version: int
+    pod_status: PodStatus
+    status_reason: str | None
+    reason_codes: list[str]
+    retakes_used: int
+    origin: str
+    destination: str
+    client_name: str
+    ownership: Ownership
+    registration_no: str
+    lr_number: str
+    eway_bill_no: str
+    qty_dispatched: float
+    qty_unit: str
+    consignee_name: str
+    consignee_phone: str
+    driver_name: str
+    driver_phone: str
+    current_attempt_id: UUID | None  # The one Review and billing use. Late photos never count.
+    attempts: list[ReviewAttemptOut]
+    checks: list[TripCheckOut]
 
 
 # What the AI must return, field for field from docs/data-model.md. A value of None means the

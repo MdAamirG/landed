@@ -77,12 +77,16 @@ async function request(
   return response;
 }
 
-function postJson(path: string, body: unknown): Promise<Response> {
+function sendJson(method: "POST" | "PATCH", path: string, body: unknown): Promise<Response> {
   return request(path, {
-    method: "POST",
+    method,
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
+}
+
+function postJson(path: string, body: unknown): Promise<Response> {
+  return sendJson("POST", path, body);
 }
 
 /** The signed-in user, or null if there is no session. Throws if the API can't be reached. */
@@ -158,4 +162,111 @@ export async function getAttempt(token: string, attemptId: string): Promise<Atte
     headers: driverHeaders(token),
   });
   return (await response.json()) as AttemptResult;
+}
+
+export type PodFieldName =
+  | "lr_number"
+  | "consignee_stamp"
+  | "quantity_received"
+  | "remarks"
+  | "delivery_date"
+  | "signature";
+
+export type Quantity = { number: number | null; unit: string | null };
+export type Remarks = { text: string | null; kind: string };
+export type FieldValue = string | Quantity | Remarks | null;
+
+export type ReviewField = {
+  field: PodFieldName;
+  ai_value: FieldValue;
+  ai_confidence: number | null;
+  final_value: FieldValue;
+  edited: boolean;
+};
+
+export type ReviewAttempt = {
+  id: string;
+  attempt_no: number;
+  late: boolean;
+  captured_at: string;
+  received_at: string;
+  size_bytes: number;
+  distance_km: number | null;
+  device_check: "passed" | "sent_anyway" | null;
+  ai_status: string | null;
+  ai_latency_ms: number | null;
+  reason_codes: string[];
+  clock_corrected: boolean;
+  fields: ReviewField[];
+};
+
+export type ReviewTrip = {
+  id: string;
+  trip_code: string;
+  version: number;
+  pod_status: PodStatus;
+  status_reason: string | null;
+  reason_codes: string[];
+  retakes_used: number;
+  origin: string;
+  destination: string;
+  client_name: string;
+  ownership: "own" | "hired";
+  registration_no: string;
+  lr_number: string;
+  eway_bill_no: string;
+  qty_dispatched: number;
+  qty_unit: string;
+  consignee_name: string;
+  consignee_phone: string;
+  driver_name: string;
+  driver_phone: string;
+  current_attempt_id: string | null;
+  attempts: ReviewAttempt[];
+  checks: { label: string; ok: boolean }[];
+};
+
+export type ReviewQueueItem = {
+  id: string;
+  trip_code: string;
+  destination: string;
+  client_name: string;
+  ownership: "own" | "hired";
+  status_reason: string | null;
+  waiting_since: string;
+};
+
+export async function getReviewQueue(): Promise<ReviewQueueItem[]> {
+  return (await (await request("/review/queue")).json()) as ReviewQueueItem[];
+}
+
+export async function getReviewTrip(tripId: string): Promise<ReviewTrip> {
+  return (await (await request(`/review/trips/${tripId}`)).json()) as ReviewTrip;
+}
+
+export function attemptPhotoUrl(attemptId: string): string {
+  return `/api/review/attempts/${attemptId}/photo`;
+}
+
+export async function saveField(
+  tripId: string,
+  field: PodFieldName,
+  value: FieldValue,
+  version: number,
+): Promise<ReviewTrip> {
+  const response = await sendJson("PATCH", `/review/trips/${tripId}/fields/${field}`, {
+    value,
+    version,
+  });
+  return (await response.json()) as ReviewTrip;
+}
+
+export async function approveTrip(tripId: string, version: number): Promise<ReviewTrip> {
+  const response = await postJson(`/review/trips/${tripId}/approve`, { version });
+  return (await response.json()) as ReviewTrip;
+}
+
+export async function revealContact(tripId: string): Promise<{ name: string; phone: string }> {
+  const response = await postJson(`/review/trips/${tripId}/reveal`, {});
+  return (await response.json()) as { name: string; phone: string };
 }

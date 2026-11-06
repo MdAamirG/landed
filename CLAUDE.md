@@ -37,6 +37,8 @@ api/
     status.py     # move_trip(): the only code that changes pod_status
     ai.py         # Gemini call, timeout, schema validation
     intake.py     # stores an attempt, then the background check
+    review.py     # field edits, approve, reveal, each with its audit event
+    masking.py    # how names and phones appear in responses
     tally.py      # Tally XML export
     routers/      # health, auth, driver, review, billing, dashboard, trips
   tests/

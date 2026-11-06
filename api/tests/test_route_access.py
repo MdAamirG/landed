@@ -5,10 +5,6 @@ Driver routes get their own list in the ticket that adds them.
 """
 
 import pytest
-from fastapi import Depends, FastAPI
-from fastapi.testclient import TestClient
-
-from app.auth import require_role
 from app.main import app
 from app.models import Role
 from tests.factories import make_user
@@ -23,8 +19,27 @@ PUBLIC_ROUTES = {
 }
 
 # (method, path with any IDs filled in, the path as the router declares it, roles allowed)
+NO_ID = "00000000-0000-0000-0000-000000000000"
+BILLING_ONLY = {Role.BILLING_EXECUTIVE}
+
 OFFICE_ROUTES = [
     ("GET", "/api/auth/me", "/api/auth/me", set(Role)),
+    ("GET", "/api/review/queue", "/api/review/queue", BILLING_ONLY),
+    ("GET", f"/api/review/trips/{NO_ID}", "/api/review/trips/{trip_id}", BILLING_ONLY),
+    (
+        "GET",
+        f"/api/review/attempts/{NO_ID}/photo",
+        "/api/review/attempts/{attempt_id}/photo",
+        BILLING_ONLY,
+    ),
+    (
+        "PATCH",
+        f"/api/review/trips/{NO_ID}/fields/lr_number",
+        "/api/review/trips/{trip_id}/fields/{field}",
+        BILLING_ONLY,
+    ),
+    ("POST", f"/api/review/trips/{NO_ID}/approve", "/api/review/trips/{trip_id}/approve", BILLING_ONLY),
+    ("POST", f"/api/review/trips/{NO_ID}/reveal", "/api/review/trips/{trip_id}/reveal", BILLING_ONLY),
 ]
 
 # Each of these takes a driver token, and opens only that token's trip. test_driver.py covers
@@ -91,25 +106,3 @@ def test_an_office_session_does_not_open_a_driver_route(api_client, db):
 
     for method, url, _path in DRIVER_ROUTES:
         assert api_client.request(method, url).status_code == 401
-
-
-def test_require_role_gives_403_to_the_wrong_role_and_lets_the_right_one_through(api_client, db):
-    # No real route is limited to one role yet, so this builds one. It runs the real dependency
-    # against a real session cookie. Once such a route exists, OFFICE_ROUTES covers it as well.
-    limited = FastAPI()
-
-    @limited.get("/billing-only", dependencies=[Depends(require_role(Role.BILLING_EXECUTIVE))])
-    def billing_only() -> dict[str, bool]:
-        return {"ok": True}
-
-    signed_in_as(api_client, db, Role.OPERATIONS_HEAD)
-    with TestClient(limited, cookies=dict(api_client.cookies)) as client:
-        assert client.get("/billing-only").status_code == 403
-
-    api_client.cookies.clear()
-    signed_in_as(api_client, db, Role.BILLING_EXECUTIVE)
-    with TestClient(limited, cookies=dict(api_client.cookies)) as client:
-        assert client.get("/billing-only").status_code == 200
-
-    with TestClient(limited) as client:
-        assert client.get("/billing-only").status_code == 401
