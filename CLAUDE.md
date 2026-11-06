@@ -8,6 +8,7 @@ The candidate (Aamir) must explain every design choice in an interview. Prefer s
 
 - `docs/brief.md`: the client brief and the assignment rules. Use only what it says; label every assumption.
 - `docs/data-model.md`: the schema, the seven trip statuses, the AI decision rule, roles and edge cases. This is decided; follow it.
+- `docs/spec.md`: the problem, user stories, test seams and the assumptions added to the data model.
 - `docs/design.md` and `design/screens/*.html`: the approved screens and design rules.
 - `docs/plan.md`: the build order and the cut list. Tick items off as they land.
 
