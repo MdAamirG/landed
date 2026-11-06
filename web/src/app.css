@@ -390,4 +390,40 @@
   margin-top: auto;
   padding: 0 4px;
   font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Saved on the phone */
+.driver__saved-icon {
+  width: 128px;
+  height: 128px;
+  border-radius: 64px;
+  background-color: var(--color-paper-3);
+  color: var(--color-ink);
+}
+
+.driver__saved-title {
+  font-size: 30px;
+  margin-top: 10px;
+}
+
+.driver__saved-item {
+  width: 100%;
+  margin-top: 14px;
+  padding: 14px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+}
+
+.driver__saved-item .muted {
+  font-size: 13px;
+}
+
+.driver__tried {
+  font-size: 13px;
 }

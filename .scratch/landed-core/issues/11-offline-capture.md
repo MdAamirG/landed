@@ -10,10 +10,18 @@
 
 **Spec stories:** 19 to 24
 
-- [ ] The pending-photo queue is a TypeScript module with no UI, holding one pending photo per trip in IndexedDB
-- [ ] Vitest covers one photo per trip, a new capture replacing an unsent one, the same attempt ID on every retry, keeping the photo after a failed send, and clearing it only after the server confirms
-- [ ] Storage and network are passed in, so the tests need no browser
-- [ ] The driver area is a PWA with a manifest, and its shell is cached after the first visit
-- [ ] The Offline screen matches `Offline.html`
-- [ ] The trip stays `awaiting_pod` until a photo arrives, and "saved on the phone" is never a trip status
-- [ ] If the link has expired, the server refuses the send, the phone keeps the photo and the driver is told to call the office (spec assumption 6)
+- [x] The pending-photo queue is a TypeScript module with no UI, holding one pending photo per trip in IndexedDB
+- [x] Vitest covers one photo per trip, a new capture replacing an unsent one, the same attempt ID on every retry, keeping the photo after a failed send, and clearing it only after the server confirms
+- [x] Storage and network are passed in, so the tests need no browser
+- [x] The driver area is a PWA with a manifest, and its shell is cached after the first visit
+- [x] The Offline screen matches `Offline.html`
+- [x] The trip stays `awaiting_pod` until a photo arrives, and "saved on the phone" is never a trip status
+- [x] If the link has expired, the server refuses the send, the phone keeps the photo and the driver is told to call the office (spec assumption 6)
+
+## Comments
+
+- Tested on a production build with the servers really killed, not a simulated offline. The API went down, then the web server too. The page was reloaded with nothing running: it opened from the service worker, remembered the trip and kept the photo. With both back it sent by itself on the 30-second retry. The server held one attempt with the original ID, the real AI verified it, and the 104-second gap was recorded. That test found a real bug: the shell's script and stylesheet missed the cache because of `Vary: Origin`, which left a blank screen.
+- Still to do by hand: a real Android phone with airplane mode on and off (plan, Sunday). `navigator.onLine` and the `online` event were not exercised here, because the test killed servers instead of the phone's network. The 30-second timer did the sending.
+- `Offline.html`'s "ठीक है, Done" button became "Take a new photo". Done has nothing to do in a browser tab, and the data model needs a way to replace an unsent photo.
+- The retry only runs for the trip whose link is open. A photo pending on another trip waits until its link is opened.
+- The manifest uses an SVG icon, so the app works as a PWA but Chrome may not offer to install it. The driver flow never needs an install.

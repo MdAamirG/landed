@@ -67,6 +67,7 @@ Fill these in once the project exists:
 - API: `cd api && uvicorn app.main:app --reload`
 - Tests: `cd api && pytest`
 - Web: `cd web && npm run dev`
+- Web tests: `cd web && npm test`
 - Migrate: `cd api && alembic upgrade head`
 - Seed: `cd api && python seed.py`
 - Deploy: see `deployment.md`

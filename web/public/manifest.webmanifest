@@ -1,0 +1,17 @@
+{
+  "name": "Landed",
+  "short_name": "Landed",
+  "description": "Photograph the signed lorry receipt at the gate.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f2ef",
+  "theme_color": "#f5f2ef",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

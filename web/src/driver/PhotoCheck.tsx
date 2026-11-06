@@ -1,13 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
-import {
-  ApiError,
-  getAttempt,
-  uploadAttempt,
-  type AttemptResult,
-  type DriverTrip,
-} from "../lib/api";
-import type { PreparedPhoto } from "./capture";
+import { getAttempt, type AttemptResult, type DriverTrip } from "../lib/api";
+import type { PendingPhoto } from "./pendingPhotos";
+import { photoQueue } from "./photoQueue";
 
 const POLL_EVERY_MS = 2_000;
 const GIVE_UP_AFTER_MS = 30_000; // The driver isn't kept at the gate after this. The check goes on.
@@ -15,7 +10,8 @@ const GIVE_UP_AFTER_MS = 30_000; // The driver isn't kept at the gate after this
 export type CheckEnd =
   | { name: "result"; attempt: AttemptResult }
   | { name: "gave-up" }
-  | { name: "refused" } // The upload itself was refused or never got through.
+  | { name: "saved" } // No network: the photo is safe on the phone and will send itself.
+  | { name: "refused" } // The server said no. The photo is still on the phone.
   | { name: "link-dead" };
 
 function wait(ms: number): Promise<void> {
@@ -38,18 +34,24 @@ async function pollUntilDone(token: string, attempt: AttemptResult): Promise<Che
 }
 
 async function sendAndCheck(
-  token: string,
-  photo: PreparedPhoto,
-  attemptId: string,
+  photo: PendingPhoto,
+  alreadySent: AttemptResult | null,
   onSent: () => void,
 ): Promise<CheckEnd> {
-  try {
-    const attempt = await uploadAttempt(token, attemptId, photo);
-    onSent();
-    return await pollUntilDone(token, attempt);
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 401) return { name: "link-dead" };
-    return { name: "refused" };
+  if (alreadySent) return pollUntilDone(photo.token, alreadySent);
+
+  const outcome = await photoQueue.trySend(photo.tripCode);
+  switch (outcome.status) {
+    case "sent":
+      onSent();
+      return pollUntilDone(photo.token, outcome.attempt);
+    case "link-dead":
+      return { name: "link-dead" };
+    case "refused":
+      return { name: "refused" };
+    case "waiting":
+    case "nothing-pending":
+      return { name: "saved" };
   }
 }
 
@@ -91,17 +93,17 @@ function Step({ done, title, detail }: { done: boolean; title: string; detail: s
 /** Sends one photo, waits for its check and reports how that ended. The screen is Checking.html. */
 export default function PhotoCheck({
   trip,
-  token,
   photo,
+  alreadySent,
   onEnd,
 }: {
   trip: DriverTrip;
-  token: string;
-  photo: PreparedPhoto;
+  photo: PendingPhoto;
+  alreadySent: AttemptResult | null; // Set when the photo went up from the Offline screen.
   onEnd: (end: CheckEnd) => void;
 }) {
   const [preview, setPreview] = useState<string | null>(null);
-  const [sent, setSent] = useState(false);
+  const [sent, setSent] = useState(alreadySent !== null);
   const started = useRef(false);
 
   useEffect(() => {
@@ -113,8 +115,8 @@ export default function PhotoCheck({
   useEffect(() => {
     if (started.current) return; // StrictMode runs effects twice in development.
     started.current = true;
-    void sendAndCheck(token, photo, crypto.randomUUID(), () => setSent(true)).then(onEnd);
-  }, [token, photo, onEnd]);
+    void sendAndCheck(photo, alreadySent, () => setSent(true)).then(onEnd);
+  }, [photo, alreadySent, onEnd]);
 
   return (
     <main className="driver-check">

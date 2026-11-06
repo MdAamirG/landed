@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { useParams } from "react-router";
 
-import { ApiError, getDriverTrip, type DriverTrip as Trip, type PodStatus } from "../lib/api";
+import {
+  ApiError,
+  getDriverTrip,
+  type AttemptResult,
+  type DriverTrip as Trip,
+  type PodStatus,
+} from "../lib/api";
 import {
   compressWithStrip,
   decodePhoto,
@@ -10,11 +16,13 @@ import {
   stripText,
   type DeviceCheck,
   type PhotoProblem,
-  type PreparedPhoto,
 } from "./capture";
+import type { PendingPhoto, SendOutcome } from "./pendingPhotos";
 import PhoneCheckFailed from "./PhoneCheckFailed";
 import PhotoCheck, { type CheckEnd } from "./PhotoCheck";
+import { photoQueue } from "./photoQueue";
 import Retake from "./Retake";
+import SavedOffline from "./SavedOffline";
 import { useLocationFix } from "./useLocationFix";
 
 // Only these two statuses wait on the driver. Any other means the photo has been dealt with.
@@ -27,7 +35,8 @@ type Screen =
   | { name: "trip"; trip: Trip; notice?: string }
   | { name: "preparing"; trip: Trip }
   | { name: "phone-check-failed"; trip: Trip; shot: Shot; problem: PhotoProblem }
-  | { name: "checking"; trip: Trip; photo: PreparedPhoto }
+  | { name: "checking"; trip: Trip; photo: PendingPhoto; alreadySent: AttemptResult | null }
+  | { name: "saved"; trip: Trip; photo: PendingPhoto }
   | { name: "done"; trip: Trip; message: DoneMessage };
 
 /** A photo as the camera gave it, and the moment it was taken. */
@@ -47,6 +56,28 @@ function doneMessageFor(status: PodStatus): DoneMessage {
   if (status === "verified" || status === "invoiced") return "verified";
   // Still in checking means the driver left mid-check and has come back.
   return status === "checking" ? "sms-later" : "with-office";
+}
+
+const REFUSED_NOTICE = "The photo didn't send. Please call the office.";
+
+// The last trip this link showed, so reopening it in a dead zone still shows the trip. It holds
+// what the driver can already see, so no consignee details. Storage can be refused or cleared,
+// and then the app just needs network, as it does on a first visit.
+function rememberTrip(token: string, trip: Trip) {
+  try {
+    localStorage.setItem(`trip:${token}`, JSON.stringify(trip));
+  } catch {
+    // Nothing to do: this is a convenience.
+  }
+}
+
+function rememberedTrip(token: string): Trip | null {
+  try {
+    const stored = localStorage.getItem(`trip:${token}`);
+    return stored ? (JSON.parse(stored) as Trip) : null;
+  } catch {
+    return null;
+  }
 }
 
 /** 341099217735 becomes 3410 9921 7735, the way it is printed on the bill. */
@@ -77,6 +108,20 @@ function TripCard({ trip }: { trip: Trip }) {
       </dl>
     </section>
   );
+}
+
+function useOnline(): boolean {
+  const [online, setOnline] = useState(navigator.onLine);
+  useEffect(() => {
+    const update = () => setOnline(navigator.onLine);
+    window.addEventListener("online", update);
+    window.addEventListener("offline", update);
+    return () => {
+      window.removeEventListener("online", update);
+      window.removeEventListener("offline", update);
+    };
+  }, []);
+  return online;
 }
 
 function CameraInput({
@@ -116,6 +161,7 @@ function TakePhoto({
   onPhoto: (photo: File) => void;
 }) {
   const camera = useRef<HTMLInputElement>(null);
+  const online = useOnline();
 
   return (
     <main className="driver desk">
@@ -169,7 +215,10 @@ function TakePhoto({
           <span className="muted">Receipt, stamp and signature in one photo</span>
         </p>
       </div>
-      <p className="muted driver__status">{hasLocation ? "Location ready" : "Finding location"}</p>
+      <div className="muted driver__status">
+        <p>{hasLocation ? "Location ready" : "Finding location"}</p>
+        {!online && <p>No network here. The photo will be saved on the phone.</p>}
+      </div>
     </main>
   );
 }
@@ -256,33 +305,64 @@ export default function DriverTrip() {
   const retakeCamera = useRef<HTMLInputElement>(null);
   const location = useLocationFix();
 
-  const load = useCallback(() => {
-    setScreen({ name: "loading" });
-    getDriverTrip(token)
-      .then((trip) => setScreen({ name: "trip", trip }))
-      .catch((error) => {
-        const linkRefused = error instanceof ApiError && error.status === 401;
-        setScreen(linkRefused ? { name: "dead-link" } : { name: "unreachable" });
-      });
+  const newCamera = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    // Only in a build: Vite's dev server would be fighting a worker that caches its files.
+    if (import.meta.env.PROD && "serviceWorker" in navigator) {
+      void navigator.serviceWorker.register("/sw.js");
+    }
+  }, []);
+
+  /** The trip from the server, or the remembered one if the server can't be reached. */
+  const fetchTrip = useCallback(async (): Promise<Trip | "dead-link" | "unreachable"> => {
+    try {
+      const trip = await getDriverTrip(token);
+      rememberTrip(token, trip);
+      return trip;
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) return "dead-link";
+      return rememberedTrip(token) ?? "unreachable";
+    }
   }, [token]);
 
-  useEffect(load, [load]);
+  const load = useCallback(async () => {
+    setScreen({ name: "loading" });
+    const trip = await fetchTrip();
+    if (trip === "dead-link" || trip === "unreachable") {
+      setScreen(trip === "dead-link" ? { name: "dead-link" } : { name: "unreachable" });
+      return;
+    }
+    // A photo left from earlier goes first. This is the "on app open" retry.
+    const pending = await photoQueue.pending(trip.trip_code);
+    setScreen(
+      pending
+        ? { name: "checking", trip, photo: pending, alreadySent: null }
+        : { name: "trip", trip },
+    );
+  }, [fetchTrip]);
 
-  /** Compress and print the strip, then hand over to the check. */
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  /** Compress and print the strip, then save it before any attempt to send it. */
   const send = useCallback(
     async (trip: Trip, shot: Shot, photo: ImageBitmap, deviceCheck: DeviceCheck) => {
       const text = stripText(trip.trip_code, shot.capturedAt, location);
-      const prepared: PreparedPhoto = {
+      const pending = await photoQueue.save({
         blob: await compressWithStrip(photo, text),
         originalBytes: shot.file.size,
         capturedAt: shot.capturedAt,
         gps: location,
         deviceCheck,
-      };
-      setLastPhoto(prepared.blob);
-      setScreen({ name: "checking", trip, photo: prepared });
+        tripCode: trip.trip_code,
+        token,
+      });
+      setLastPhoto(pending.blob);
+      setScreen({ name: "checking", trip, photo: pending, alreadySent: null });
     },
-    [location],
+    [location, token],
   );
 
   /** The phone check. A failure here needs no network and costs no retake. */
@@ -319,19 +399,29 @@ export default function DriverTrip() {
     [send],
   );
 
+  /** Sending has ended without a result. In all of these the photo stays on the phone. */
+  const stopSending = useCallback(
+    (trip: Trip, reason: SendOutcome["status"]) => {
+      if (reason === "refused") setScreen({ name: "trip", trip, notice: REFUSED_NOTICE });
+      else if (reason === "link-dead") setScreen({ name: "dead-link" });
+      else void load(); // The photo has gone, so it was sent some other way. Ask the server.
+    },
+    [load],
+  );
+
   const finishCheck = useCallback(
-    (trip: Trip, end: CheckEnd) => {
-      if (end.name === "link-dead") setScreen({ name: "dead-link" });
+    (trip: Trip, photo: PendingPhoto, end: CheckEnd) => {
+      if (end.name === "saved") setScreen({ name: "saved", trip, photo });
       else if (end.name === "gave-up") setScreen({ name: "done", trip, message: "sms-later" });
-      else if (end.name === "refused") {
-        setScreen({ name: "trip", trip, notice: "The photo didn't send. Please try again." });
-      } else if (end.attempt.outcome === "retake_requested") load();
+      else if (end.name === "refused") stopSending(trip, "refused");
+      else if (end.name === "link-dead") stopSending(trip, "link-dead");
+      else if (end.attempt.outcome === "retake_requested") void load();
       else {
         const message = doneMessageFor(end.attempt.outcome ?? "needs_review");
         setScreen({ name: "done", trip, message });
       }
     },
-    [load],
+    [load, stopSending],
   );
 
   switch (screen.name) {
@@ -350,7 +440,11 @@ export default function DriverTrip() {
         <main className="driver driver--centred desk" role="alert">
           <h1 className="driver__title">नेटवर्क नहीं है</h1>
           <p className="muted">We couldn't reach the office. Try again when you have signal.</p>
-          <button className="btn btn--ink big driver__retry" type="button" onClick={load}>
+          <button
+            className="btn btn--ink big driver__retry"
+            type="button"
+            onClick={() => void load()}
+          >
             फिर से कोशिश करें
           </button>
         </main>
@@ -400,11 +494,28 @@ export default function DriverTrip() {
       return (
         <PhotoCheck
           trip={screen.trip}
-          token={token}
           photo={screen.photo}
-          onEnd={(end) => finishCheck(screen.trip, end)}
+          alreadySent={screen.alreadySent}
+          onEnd={(end) => finishCheck(screen.trip, screen.photo, end)}
         />
       );
+    case "saved": {
+      const { trip, photo } = screen;
+      return (
+        <>
+          <CameraInput input={newCamera} onPhoto={(file) => void handlePhoto(trip, file)} />
+          <SavedOffline
+            trip={trip}
+            photo={photo}
+            onTakeNew={() => newCamera.current?.click()}
+            onSent={(attempt) =>
+              setScreen({ name: "checking", trip, photo, alreadySent: attempt })
+            }
+            onStopped={(outcome) => stopSending(trip, outcome.status)}
+          />
+        </>
+      );
+    }
     case "done":
       return <Done trip={screen.trip} message={screen.message} />;
   }

@@ -56,13 +56,19 @@ export class ApiError extends Error {
 
 // A cold Render service and a suspended Neon database can both be slow to answer.
 const REQUEST_TIMEOUT_MS = 30_000;
+// 300 KB can take most of a minute to go up on a weak 2G signal.
+const UPLOAD_TIMEOUT_MS = 120_000;
 
-async function request(path: string, init: RequestInit = {}): Promise<Response> {
+async function request(
+  path: string,
+  init: RequestInit = {},
+  timeoutMs = REQUEST_TIMEOUT_MS,
+): Promise<Response> {
   let response: Response;
   try {
     response = await fetch(`/api${path}`, {
       ...init,
-      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      signal: AbortSignal.timeout(timeoutMs),
     });
   } catch {
     throw new ApiError(0);
@@ -139,11 +145,11 @@ export async function uploadAttempt(
     form.set("gps_accuracy_m", String(photo.gps.accuracyM));
   }
   form.set("photo", photo.blob, "pod.jpg");
-  const response = await request("/driver/attempts", {
-    method: "POST",
-    headers: driverHeaders(token),
-    body: form,
-  });
+  const response = await request(
+    "/driver/attempts",
+    { method: "POST", headers: driverHeaders(token), body: form },
+    UPLOAD_TIMEOUT_MS,
+  );
   return (await response.json()) as AttemptResult;
 }
 
