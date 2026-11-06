@@ -308,3 +308,80 @@
     animation: none;
   }
 }
+
+/* Retake */
+.retake__head {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.retake__head h1 {
+  font-size: 25px;
+}
+
+.retake__head p {
+  font-size: 14px;
+}
+
+.retake__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 26px;
+  background-color: var(--color-retake-wash);
+  color: var(--color-retake-ink);
+}
+
+.retake__button {
+  min-height: 60px;
+  flex-direction: row;
+  font-size: 18px;
+}
+
+.retake__count {
+  font-size: 13px;
+  text-align: center;
+}
+
+.field-checks {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.field-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background-color: var(--color-paper-2);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.field-check svg {
+  flex: none;
+  color: var(--color-ok);
+}
+
+.field-check--failed {
+  background-color: var(--color-retake-wash);
+  color: var(--color-retake-ink);
+  font-weight: 600;
+}
+
+.field-check--failed svg {
+  color: inherit;
+}
+
+/* Read by screen readers, because a tick or a cross alone says nothing to them */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

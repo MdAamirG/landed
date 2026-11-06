@@ -42,7 +42,7 @@ class AiResult:
     reading: PodReading | None  # None means failed, timed out or a reply that didn't fit.
     raw: dict[str, Any]  # The reply as sent, or what went wrong. Kept on the attempt.
     model: str
-    latency_ms: int
+    latency_ms: int | None  # Empty when no reply was ever seen, as with a stuck attempt.
 
 
 def ask_gemini(image: bytes, media_type: str) -> str:

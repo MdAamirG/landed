@@ -7,7 +7,7 @@ link. The token itself exists in the SMS and in the URL, and never in a response
 import hashlib
 import hmac
 import secrets
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
@@ -18,10 +18,7 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.db import get_db
 from app.models import AuditEvent, DriverLink, Trip
-from app.status import SYSTEM, Actor
-
-# Outlasts the journey: an 800 km run can take about three days.
-LINK_LIFETIME = timedelta(hours=72)
+from app.status import LINK_LIFETIME, SYSTEM, Actor
 
 # auto_error=False: we answer a missing token with the same 401 as a bad one.
 bearer_token = HTTPBearer(auto_error=False)

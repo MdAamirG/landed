@@ -41,6 +41,8 @@ def test_a_link_opens_its_trip(api_client, db):
         "lr_number": "48207x",
         "eway_bill_no": trip.eway_bill_no,
         "pod_status": "awaiting_pod",
+        "retakes_used": 0,
+        "reason_codes": [],
     }
 
 

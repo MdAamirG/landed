@@ -37,6 +37,8 @@ export type DriverTrip = {
   lr_number: string;
   eway_bill_no: string;
   pod_status: PodStatus;
+  retakes_used: number;
+  reason_codes: string[];
 };
 
 export type Role = "billing_executive" | "operations_head";

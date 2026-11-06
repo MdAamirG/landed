@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { useParams } from "react-router";
 
 import { ApiError, getDriverTrip, type DriverTrip as Trip, type PodStatus } from "../lib/api";
 import PhotoCheck, { type CheckEnd } from "./PhotoCheck";
+import Retake from "./Retake";
 
 // Only these two statuses wait on the driver. Any other means the photo has been dealt with.
 const NEEDS_PHOTO: PodStatus[] = ["awaiting_pod", "retake_requested"];
@@ -59,6 +60,31 @@ function TripCard({ trip }: { trip: Trip }) {
   );
 }
 
+function CameraInput({
+  input,
+  onPhoto,
+}: {
+  input: RefObject<HTMLInputElement | null>;
+  onPhoto: (photo: File) => void;
+}) {
+  // capture opens the rear camera straight away on a phone, with nothing to choose.
+  return (
+    <input
+      ref={input}
+      className="driver__camera"
+      type="file"
+      accept="image/*"
+      capture="environment"
+      aria-label="Take POD photo"
+      onChange={(event) => {
+        const photo = event.target.files?.[0];
+        event.target.value = ""; // So the same file can be picked again after a failure.
+        if (photo) onPhoto(photo);
+      }}
+    />
+  );
+}
+
 function TakePhoto({
   trip,
   notice,
@@ -78,20 +104,7 @@ function TakePhoto({
           {notice}
         </p>
       )}
-      {/* capture opens the rear camera straight away on a phone, with nothing to choose. */}
-      <input
-        ref={camera}
-        className="driver__camera"
-        type="file"
-        accept="image/*"
-        capture="environment"
-        aria-label="Take POD photo"
-        onChange={(event) => {
-          const photo = event.target.files?.[0];
-          event.target.value = ""; // So the same file can be picked again after a failure.
-          if (photo) onPhoto(photo);
-        }}
-      />
+      <CameraInput input={camera} onPhoto={onPhoto} />
       <button
         className="btn btn--ink big driver__shoot"
         type="button"
@@ -193,9 +206,30 @@ function DeadLink() {
   );
 }
 
+function RetakeScreen({
+  trip,
+  lastPhoto,
+  onPhoto,
+}: {
+  trip: Trip;
+  lastPhoto: File | null;
+  onPhoto: (photo: File) => void;
+}) {
+  const camera = useRef<HTMLInputElement>(null);
+  const photoUrl = useMemo(() => (lastPhoto ? URL.createObjectURL(lastPhoto) : null), [lastPhoto]);
+
+  return (
+    <>
+      <CameraInput input={camera} onPhoto={onPhoto} />
+      <Retake trip={trip} photoUrl={photoUrl} onRetake={() => camera.current?.click()} />
+    </>
+  );
+}
+
 export default function DriverTrip() {
   const { token = "" } = useParams();
   const [screen, setScreen] = useState<Screen>({ name: "loading" });
+  const [lastPhoto, setLastPhoto] = useState<File | null>(null);
 
   const load = useCallback(() => {
     setScreen({ name: "loading" });
@@ -247,16 +281,21 @@ export default function DriverTrip() {
       );
     case "dead-link":
       return <DeadLink />;
-    case "trip":
-      return NEEDS_PHOTO.includes(screen.trip.pod_status) ? (
-        <TakePhoto
-          trip={screen.trip}
-          notice={screen.notice}
-          onPhoto={(photo) => setScreen({ name: "checking", trip: screen.trip, photo })}
-        />
+    case "trip": {
+      const { trip, notice } = screen;
+      const startCheck = (photo: File) => {
+        setLastPhoto(photo);
+        setScreen({ name: "checking", trip, photo });
+      };
+      if (trip.pod_status === "retake_requested" && !notice) {
+        return <RetakeScreen trip={trip} lastPhoto={lastPhoto} onPhoto={startCheck} />;
+      }
+      return NEEDS_PHOTO.includes(trip.pod_status) ? (
+        <TakePhoto trip={trip} notice={notice} onPhoto={startCheck} />
       ) : (
-        <Done trip={screen.trip} message={doneMessageFor(screen.trip.pod_status)} />
+        <Done trip={trip} message={doneMessageFor(trip.pod_status)} />
       );
+    }
     case "checking":
       return (
         <PhotoCheck

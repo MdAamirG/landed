@@ -16,17 +16,22 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app import ai
+from app.config import settings
 from app.db import SessionLocal
 from app.models import ActorType, AuditEvent, DriverLink, PodAttempt, PodField, PodStatus, Trip
 from app.rules import Facts, decide
 from app.schemas import AttemptForm, PodReading
-from app.status import SYSTEM, Actor, IllegalMove, move_trip
+from app.status import SYSTEM, Actor, move_trip
 
 logger = logging.getLogger(__name__)
 
 MAX_PHOTO_BYTES = 300_000
 MAX_UPLOADS_PER_HOUR = 10  # Also caps Gemini calls if a link leaks.
 EARTH_RADIUS_KM = 6371
+LAST_CHECKED_ATTEMPT_NO = 3  # The first photo plus two retakes. Late photos number from 4.
+STUCK_AFTER = timedelta(seconds=60)  # A server restart mustn't strand a trip in checking.
+
+WAITING_FOR_A_PHOTO = {PodStatus.AWAITING_POD, PodStatus.RETAKE_REQUESTED}
 
 ATTEMPT_RECEIVED = "attempt_received"  # The audit action the upload limit counts.
 
@@ -79,17 +84,23 @@ def check_upload_limit(session: Session, trip: Trip, now: datetime) -> None:
         raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, "Too many uploads for this trip")
 
 
-def next_attempt_no(session: Session, trip: Trip) -> int:
-    highest = session.scalar(
-        select(func.max(PodAttempt.attempt_no)).where(PodAttempt.trip_id == trip.id)
-    )
-    return (highest or 0) + 1
+def next_attempt_no(session: Session, trip: Trip, late: bool) -> int:
+    def highest_where(*conditions) -> int:
+        number = session.scalar(
+            select(func.max(PodAttempt.attempt_no)).where(PodAttempt.trip_id == trip.id, *conditions)
+        )
+        return number or 0
+
+    if late:
+        return max(highest_where(), LAST_CHECKED_ATTEMPT_NO) + 1
+    # Only checked attempts count here, so a late photo can't push a retake out of the range.
+    return highest_where(PodAttempt.attempt_no <= LAST_CHECKED_ATTEMPT_NO) + 1
 
 
 def accept_attempt(
     session: Session, link: DriverLink, form: AttemptForm, photo: bytes
 ) -> tuple[PodAttempt, Trip, bool]:
-    """Store the attempt and commit. Also says whether it is new, so a repeat isn't rechecked."""
+    """Store the attempt and commit. Also says whether it needs the AI check."""
     check_photo(photo)
 
     # Locked first, so two photos arriving together can't take the same attempt number, and the
@@ -106,20 +117,25 @@ def accept_attempt(
     now = datetime.now(UTC)
     check_upload_limit(session, trip, now)
 
+    late = trip.pod_status not in WAITING_FOR_A_PHOTO
+    clock_was_wrong = form.captured_at > now
+
     attempt = PodAttempt(
         id=form.attempt_id,
         trip_id=trip.id,
-        attempt_no=next_attempt_no(session, trip),
+        attempt_no=next_attempt_no(session, trip, late),
         image_bytes=photo,
         size_bytes=len(photo),
         sha256=hashlib.sha256(photo).hexdigest(),
-        captured_at=form.captured_at,
+        captured_at=now if clock_was_wrong else form.captured_at,  # A photo can't predate itself.
         received_at=now,
         gps_lat=form.gps_lat,
         gps_lng=form.gps_lng,
         gps_accuracy_m=form.gps_accuracy_m,
         distance_km=distance_from_consignee(form, trip),
-        ai_status="pending",
+        # A late photo isn't sent to Gemini and moves nothing, so what it found is its outcome.
+        ai_status="skipped" if late else "pending",
+        outcome=trip.pod_status if late else None,
     )
     session.add(attempt)
     session.flush()
@@ -129,16 +145,19 @@ def accept_attempt(
             actor_type=ActorType.DRIVER_LINK,
             actor_id=link.id,
             action=ATTEMPT_RECEIVED,
-            detail={"attempt_id": str(attempt.id), "attempt_no": attempt.attempt_no},
+            detail={
+                "attempt_id": str(attempt.id),
+                "attempt_no": attempt.attempt_no,
+                "late": late,
+                # The phone's time, kept here because captured_at no longer holds it.
+                "wrong_clock": form.captured_at.isoformat() if clock_was_wrong else None,
+            },
         )
     )
-    try:
+    if not late:
         move_trip(session, trip, PodStatus.CHECKING, Actor(ActorType.DRIVER_LINK, link.id))
-    except IllegalMove as error:
-        session.rollback()
-        raise HTTPException(status.HTTP_409_CONFLICT, str(error)) from error
     session.commit()
-    return attempt, trip, True
+    return attempt, trip, not late
 
 
 def field_values(reading: PodReading | None) -> dict[str, tuple[object, float | None]]:
@@ -205,6 +224,30 @@ def apply_result(session: Session, attempt: PodAttempt, trip: Trip, result: ai.A
             )
         )
     move_trip(session, trip, decision.status, SYSTEM, decision.reason)
+
+
+def fail_stuck_attempt(session: Session, attempt_id: UUID) -> None:
+    attempt = session.get_one(PodAttempt, attempt_id)
+    trip = session.get_one(Trip, attempt.trip_id, with_for_update=True)
+    session.refresh(attempt)  # The lock may have waited for the real check to finish.
+    if attempt.ai_status == "pending":
+        result = ai.AiResult(None, {"error": "stuck in checking"}, settings.gemini_model, None)
+        apply_result(session, attempt, trip, result)
+    session.commit()
+
+
+def sweep_stuck_attempts(session: Session, trip_id: UUID | None = None) -> None:
+    """Send attempts stuck in checking to a person. Runs on read, because Render's free tier has
+    no reliable scheduler. Driver polls pass their trip; office screens sweep every trip.
+    """
+    stuck = select(PodAttempt.id).where(
+        PodAttempt.ai_status == "pending",
+        PodAttempt.received_at < datetime.now(UTC) - STUCK_AFTER,
+    )
+    if trip_id is not None:
+        stuck = stuck.where(PodAttempt.trip_id == trip_id)
+    for attempt_id in session.scalars(stuck).all():
+        fail_stuck_attempt(session, attempt_id)
 
 
 def run_check(attempt_id: UUID) -> None:

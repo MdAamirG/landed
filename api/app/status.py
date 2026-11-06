@@ -5,12 +5,13 @@ same transaction. The caller commits, so a status and its audit event land toget
 """
 
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
+from sqlalchemy import update
 from sqlalchemy.orm import Session
 
-from app.models import ActorType, AuditEvent, PodStatus, Trip
+from app.models import ActorType, AuditEvent, DriverLink, PodStatus, Trip
 from app.rules import ReasonCode
 
 
@@ -21,6 +22,10 @@ class Actor:
 
 
 SYSTEM = Actor(ActorType.SYSTEM)
+
+# How long a driver link lasts past expected delivery, and past a retake request. It outlasts the
+# journey: an 800 km run can take about three days.
+LINK_LIFETIME = timedelta(hours=72)
 
 # For each status: who may move a trip out of it, and where to. Keeping the actor here means the
 # system can't approve a trip a person is reviewing, and only a person can invoice one.
@@ -56,6 +61,29 @@ def check_move(current: PodStatus, target: PodStatus, actor_type: ActorType) -> 
         raise IllegalMove(f"Only {allowed_actor} can move a trip out of {current}.")
 
 
+def ask_driver_for_a_retake(
+    session: Session, trip: Trip, actor: Actor, reason: ReasonCode | None
+) -> None:
+    """Here rather than in each caller, so a system or an office retake can't skip any of it."""
+    trip.retakes_used += 1
+    # Every unrevoked link, because the phone may hold any of them with a photo waiting to send.
+    session.execute(
+        update(DriverLink)
+        .where(DriverLink.trip_id == trip.id, DriverLink.revoked_at.is_(None))
+        .values(expires_at=datetime.now(UTC) + LINK_LIFETIME)
+    )
+    # The SMS is mocked, so this event is the send. It never holds the token.
+    session.add(
+        AuditEvent(
+            trip_id=trip.id,
+            actor_type=actor.type,
+            actor_id=actor.id,
+            action="sms_sent",
+            detail={"purpose": "retake", "reason": reason},
+        )
+    )
+
+
 def move_trip(
     session: Session,
     trip: Trip,
@@ -75,7 +103,7 @@ def move_trip(
     trip.status_reason = reason
     trip.version += 1  # A move is a save, so an executive's open copy of this trip goes stale.
     if target == PodStatus.RETAKE_REQUESTED:
-        trip.retakes_used += 1  # Whoever asks for it, so an office retake counts toward the cap.
+        ask_driver_for_a_retake(session, trip, actor, reason)
 
     if target == PodStatus.VERIFIED:
         trip.verified_at = datetime.now(UTC)

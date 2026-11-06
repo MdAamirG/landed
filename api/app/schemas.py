@@ -51,6 +51,8 @@ class DriverTripOut(BaseModel):
     lr_number: str
     eway_bill_no: str
     pod_status: PodStatus
+    retakes_used: int
+    reason_codes: list[str]  # Why a retake was asked for. Empty for any other status.
 
 
 class AttemptForm(BaseModel):
