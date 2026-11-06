@@ -74,6 +74,8 @@ def move_trip(
     trip.pod_status = target
     trip.status_reason = reason
     trip.version += 1  # A move is a save, so an executive's open copy of this trip goes stale.
+    if target == PodStatus.RETAKE_REQUESTED:
+        trip.retakes_used += 1  # Whoever asks for it, so an office retake counts toward the cap.
 
     if target == PodStatus.VERIFIED:
         trip.verified_at = datetime.now(UTC)

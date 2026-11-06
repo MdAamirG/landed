@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     database_url_pooled: str  # Pooled connection, for the app.
     session_secret: str = Field(min_length=32)  # Signs office sessions. 32 bytes suits HS256.
     driver_link_secret: str = Field(min_length=32)  # Keys the stored hash of each driver token.
+    gemini_api_key: str
+    gemini_model: str = "gemini-3.5-flash-lite"
     web_origin: str  # The web app's URL.
     demo_mode: bool = False
 

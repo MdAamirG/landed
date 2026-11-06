@@ -36,6 +36,7 @@ api/
     rules.py      # decide(): the AI decision rule, pure, no I/O
     status.py     # move_trip(): the only code that changes pod_status
     ai.py         # Gemini call, timeout, schema validation
+    intake.py     # stores an attempt, then the background check
     tally.py      # Tally XML export
     routers/      # health, auth, driver, review, billing, dashboard, trips
   tests/

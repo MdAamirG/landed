@@ -86,6 +86,31 @@ def db():
         session.rollback()
 
 
+class FakeAi:
+    """Stands in for app.ai.read_pod. A test sets .reading, or .reading = None for a failure."""
+
+    def __init__(self):
+        self.reading = None
+        self.calls = 0
+        self.during_call = None  # Runs mid-check, for tests about something happening meanwhile.
+
+    def __call__(self, image: bytes, media_type: str):
+        from app.ai import AiResult
+
+        self.calls += 1
+        if self.during_call:
+            self.during_call()
+        raw = self.reading.model_dump(mode="json") if self.reading else {"error": "fake failure"}
+        return AiResult(self.reading, raw, "fake-model", 1234)
+
+
+@pytest.fixture
+def fake_ai(monkeypatch):
+    fake = FakeAi()
+    monkeypatch.setattr("app.ai.read_pod", fake)
+    return fake
+
+
 @pytest.fixture
 def api_client():
     from fastapi.testclient import TestClient

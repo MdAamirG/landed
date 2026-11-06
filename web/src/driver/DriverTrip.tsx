@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router";
 
 import { ApiError, getDriverTrip, type DriverTrip as Trip, type PodStatus } from "../lib/api";
+import PhotoCheck, { type CheckEnd } from "./PhotoCheck";
 
 // Only these two statuses wait on the driver. Any other means the photo has been dealt with.
 const NEEDS_PHOTO: PodStatus[] = ["awaiting_pod", "retake_requested"];
@@ -10,7 +11,23 @@ type Screen =
   | { name: "loading" }
   | { name: "unreachable" }
   | { name: "dead-link" }
-  | { name: "trip"; trip: Trip };
+  | { name: "trip"; trip: Trip; notice?: string }
+  | { name: "checking"; trip: Trip; photo: File }
+  | { name: "done"; trip: Trip; message: DoneMessage };
+
+type DoneMessage = "verified" | "with-office" | "sms-later";
+
+const DONE_MESSAGES: Record<DoneMessage, { line: string; sent?: string }> = {
+  verified: { line: "POD verified. You can leave.", sent: "Sent to billing" },
+  "with-office": { line: "You can leave.", sent: "Sent to office" },
+  "sms-later": { line: "You can go, we'll SMS if needed." },
+};
+
+function doneMessageFor(status: PodStatus): DoneMessage {
+  if (status === "verified" || status === "invoiced") return "verified";
+  // Still in checking means the driver left mid-check and has come back.
+  return status === "checking" ? "sms-later" : "with-office";
+}
 
 /** 341099217735 becomes 3410 9921 7735, the way it is printed on the bill. */
 function formatEwayBill(number: string): string {
@@ -42,11 +59,44 @@ function TripCard({ trip }: { trip: Trip }) {
   );
 }
 
-function TakePhoto({ trip }: { trip: Trip }) {
+function TakePhoto({
+  trip,
+  notice,
+  onPhoto,
+}: {
+  trip: Trip;
+  notice?: string;
+  onPhoto: (photo: File) => void;
+}) {
+  const camera = useRef<HTMLInputElement>(null);
+
   return (
     <main className="driver desk">
       <TripCard trip={trip} />
-      <button className="btn btn--ink big driver__shoot" type="button">
+      {notice && (
+        <p className="form-error" role="alert">
+          {notice}
+        </p>
+      )}
+      {/* capture opens the rear camera straight away on a phone, with nothing to choose. */}
+      <input
+        ref={camera}
+        className="driver__camera"
+        type="file"
+        accept="image/*"
+        capture="environment"
+        aria-label="Take POD photo"
+        onChange={(event) => {
+          const photo = event.target.files?.[0];
+          event.target.value = ""; // So the same file can be picked again after a failure.
+          if (photo) onPhoto(photo);
+        }}
+      />
+      <button
+        className="btn btn--ink big driver__shoot"
+        type="button"
+        onClick={() => camera.current?.click()}
+      >
         <svg
           width="52"
           height="52"
@@ -89,7 +139,8 @@ function TakePhoto({ trip }: { trip: Trip }) {
   );
 }
 
-function Done({ trip }: { trip: Trip }) {
+function Done({ trip, message }: { trip: Trip; message: DoneMessage }) {
+  const { line, sent } = DONE_MESSAGES[message];
   return (
     <main className="driver driver--centred desk">
       <div className="driver__tick">
@@ -110,10 +161,11 @@ function Done({ trip }: { trip: Trip }) {
         </div>
       </div>
       <h1 className="driver__title">हो गया</h1>
-      <p className="muted">POD received. You can leave.</p>
+      <p className="muted">{line}</p>
       <p className="fig muted">
         {trip.trip_code}, {trip.destination}
       </p>
+      {sent && <p className="driver__sent">{sent}</p>}
     </main>
   );
 }
@@ -157,6 +209,21 @@ export default function DriverTrip() {
 
   useEffect(load, [load]);
 
+  const finishCheck = useCallback(
+    (trip: Trip, end: CheckEnd) => {
+      if (end.name === "link-dead") setScreen({ name: "dead-link" });
+      else if (end.name === "gave-up") setScreen({ name: "done", trip, message: "sms-later" });
+      else if (end.name === "refused") {
+        setScreen({ name: "trip", trip, notice: "The photo didn't send. Please try again." });
+      } else if (end.attempt.outcome === "retake_requested") load();
+      else {
+        const message = doneMessageFor(end.attempt.outcome ?? "needs_review");
+        setScreen({ name: "done", trip, message });
+      }
+    },
+    [load],
+  );
+
   switch (screen.name) {
     case "loading":
       return (
@@ -182,9 +249,24 @@ export default function DriverTrip() {
       return <DeadLink />;
     case "trip":
       return NEEDS_PHOTO.includes(screen.trip.pod_status) ? (
-        <TakePhoto trip={screen.trip} />
+        <TakePhoto
+          trip={screen.trip}
+          notice={screen.notice}
+          onPhoto={(photo) => setScreen({ name: "checking", trip: screen.trip, photo })}
+        />
       ) : (
-        <Done trip={screen.trip} />
+        <Done trip={screen.trip} message={doneMessageFor(screen.trip.pod_status)} />
       );
+    case "checking":
+      return (
+        <PhotoCheck
+          trip={screen.trip}
+          token={token}
+          photo={screen.photo}
+          onEnd={(end) => finishCheck(screen.trip, end)}
+        />
+      );
+    case "done":
+      return <Done trip={screen.trip} message={screen.message} />;
   }
 }

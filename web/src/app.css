@@ -236,3 +236,75 @@
   margin-top: 16px;
   font-size: 18px;
 }
+
+.driver__camera {
+  display: none;
+}
+
+.driver__sent {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-ok);
+}
+
+/* Checking: the photo on the dark board, with the steps on a sheet below it */
+.driver-check {
+  min-height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background-color: var(--color-board);
+}
+
+.driver-check__photo {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  max-height: 55dvh;
+  object-fit: contain;
+  padding: 56px 24px 16px;
+}
+
+.driver-check__sheet {
+  margin-top: auto;
+  background-color: var(--color-cotton);
+  border-radius: 16px 16px 0 0;
+  padding: 24px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.driver-check__sheet h1 {
+  font-size: 26px;
+}
+
+.driver__step-done {
+  background-color: var(--color-ok-wash);
+  color: var(--color-ok);
+}
+
+.driver__step-busy {
+  border: 3px solid var(--color-paper-3);
+  border-top-color: var(--color-ink);
+  animation: driver-spin 1s linear infinite;
+}
+
+.driver__step-detail {
+  font-size: 13px;
+  font-weight: 400;
+}
+
+@keyframes driver-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .driver__step-busy {
+    animation: none;
+  }
+}

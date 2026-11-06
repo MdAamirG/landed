@@ -104,8 +104,43 @@ export async function isDemoMode(): Promise<boolean> {
 
 /** The token goes in a header, not the API path, so it stays out of the API's request logs. */
 export async function getDriverTrip(token: string): Promise<DriverTrip> {
-  const response = await request("/driver/trip", {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const response = await request("/driver/trip", { headers: driverHeaders(token) });
   return (await response.json()) as DriverTrip;
+}
+
+export type AttemptResult = {
+  attempt_id: string;
+  attempt_no: number;
+  outcome: PodStatus | null;
+  reason_codes: string[];
+  retakes_used: number;
+};
+
+function driverHeaders(token: string): HeadersInit {
+  return { Authorization: `Bearer ${token}` };
+}
+
+export async function uploadAttempt(
+  token: string,
+  attemptId: string,
+  photo: Blob,
+  capturedAt: Date,
+): Promise<AttemptResult> {
+  const form = new FormData();
+  form.set("attempt_id", attemptId);
+  form.set("captured_at", capturedAt.toISOString());
+  form.set("photo", photo, "pod.jpg");
+  const response = await request("/driver/attempts", {
+    method: "POST",
+    headers: driverHeaders(token),
+    body: form,
+  });
+  return (await response.json()) as AttemptResult;
+}
+
+export async function getAttempt(token: string, attemptId: string): Promise<AttemptResult> {
+  const response = await request(`/driver/attempts/${attemptId}`, {
+    headers: driverHeaders(token),
+  });
+  return (await response.json()) as AttemptResult;
 }

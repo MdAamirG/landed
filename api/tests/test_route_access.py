@@ -31,6 +31,12 @@ OFFICE_ROUTES = [
 # valid tokens; here a route only has to refuse a request without one.
 DRIVER_ROUTES = [
     ("GET", "/api/driver/trip", "/api/driver/trip"),
+    ("POST", "/api/driver/attempts", "/api/driver/attempts"),
+    (
+        "GET",
+        "/api/driver/attempts/00000000-0000-0000-0000-000000000000",
+        "/api/driver/attempts/{attempt_id}",
+    ),
 ]
 
 PASSWORD = "correct horse battery"

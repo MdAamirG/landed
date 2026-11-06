@@ -2,8 +2,9 @@
 
 from datetime import date
 from typing import Annotated, Literal
+from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
 
 from app.models import PodStatus, Role
 
@@ -50,6 +51,24 @@ class DriverTripOut(BaseModel):
     lr_number: str
     eway_bill_no: str
     pod_status: PodStatus
+
+
+class AttemptForm(BaseModel):
+    """The form fields sent with a photo. The ID comes from the phone, so retries are safe."""
+
+    attempt_id: UUID
+    captured_at: AwareDatetime  # A time without a zone couldn't be stored as UTC.
+    gps_lat: float | None = Field(default=None, ge=-90, le=90)
+    gps_lng: float | None = Field(default=None, ge=-180, le=180)
+    gps_accuracy_m: float | None = Field(default=None, ge=0)
+
+
+class AttemptOut(BaseModel):
+    attempt_id: UUID
+    attempt_no: int
+    outcome: PodStatus | None  # Empty until the check finishes.
+    reason_codes: list[str]
+    retakes_used: int
 
 
 # What the AI must return, field for field from docs/data-model.md. A value of None means the

@@ -7,11 +7,32 @@ from sqlalchemy.orm import Session
 
 from app.auth import hash_password
 from app.models import Branch, Client, Driver, Role, Trip, User, Vehicle
+from app.rules import INDIA
+from app.schemas import PodReading
 
 
 def unique_digits(length: int) -> str:
     """Random digits, for values that must be unique across tests."""
     return str(uuid4().int)[:length]
+
+
+def clean_reading(trip: Trip, **overrides) -> PodReading:
+    """What the AI would read from a perfect POD for this trip. Overrides replace whole fields."""
+    today = datetime.now(UTC).astimezone(INDIA).date()
+    values = {
+        "lr_number": {"value": trip.lr_number, "confidence": 0.99},
+        "consignee_stamp": {"value": "present", "confidence": 0.99},
+        "quantity_received": {
+            "number": float(trip.qty_dispatched),
+            "unit": trip.qty_unit,
+            "confidence": 0.99,
+        },
+        "remarks": {"text": "", "kind": "none", "confidence": 0.99},
+        "delivery_date": {"value": today, "confidence": 0.99},
+        "signature": {"value": "present", "confidence": 0.99},
+        "image_quality": "ok",
+    }
+    return PodReading.model_validate(values | overrides)
 
 
 def make_user(
