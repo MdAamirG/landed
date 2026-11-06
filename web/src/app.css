@@ -115,3 +115,124 @@
   padding: 24px 16px;
   justify-content: center;
 }
+
+/* Driver screens: one column on a phone, and it stays a phone-sized column on anything wider */
+.driver {
+  min-height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.driver--centred {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 12px;
+}
+
+.driver__trip {
+  padding: 18px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.driver__trip--loading {
+  min-height: 180px;
+}
+
+.driver__trip h1 {
+  font-size: 26px;
+}
+
+.driver__trip-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 15px;
+}
+
+.driver__client {
+  font-size: 14px;
+  margin-top: -6px;
+}
+
+.plate {
+  background-color: var(--color-plate);
+  color: var(--color-print);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px oklch(var(--shade) / 0.35);
+}
+
+.driver__shoot {
+  min-height: 232px;
+  gap: 10px;
+}
+
+.driver__shoot-hi {
+  font-size: 34px;
+  font-weight: 600;
+}
+
+.driver__shoot-en {
+  font-size: 15px;
+  color: var(--color-board-muted);
+}
+
+.driver__hint {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 0 4px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.driver__hint .muted {
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.driver__tick {
+  width: 136px;
+  height: 136px;
+  border-radius: 68px;
+  background-color: var(--color-ok-wash);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.driver__tick > div {
+  width: 100px;
+  height: 100px;
+  border-radius: 50px;
+  background-color: var(--color-ok);
+  color: var(--color-cotton);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.driver__title {
+  font-size: 42px;
+  margin-top: 10px;
+}
+
+.driver__warn {
+  color: var(--color-retake-ink);
+}
+
+.driver__retry {
+  min-height: 60px;
+  margin-top: 16px;
+  font-size: 18px;
+}

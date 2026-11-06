@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router";
 
+import DriverTrip from "./driver/DriverTrip";
 import { DESTINATIONS } from "./office/destinations";
 import { OfficeHome, OfficeLayout, RoleGate } from "./office/OfficeLayout";
 import Placeholder from "./office/Placeholder";
@@ -13,6 +14,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/office" replace />} />
         <Route path="/status" element={<Status />} />
+        <Route path="/d/:token" element={<DriverTrip />} />
 
         {/* Only the office area loads the session. The driver area never touches it. */}
         <Route

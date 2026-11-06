@@ -19,6 +19,26 @@ export async function checkApiHealth(): Promise<ApiHealth> {
   }
 }
 
+export type PodStatus =
+  | "awaiting_pod"
+  | "checking"
+  | "retake_requested"
+  | "needs_review"
+  | "verified"
+  | "disputed"
+  | "invoiced";
+
+export type DriverTrip = {
+  trip_code: string;
+  registration_no: string;
+  client_name: string;
+  origin: string;
+  destination: string;
+  lr_number: string;
+  eway_bill_no: string;
+  pod_status: PodStatus;
+};
+
 export type Role = "billing_executive" | "operations_head";
 
 export type OfficeUser = { name: string; email: string; role: Role };
@@ -80,4 +100,12 @@ export async function logout(): Promise<void> {
 export async function isDemoMode(): Promise<boolean> {
   const options = (await (await request("/auth/options")).json()) as { demo_mode: boolean };
   return options.demo_mode;
+}
+
+/** The token goes in a header, not the API path, so it stays out of the API's request logs. */
+export async function getDriverTrip(token: string): Promise<DriverTrip> {
+  const response = await request("/driver/trip", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return (await response.json()) as DriverTrip;
 }

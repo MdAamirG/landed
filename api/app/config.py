@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     database_url: str  # Direct connection, for Alembic. Migrations shouldn't run through the pooler.
     database_url_pooled: str  # Pooled connection, for the app.
     session_secret: str = Field(min_length=32)  # Signs office sessions. 32 bytes suits HS256.
+    driver_link_secret: str = Field(min_length=32)  # Keys the stored hash of each driver token.
     web_origin: str  # The web app's URL.
     demo_mode: bool = False
 

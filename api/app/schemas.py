@@ -5,7 +5,7 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.models import Role
+from app.models import PodStatus, Role
 
 
 class PingOut(BaseModel):
@@ -37,6 +37,19 @@ class OfficeUserOut(BaseModel):
     name: str
     email: str
     role: Role
+
+
+class DriverTripOut(BaseModel):
+    """What a driver may see. It lists fields one by one, so consignee details can't leak in."""
+
+    trip_code: str
+    registration_no: str
+    client_name: str
+    origin: str
+    destination: str
+    lr_number: str
+    eway_bill_no: str
+    pod_status: PodStatus
 
 
 # What the AI must return, field for field from docs/data-model.md. A value of None means the

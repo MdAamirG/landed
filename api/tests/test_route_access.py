@@ -27,6 +27,12 @@ OFFICE_ROUTES = [
     ("GET", "/api/auth/me", "/api/auth/me", set(Role)),
 ]
 
+# Each of these takes a driver token, and opens only that token's trip. test_driver.py covers
+# valid tokens; here a route only has to refuse a request without one.
+DRIVER_ROUTES = [
+    ("GET", "/api/driver/trip", "/api/driver/trip"),
+]
+
 PASSWORD = "correct horse battery"
 
 
@@ -42,7 +48,11 @@ def test_every_api_route_is_listed_here():
         for path, operations in app.openapi()["paths"].items()
         for method in operations
     }
-    listed = PUBLIC_ROUTES | {(method, path) for method, _, path, _ in OFFICE_ROUTES}
+    listed = (
+        PUBLIC_ROUTES
+        | {(method, path) for method, _, path, _ in OFFICE_ROUTES}
+        | {(method, path) for method, _, path in DRIVER_ROUTES}
+    )
 
     assert declared == listed
 
@@ -63,6 +73,18 @@ def test_office_routes_check_the_role(api_client, db, role, method, url, _path, 
         assert response.status_code not in (401, 403)
     else:
         assert response.status_code == 403
+
+
+@pytest.mark.parametrize(("method", "url", "_path"), DRIVER_ROUTES)
+def test_driver_routes_refuse_a_request_without_a_token(api_client, method, url, _path):
+    assert api_client.request(method, url).status_code == 401
+
+
+def test_an_office_session_does_not_open_a_driver_route(api_client, db):
+    signed_in_as(api_client, db, Role.BILLING_EXECUTIVE)
+
+    for method, url, _path in DRIVER_ROUTES:
+        assert api_client.request(method, url).status_code == 401
 
 
 def test_require_role_gives_403_to_the_wrong_role_and_lets_the_right_one_through(api_client, db):
