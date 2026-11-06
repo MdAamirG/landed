@@ -10,8 +10,8 @@
 
 ## ready-for-agent
 
-- [ ] The repo holds the Render and Vercel config, including the rewrite from `/api/*` to Render
-- [ ] Migrations and the seed have a documented command to run against Neon
+- [x] The repo holds the Render and Vercel config, including the rewrite from `/api/*` to Render
+- [x] Migrations and the seed have a documented command to run against Neon
 - [ ] Once the human part below is done, the live web app shows the API as reachable through the rewrite
 
 ## ready-for-human
@@ -19,5 +19,6 @@
 These are Aamir's steps.
 
 - [ ] Create the Render and Vercel accounts and connect them to the repo
-- [ ] Set the environment variables on Render and Vercel, using the names in `.env.example`. `DATABASE_URL_TEST` stays local
+- [ ] Run the migrations and the seed against Neon, using the commands in `deployment.md`
+- [ ] Enter the environment variables Render asks for, following `deployment.md`. `render.yaml` sets the others. Vercel needs none, because the rewrite is in `vercel.json`. `DATABASE_URL_TEST` stays local
 - [ ] Set up the uptime ping every 10 minutes, on `/api/ping`. Render's health check path uses `/api/ping` too. Pinging `/api/health` would run a query each time, keep Neon awake and use up most of the free compute hours

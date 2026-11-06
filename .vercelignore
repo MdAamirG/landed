@@ -1,0 +1,2 @@
+# Vercel would treat the Python files here as serverless functions. The API runs on Render.
+/api

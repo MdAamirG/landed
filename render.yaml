@@ -1,0 +1,31 @@
+# The API on Render's free tier. Connect the repo as a Blueprint and Render reads this file.
+services:
+  - type: web
+    name: landed-api # Sets the URL, which vercel.json points at. Change both together.
+    runtime: python
+    region: singapore # Next to Neon, which is in ap-southeast-1.
+    plan: free
+    rootDir: api # Render can't see files outside this, and only deploys when this folder changes.
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/ping # Not /api/health: that runs a query, which keeps Neon awake.
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.16 # Must be a full version. Without it, new services get 3.14.
+      - key: GEMINI_MODEL
+        value: gemini-3.5-flash-lite
+      # sync: false means Render asks for the value when the Blueprint is first created.
+      - key: DATABASE_URL # The app only needs this to start: migrations run from a laptop.
+        sync: false
+      - key: DATABASE_URL_POOLED
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: SESSION_SECRET # Paste from .env, so every environment uses the same secret.
+        sync: false
+      - key: DRIVER_LINK_SECRET # Paste from .env, so every environment uses the same secret.
+        sync: false
+      - key: WEB_ORIGIN
+        sync: false
+      - key: DEMO_MODE
+        sync: false
