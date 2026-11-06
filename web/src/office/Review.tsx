@@ -22,6 +22,7 @@ import {
 } from "../lib/api";
 import { FIELD_LABELS, MIN_CONFIDENCE, REASON_LABELS } from "./reviewLabels";
 import { ErrorState, Skeleton, type Loadable } from "./LoadStates";
+import MockSmsToast, { type MockSms } from "./MockSmsToast";
 import { useSession } from "./session";
 
 function indiaTime(iso: string): string {
@@ -460,10 +461,12 @@ function approveLabel(trip: ReviewTrip, attempt: ReviewAttempt | null): string {
 function Desk({
   tripId,
   onDone,
+  onMockSms,
   onSignedOut,
 }: {
   tripId: string;
   onDone: () => void;
+  onMockSms: (sms: MockSms) => void;
   onSignedOut: () => void;
 }) {
   const [loaded, setLoaded] = useState<Loadable<ReviewTrip>>({ state: "loading" });
@@ -524,6 +527,9 @@ function Desk({
     setActing(true);
     const moved = await queueChange((current) => actOnTrip(tripId, action, current));
     setActing(false);
+    if (moved?.driver_token) {
+      onMockSms({ sentTo: moved.driver_phone, token: moved.driver_token });
+    }
     if (moved) onDone();
   }
 
@@ -681,6 +687,7 @@ export default function Review() {
   const [queue, setQueue] = useState<Loadable<ReviewQueueItem[]>>({ state: "loading" });
   const [selected, setSelected] = useState<string | null>(null);
   const [filter, setFilter] = useState<ReviewFilter>("needs_review");
+  const [mockSms, setMockSms] = useState<MockSms | null>(null);
 
   const signedOut = useCallback(() => setUser(null), [setUser]);
 
@@ -748,11 +755,13 @@ export default function Review() {
               key={selected}
               tripId={selected}
               onDone={() => void loadQueue()}
+              onMockSms={setMockSms}
               onSignedOut={signedOut}
             />
           )}
         </div>
       )}
+      {mockSms && <MockSmsToast sms={mockSms} onClose={() => setMockSms(null)} />}
     </>
   );
 }

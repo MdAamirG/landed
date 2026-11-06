@@ -257,6 +257,7 @@ export type ReviewTrip = {
   current_attempt_id: string | null;
   attempts: ReviewAttempt[];
   checks: { label: string; ok: boolean }[];
+  driver_token?: string | null; // Only on a retake's response, and only in DEMO_MODE.
 };
 
 export type ReviewQueueItem = {
@@ -391,7 +392,9 @@ export async function getQueueCounts(): Promise<QueueCounts> {
   return (await (await request("/dashboard/counts")).json()) as QueueCounts;
 }
 
-export async function resendDriverLink(tripId: string): Promise<{ sent_to: string }> {
+export type Resent = { sent_to: string; driver_token: string | null };
+
+export async function resendDriverLink(tripId: string): Promise<Resent> {
   const path = `/dashboard/trips/${tripId}/resend-link`;
-  return (await (await request(path, { method: "POST" })).json()) as { sent_to: string };
+  return (await (await request(path, { method: "POST" })).json()) as Resent;
 }

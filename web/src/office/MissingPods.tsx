@@ -9,6 +9,7 @@ import {
   type MissingPod,
 } from "../lib/api";
 import { ErrorState, Skeleton, type Loadable } from "./LoadStates";
+import MockSmsToast from "./MockSmsToast";
 import { useSession } from "./session";
 
 // The brief's success targets and starting points, shown beside each figure.
@@ -64,7 +65,7 @@ function Figures({ dashboard }: { dashboard: Dashboard }) {
 
 type Resend =
   | { state: "idle" | "sending" }
-  | { state: "sent"; to: string }
+  | { state: "sent"; to: string; token: string | null }
   | { state: "failed"; why: string };
 
 function ResendLink({ tripId, onSignedOut }: { tripId: string; onSignedOut: () => void }) {
@@ -73,8 +74,8 @@ function ResendLink({ tripId, onSignedOut }: { tripId: string; onSignedOut: () =
   async function send() {
     setResend({ state: "sending" });
     try {
-      const { sent_to: to } = await resendDriverLink(tripId);
-      setResend({ state: "sent", to });
+      const { sent_to: to, driver_token: token } = await resendDriverLink(tripId);
+      setResend({ state: "sent", to, token });
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) {
         onSignedOut();
@@ -101,6 +102,12 @@ function ResendLink({ tripId, onSignedOut }: { tripId: string; onSignedOut: () =
         <span className="muted dashboard__sent" role="status">
           Mock SMS sent to {resend.to}
         </span>
+      )}
+      {resend.state === "sent" && resend.token && (
+        <MockSmsToast
+          sms={{ sentTo: resend.to, token: resend.token }}
+          onClose={() => setResend({ ...resend, token: null })}
+        />
       )}
       {resend.state === "failed" && (
         <span className="dashboard__sent dashboard__sent--failed" role="alert">
