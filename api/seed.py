@@ -1,4 +1,4 @@
-"""Seeds the brief's sample data. Safe to run twice: rows that already exist are left alone.
+"""Seeds the brief's sample data and the history. Safe to run twice: rows that exist stay as they are.
 
 Run with: cd api && python seed.py
 
@@ -8,59 +8,19 @@ Everything else is an assumption, because the brief's sample shows none of it: s
 phone numbers, the other quantities, branches and times. No real person's data.
 """
 
-from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.auth import DEMO_EMAILS, hash_password
 from app.db import SessionLocal
-from app.models import (
-    ActorType,
-    AuditEvent,
-    Branch,
-    Client,
-    Driver,
-    Language,
-    Ownership,
-    PodStatus,
-    Role,
-    Trip,
-    User,
-    Vehicle,
-)
+from app.models import Language, Ownership, PodStatus, Role, User
 from app.rules import ReasonCode
+from seed_history import seed_history
+from seed_trips import SHEET_DATE, SampleTrip, Sheet, get_or_create, seed_trip
 
 # Not a secret: deployment.md gives reviewers the demo logins, as the brief asks.
 DEMO_PASSWORD = "landed-demo"
-
-ORIGIN = "Chhatrapati Sambhajinagar"
-
-
-@dataclass(frozen=True)
-class SampleTrip:
-    code: str
-    client: str
-    registration_no: str
-    ownership: Ownership
-    destination: str
-    freight_paise: int
-    status: PodStatus
-    status_reason: ReasonCode | None
-    brief_remark: str | None
-    branch: str
-    driver: str
-    driver_phone: str
-    driver_language: Language
-    lr_number: str
-    eway_bill_no: str
-    qty_dispatched: int
-    qty_unit: str
-    consignee_name: str
-    consignee_phone: str
-    consignee_lat: float
-    consignee_lng: float
 
 
 SAMPLE_TRIPS = [
@@ -86,6 +46,7 @@ SAMPLE_TRIPS = [
         consignee_phone="9000000021",
         consignee_lat=21.1458,
         consignee_lng=79.0882,
+        sheet=Sheet("trp-66120.jpg", paper_date=SHEET_DATE),
     ),
     SampleTrip(
         code="TRP-66134",
@@ -109,6 +70,9 @@ SAMPLE_TRIPS = [
         consignee_phone="9000000022",
         consignee_lat=18.7606,
         consignee_lng=73.8636,
+        sheet=Sheet(
+            "trp-66134.jpg", (ReasonCode.STAMP_MISSING,), stamp="absent", paper_date=SHEET_DATE
+        ),
     ),
     SampleTrip(
         code="TRP-66141",
@@ -132,6 +96,14 @@ SAMPLE_TRIPS = [
         consignee_phone="9000000023",
         consignee_lat=22.7196,
         consignee_lng=75.8577,
+        sheet=Sheet(
+            "trp-66141.jpg",
+            (ReasonCode.SHORTAGE_REMARK, ReasonCode.QTY_SHORT),
+            qty_received=394,
+            remark="Short by 6 cartons",
+            remark_kind="shortage",
+            paper_date=SHEET_DATE,
+        ),
     ),
 ]
 
@@ -139,76 +111,6 @@ DEMO_USERS = [
     ("Sample Billing Executive", DEMO_EMAILS[Role.BILLING_EXECUTIVE], Role.BILLING_EXECUTIVE),
     ("Sample Operations Head", DEMO_EMAILS[Role.OPERATIONS_HEAD], Role.OPERATIONS_HEAD),
 ]
-
-
-def get_or_create(session: Session, model, lookup: dict, **values):
-    """Find a row by its natural key, or add it. This is what makes the seed repeatable."""
-    row = session.scalar(select(model).filter_by(**lookup))
-    if row is None:
-        row = model(**lookup, **values)
-        session.add(row)
-        session.flush()
-    return row
-
-
-def seed_trip(session: Session, sample: SampleTrip, now: datetime) -> None:
-    if session.scalar(select(Trip.id).filter_by(trip_code=sample.code)):
-        return
-
-    client = get_or_create(
-        session, Client, {"name": sample.client}, tally_ledger_name=sample.client
-    )
-    branch = get_or_create(session, Branch, {"name": sample.branch})
-    vehicle = get_or_create(
-        session, Vehicle, {"registration_no": sample.registration_no}, ownership=sample.ownership
-    )
-    driver = get_or_create(
-        session,
-        Driver,
-        {"phone": sample.driver_phone},
-        name=sample.driver,
-        language=sample.driver_language,
-    )
-
-    trip = Trip(
-        trip_code=sample.code,
-        client_id=client.id,
-        branch_id=branch.id,
-        vehicle_id=vehicle.id,
-        driver_id=driver.id,
-        origin=ORIGIN,
-        destination=sample.destination,
-        lr_number=sample.lr_number,
-        eway_bill_no=sample.eway_bill_no,
-        qty_dispatched=sample.qty_dispatched,
-        qty_unit=sample.qty_unit,
-        freight_paise=sample.freight_paise,
-        consignee_name=sample.consignee_name,
-        consignee_phone=sample.consignee_phone,
-        consignee_lat=sample.consignee_lat,
-        consignee_lng=sample.consignee_lng,
-        dispatched_at=now - timedelta(days=3),
-        expected_delivery_at=now - timedelta(days=1),
-        pod_status=sample.status,
-        status_reason=sample.status_reason,
-        # A move to retake_requested uses up one of the two retakes.
-        retakes_used=1 if sample.status == PodStatus.RETAKE_REQUESTED else 0,
-        # verified_by stays empty: the sample trip counts as verified by the AI.
-        verified_at=now if sample.status == PodStatus.VERIFIED else None,
-    )
-    session.add(trip)
-    session.flush()
-
-    # The seed bypasses the status machine, so it writes the audit event itself.
-    session.add(
-        AuditEvent(
-            trip_id=trip.id,
-            actor_type=ActorType.SYSTEM,
-            action="seeded",
-            to_status=sample.status,
-            detail={"source": "brief sample data", "remark": sample.brief_remark},
-        )
-    )
 
 
 def seed(session: Session) -> None:
@@ -228,5 +130,6 @@ def seed(session: Session) -> None:
 if __name__ == "__main__":
     with SessionLocal() as session:
         seed(session)
+        seed_history(session)
         session.commit()
     print("Seed complete.")

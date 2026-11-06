@@ -1,11 +1,26 @@
 """The seed puts the brief's sample data in place. Expected values are copied from docs/brief.md."""
 
+from datetime import datetime, time
+
 import pytest
 from argon2 import PasswordHasher
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 
-from app.models import AuditEvent, Branch, Client, Driver, Trip, User, Vehicle
+from app.models import (
+    AuditEvent,
+    Branch,
+    Client,
+    Driver,
+    PodAttempt,
+    PodField,
+    Trip,
+    User,
+    Vehicle,
+)
+from app.rules import INDIA, Facts, decide
+from app.schemas import PodReading
 from seed import DEMO_PASSWORD, seed
+from seed_trips import PHOTOS, SHEET_DATE
 
 pytestmark = pytest.mark.usefixtures("empty_db")
 
@@ -66,6 +81,13 @@ def test_seeded_trips_match_the_approved_screens(db):
     assert (indore.qty_dispatched, indore.qty_unit) == (400, "cartons")
 
 
+def test_each_seeded_field_agrees_with_the_date_on_its_sheet(db):
+    seed(db)
+
+    dates = db.scalars(select(PodField.ai_value).where(PodField.field == "delivery_date")).all()
+    assert dates == [SHEET_DATE.isoformat()] * 3
+
+
 def test_seeded_statuses_are_consistent_with_their_rules(db):
     seed(db)
 
@@ -115,3 +137,108 @@ def test_seeding_twice_changes_nothing(db):
     assert count(db, Client) == 3
     assert count(db, User) == 2
     assert count(db, AuditEvent) == 3
+
+
+def attempts_of(db, trip) -> list[PodAttempt]:
+    return list(db.scalars(select(PodAttempt).where(PodAttempt.trip_id == trip.id)))
+
+
+def rule_result(attempt: PodAttempt, trip: Trip):
+    """What the real decision rule makes of the stored reading, had the photo come in on the day
+    the sheet is dated. The seed itself runs on any day, so its capture time can't be used here.
+    """
+    return decide(
+        PodReading.model_validate(attempt.ai_raw),
+        Facts(
+            lr_number=trip.lr_number,
+            qty_dispatched=trip.qty_dispatched,
+            qty_unit=trip.qty_unit,
+            retakes_used=0,
+            distance_km=attempt.distance_km,
+            captured_at=datetime.combine(SHEET_DATE, time(12), tzinfo=INDIA),
+        ),
+    )
+
+
+@pytest.mark.parametrize(
+    ("code", "status", "reasons", "photo"),
+    [
+        ("TRP-66120", "verified", [], "trp-66120.jpg"),
+        ("TRP-66134", "retake_requested", ["stamp_missing"], "trp-66134.jpg"),
+        ("TRP-66141", "needs_review", ["shortage_remark", "qty_short"], "trp-66141.jpg"),
+    ],
+)
+def test_each_brief_trip_has_the_photo_its_status_came_from(db, code, status, reasons, photo):
+    seed(db)
+
+    trip = trip_by_code(db, code)
+    attempts = attempts_of(db, trip)
+    assert [attempt.attempt_no for attempt in attempts] == [1]
+    attempt = attempts[0]
+    assert attempt.outcome == status
+    assert attempt.reason_codes == reasons
+    assert attempt.ai_status == "done"
+    assert attempt.image_bytes == (PHOTOS / photo).read_bytes()
+    assert attempt.size_bytes == len(attempt.image_bytes)
+
+    decision = rule_result(attempt, trip)
+    assert decision.status == status
+    assert [code.value for code in decision.reason_codes] == reasons
+
+
+def test_each_seeded_photo_has_all_six_fields(db):
+    seed(db)
+
+    fields = db.scalars(select(PodField)).all()
+    assert len(fields) == 3 * 6
+    assert all(field.final_value == field.ai_value for field in fields)
+
+
+def test_seeding_twice_adds_no_second_photo(db):
+    seed(db)
+    seed(db)
+
+    assert count(db, PodAttempt) == 3
+    assert count(db, PodField) == 3 * 6
+
+
+def test_a_trip_seeded_before_photos_existed_gets_one(db):
+    """The live database already holds the brief's trips, with no attempts."""
+    seed(db)
+    db.execute(delete(PodField))
+    db.execute(delete(PodAttempt))
+
+    seed(db)
+
+    assert count(db, PodAttempt) == 3
+
+
+def test_a_trip_that_has_moved_on_is_left_alone(db):
+    seed(db)
+    db.execute(delete(PodField))
+    db.execute(delete(PodAttempt))
+    trip = trip_by_code(db, "TRP-66141")
+    trip.pod_status = "verified"
+
+    seed(db)
+
+    assert attempts_of(db, trip) == []
+
+
+def test_the_brief_trip_in_review_can_be_approved_and_reach_billing(api_client, db):
+    seed(db)
+    db.commit()
+    signed_in = api_client.post(
+        "/api/auth/login", json={"email": "billing@example.com", "password": DEMO_PASSWORD}
+    )
+    assert signed_in.status_code == 200
+    trip = trip_by_code(db, "TRP-66141")
+
+    approved = api_client.post(
+        f"/api/review/trips/{trip.id}/approve", json={"version": trip.version}
+    )
+
+    assert approved.status_code == 200
+    queue = api_client.get("/api/billing/queue").json()
+    codes = {t["trip_code"] for client in queue["clients"] for t in client["trips"]}
+    assert codes == {"TRP-66120", "TRP-66141"}
