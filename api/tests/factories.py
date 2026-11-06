@@ -5,12 +5,23 @@ from uuid import uuid4
 
 from sqlalchemy.orm import Session
 
-from app.models import Branch, Client, Driver, Trip, Vehicle
+from app.models import Branch, Client, Driver, Role, Trip, User, Vehicle
 
 
 def unique_digits(length: int) -> str:
     """Random digits, for values that must be unique across tests."""
     return str(uuid4().int)[:length]
+
+
+def make_user(session: Session, role: Role = Role.BILLING_EXECUTIVE) -> User:
+    """An office user. The hash is a placeholder, because nothing signs in with it."""
+    tag = unique_digits(8)
+    user = User(
+        name=f"Test user {tag}", email=f"{tag}@example.com", password_hash="unused", role=role
+    )
+    session.add(user)
+    session.commit()
+    return user
 
 
 def make_trip(session: Session, **overrides) -> Trip:

@@ -56,6 +56,21 @@ When an attempt's AI reading comes back, the server runs these checks in order, 
 8. Any field's confidence is below 0.80: **needs review**, `low_confidence`.
 9. Otherwise: **verified**, by the AI.
 
+### Reason codes
+
+`ReasonCode` in `api/app/rules.py` is the one definition, and a test checks that every code appears here. `status_reason` holds the first match and `reason_codes` holds them all. At the cap, `retake_cap_reached` comes first and the problems behind it stay in the list.
+
+| Check | Codes |
+| --- | --- |
+| 1 | `ai_unavailable` |
+| 2 | `photo_blurred`, `photo_dark`, `stamp_missing`, `signature_missing`, `lr_missing`, `quantity_missing`, `date_missing`, then `retake_cap_reached` at the cap |
+| 3 | `lr_mismatch` |
+| 4 | `location_far` |
+| 5 | `date_mismatch` |
+| 6 | `shortage_remark`, `damage_remark`, `other_remark` |
+| 7 | `qty_short`, `qty_mismatch` |
+| 8 | `low_confidence` |
+
 The AI must return this shape, validated with Pydantic. A response that doesn't fit counts as rule 1.
 
 | Field | Value | Confidence |

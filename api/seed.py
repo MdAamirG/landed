@@ -30,6 +30,7 @@ from app.models import (
     User,
     Vehicle,
 )
+from app.rules import ReasonCode
 
 # Not a secret: deployment.md gives reviewers the demo logins, as the brief asks.
 DEMO_PASSWORD = "landed-demo"
@@ -46,7 +47,7 @@ class SampleTrip:
     destination: str
     freight_paise: int
     status: PodStatus
-    status_reason: str | None
+    status_reason: ReasonCode | None
     brief_remark: str | None
     branch: str
     driver: str
@@ -94,8 +95,7 @@ SAMPLE_TRIPS = [
         destination="Pune",
         freight_paise=2_600_000,
         status=PodStatus.RETAKE_REQUESTED,
-        # data-model.md names no code for "stamp not found", so ticket 04 must use this one too.
-        status_reason="stamp_missing",
+        status_reason=ReasonCode.STAMP_MISSING,
         brief_remark="Stamp not visible",
         branch="Pune",
         driver="Sample Driver Two",
@@ -118,7 +118,7 @@ SAMPLE_TRIPS = [
         destination="Indore",
         freight_paise=4_120_000,
         status=PodStatus.NEEDS_REVIEW,
-        status_reason="shortage_remark",
+        status_reason=ReasonCode.SHORTAGE_REMARK,
         brief_remark="Short by 6 cartons",
         branch="Nagpur",
         driver="Sample Driver Three",
