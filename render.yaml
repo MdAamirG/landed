@@ -1,7 +1,7 @@
 # The API on Render's free tier. Connect the repo as a Blueprint and Render reads this file.
 services:
   - type: web
-    name: landed-api # Sets the URL, which vercel.json points at. Change both together.
+    name: landed-api # Render adds a suffix for the URL, so vercel.json holds the real address.
     runtime: python
     region: singapore # Next to Neon, which is in ap-southeast-1.
     plan: free
