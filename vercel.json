@@ -8,6 +8,10 @@
     {
       "source": "/api/:path*",
       "destination": "https://landed-api-80b4.onrender.com/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }

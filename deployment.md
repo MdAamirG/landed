@@ -19,7 +19,7 @@ The seed is safe to run twice. When a later commit adds a migration, run it befo
 ## Deploy the API on Render
 
 1. In Render, choose **New**, then **Blueprint**, and connect the repo. Render reads `render.yaml`.
-2. When asked, paste `DATABASE_URL`, `DATABASE_URL_POOLED`, `GEMINI_API_KEY`, `SESSION_SECRET` and `DRIVER_LINK_SECRET` from your local `.env`. The two secrets must be the same everywhere, so don't generate new ones. Enter `pending` for `WEB_ORIGIN` and `false` for `DEMO_MODE`: nothing reads either yet. `render.yaml` sets `GEMINI_MODEL`.
+2. When asked, paste `DATABASE_URL`, `DATABASE_URL_POOLED`, `GEMINI_API_KEY`, `SESSION_SECRET` and `DRIVER_LINK_SECRET` from your local `.env`. The two secrets must be the same everywhere, so don't generate new ones. Enter `pending` for `WEB_ORIGIN` until the web app has its URL. Set `DEMO_MODE` to `true` for a reviewer's build, or `false` to hide the demo role buttons. `render.yaml` sets `GEMINI_MODEL`.
 3. Check the service URL before deploying the web app. It's `https://landed-api-80b4.onrender.com`. Render chooses that address, so a recreated service may get a different one. If it changes, put the new URL in `vercel.json` and push, and use it for the uptime monitor below.
 
 Each push that changes `api/` deploys again.
@@ -33,7 +33,7 @@ Each push that changes `api/` deploys again.
 3. Check that the build log lists no Python functions. `.vercelignore` keeps `api/` out, so Vercel doesn't try to run it.
 4. Set `WEB_ORIGIN` on Render to the Vercel URL, `https://landed-lovat.vercel.app`.
 
-Open `https://landed-lovat.vercel.app`. "API reachable" means the browser reached Render through the rewrite, and Render reached Neon.
+Open `https://landed-lovat.vercel.app/status`. "API reachable" means the browser reached Render through the rewrite, and Render reached Neon.
 
 ## Keep the API awake
 
@@ -57,9 +57,9 @@ Names only. `.env.example` lists all of these except `PYTHON_VERSION`, which onl
 | `DATABASE_URL_POOLED` | Render, local | Neon pooled URL, for the app |
 | `GEMINI_API_KEY` | Render, local | Gemini vision |
 | `GEMINI_MODEL` | Render, local | Gemini model name |
-| `SESSION_SECRET` | Render, local | Signs office sessions |
+| `SESSION_SECRET` | Render, local | Signs office sessions. At least 32 characters, or the API won't start |
 | `DRIVER_LINK_SECRET` | Render, local | Protects driver links |
-| `WEB_ORIGIN` | Render, local | The web app's URL |
+| `WEB_ORIGIN` | Render, local | The web app's URL. Any value not starting `http://` makes the session cookie Secure |
 | `DEMO_MODE` | Render, local | Turns on the demo rules |
 | `PYTHON_VERSION` | Render | Python version for the build, set in `render.yaml` |
 | `VITE_API_URL` | Local | Where the Vite dev proxy sends `/api` |

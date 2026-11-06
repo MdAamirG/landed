@@ -1,49 +1,46 @@
-import { useCallback, useEffect, useState } from "react";
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router";
 
-import { checkApiHealth, type ApiHealth } from "./lib/api";
-
-type HealthCheck = ApiHealth | "pending";
-
-const MESSAGES: Record<HealthCheck, { title: string; detail: string }> = {
-  pending: { title: "Checking the API", detail: "This takes a moment." },
-  healthy: { title: "API reachable", detail: "The API and the database are both up." },
-  "database-down": {
-    title: "Database unreachable",
-    detail: "The API is up, but it can't reach the database. Try again in a minute.",
-  },
-  "api-down": {
-    title: "API unreachable",
-    detail: "Check that the API is running, then try again.",
-  },
-};
+import { DESTINATIONS } from "./office/destinations";
+import { OfficeHome, OfficeLayout, RoleGate } from "./office/OfficeLayout";
+import Placeholder from "./office/Placeholder";
+import { SessionProvider } from "./office/session";
+import SignIn from "./office/SignIn";
+import Status from "./Status";
 
 export default function App() {
-  const [health, setHealth] = useState<HealthCheck>("pending");
-
-  const check = useCallback(async () => {
-    setHealth("pending");
-    setHealth(await checkApiHealth());
-  }, []);
-
-  useEffect(() => {
-    void check();
-  }, [check]);
-
-  const { title, detail } = MESSAGES[health];
-  const failed = health === "database-down" || health === "api-down";
-
   return (
-    <main className="health">
-      <p className="word">Landed</p>
-      <section className="stock health__card" role="status">
-        <h1>{title}</h1>
-        <p className="muted">{detail}</p>
-        {failed && (
-          <button className="btn btn--ink" type="button" onClick={() => void check()}>
-            Try again
-          </button>
-        )}
-      </section>
-    </main>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/office" replace />} />
+        <Route path="/status" element={<Status />} />
+
+        {/* Only the office area loads the session. The driver area never touches it. */}
+        <Route
+          element={
+            <SessionProvider>
+              <Outlet />
+            </SessionProvider>
+          }
+        >
+          <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/office" element={<OfficeLayout />}>
+            <Route index element={<OfficeHome />} />
+            {DESTINATIONS.map((destination) => (
+              <Route
+                key={destination.path}
+                path={destination.path}
+                element={
+                  <RoleGate roles={destination.roles}>
+                    <Placeholder title={destination.label} />
+                  </RoleGate>
+                }
+              />
+            ))}
+          </Route>
+        </Route>
+
+        <Route path="*" element={<Navigate to="/office" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
