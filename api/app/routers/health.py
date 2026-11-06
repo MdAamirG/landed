@@ -6,10 +6,16 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.schemas import HealthOut
+from app.schemas import HealthOut, PingOut
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+
+@router.get("/ping", response_model=PingOut)
+def ping() -> PingOut:
+    """For uptime monitors. It stays off the database, so Neon can suspend when idle."""
+    return PingOut(status="ok")
 
 
 @router.get("/health", response_model=HealthOut)

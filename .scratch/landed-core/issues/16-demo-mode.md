@@ -2,7 +2,7 @@
 
 **What to build:** With `DEMO_MODE` on, an assignment reviewer picks one of five scenarios, runs it through the real Gemini check and resets it to try again. Mock SMS sends show a toast with an "Open link" button. Seeded history is never touched.
 
-**Blocked by:** 03, 08, 12
+**Blocked by:** 03, 08, 12, 15
 
 **Status:** ready-for-agent
 
@@ -10,7 +10,7 @@
 
 **Spec stories:** 79 to 84
 
-- [ ] Five demo trips exist, one per scenario, each with an LR number matching its sample photo
+- [ ] Five demo trips exist, one per scenario, each with an LR number matching its sample photo. They use ticket 15's code for seeding photo attempts where a scenario needs one
 - [ ] "Open the driver demo" leads to the scenario picker
 - [ ] Picking a scenario resets that trip and creates a fresh link
 - [ ] The reviewer can use the sample photo or take a real one

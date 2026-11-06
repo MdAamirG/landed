@@ -2,7 +2,7 @@
 
 **What to build:** About 200 backdated trips give the dashboard real data to compute. Both office roles see trips with no usable POD, the three figures against their targets and POD-to-invoice days by branch, and they can resend a driver link from any missing-POD row. This doesn't depend on ticket 14, because the seed writes `invoiced_at` directly.
 
-**Blocked by:** 05, 06
+**Blocked by:** 03, 05, 06
 
 **Status:** ready-for-agent
 
@@ -11,6 +11,8 @@
 **Spec stories:** 64 to 68, 70, 71, 79
 
 - [ ] The seed adds about 200 backdated trips sharing a few sample images, with sample data only
+- [ ] The brief's three seeded trips get photo attempts and `pod_fields` that fit their statuses, using the sample images, so TRP-66141 can be reviewed and approved. TRP-66120 is `verified` and TRP-66134 has one retake used, so each needs the attempts to match
+- [ ] Ticket 16's demo trips can reuse the code that adds these attempts
 - [ ] The screen matches `Dashboard.html`, with the changes in `docs/plan.md`
 - [ ] Figures are computed from the data, labelled as sample data, and exclude demo trips
 - [ ] The missing-POD list holds trips past expected delivery in `awaiting_pod` or `retake_requested`, with trips over 24 hours marked (spec assumption 8)

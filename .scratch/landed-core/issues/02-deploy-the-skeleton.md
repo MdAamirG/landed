@@ -20,4 +20,4 @@ These are Aamir's steps.
 
 - [ ] Create the Render and Vercel accounts and connect them to the repo
 - [ ] Set the environment variables on Render and Vercel, using the names in `.env.example`. `DATABASE_URL_TEST` stays local
-- [ ] Set up the uptime ping every 10 minutes
+- [ ] Set up the uptime ping every 10 minutes, on `/api/ping`. Render's health check path uses `/api/ping` too. Pinging `/api/health` would run a query each time, keep Neon awake and use up most of the free compute hours

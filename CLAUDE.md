@@ -34,7 +34,7 @@ api/
     rules.py      # decide(): the AI decision rule, pure, no I/O
     ai.py         # Gemini call, timeout, schema validation
     tally.py      # Tally XML export
-    routers/      # auth, driver, review, billing, dashboard, trips
+    routers/      # health, auth, driver, review, billing, dashboard, trips
   tests/
   seed.py
   alembic/
