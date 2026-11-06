@@ -6,6 +6,7 @@ from uuid import uuid4
 import pytest
 from sqlalchemy import select
 
+from app.config import settings
 from app.driver_links import create_link
 from app.models import AuditEvent, Branch, DriverLink, Role
 from tests.factories import make_attempt, make_trip, make_user
@@ -247,7 +248,27 @@ def test_a_resend_records_when_it_went_but_a_plain_new_link_does_not(api_client,
 def test_a_resend_says_who_got_it_with_the_phone_masked(api_client, db, signed_in):
     trip = make_trip(db, expected_delivery_at=hours_ago(3))
 
-    assert resend(api_client, trip.id).json() == {"sent_to": "+91 90••• ••000"}
+    assert resend(api_client, trip.id).json()["sent_to"] == "+91 90••• ••000"
+
+
+def test_a_resend_returns_the_link_once_in_demo_mode(api_client, db, signed_in, monkeypatch):
+    monkeypatch.setattr(settings, "demo_mode", True)
+    trip = make_trip(db, expected_delivery_at=hours_ago(3))
+
+    token = resend(api_client, trip.id).json()["driver_token"]
+
+    assert driver_trip_status(api_client, token) == 200
+    logged = [event.detail for event in events_of(db, trip, "sms_sent")]
+    assert token not in str(logged)
+
+
+def test_a_resend_never_returns_the_link_with_demo_mode_off(
+    api_client, db, signed_in, monkeypatch
+):
+    monkeypatch.setattr(settings, "demo_mode", False)
+    trip = make_trip(db, expected_delivery_at=hours_ago(3))
+
+    assert resend(api_client, trip.id).json()["driver_token"] is None
 
 
 def test_a_resend_is_logged_without_the_token(api_client, db, signed_in):

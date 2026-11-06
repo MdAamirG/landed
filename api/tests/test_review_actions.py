@@ -3,6 +3,7 @@
 import pytest
 from sqlalchemy import select
 
+from app.config import settings
 from app.driver_links import create_link
 from app.models import AuditEvent, DriverLink, Role, Trip
 from tests.factories import clean_reading, make_trip, make_user
@@ -73,6 +74,36 @@ def test_the_driver_can_send_a_new_photo_after_an_office_retake(
 
     assert response.json()["attempt_no"] == 2
     assert status_of(db, trip) == "verified"
+
+
+def test_an_office_retake_returns_a_link_once_in_demo_mode(
+    api_client, db, fake_ai, executive, monkeypatch
+):
+    monkeypatch.setattr(settings, "demo_mode", True)
+    trip = trip_in_review(api_client, db, fake_ai)
+
+    response = act(api_client, trip, "retake")
+
+    assert response.json()["pod_status"] == "retake_requested"
+    token = response.json()["driver_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+    assert api_client.get("/api/driver/trip", headers=headers).status_code == 200
+    assert token not in str([event.detail for event in audit(db, trip, "sms_sent")])
+
+
+def test_an_office_retake_makes_no_new_link_with_demo_mode_off(
+    api_client, db, fake_ai, executive, monkeypatch
+):
+    monkeypatch.setattr(settings, "demo_mode", False)
+    trip = trip_in_review(api_client, db, fake_ai)
+    links_before = db.scalars(select(DriverLink).where(DriverLink.trip_id == trip.id)).all()
+
+    response = act(api_client, trip, "retake")
+
+    assert response.json()["driver_token"] is None
+    db.expire_all()
+    links = db.scalars(select(DriverLink).where(DriverLink.trip_id == trip.id)).all()
+    assert len(links) == len(links_before)
 
 
 def test_a_retake_past_the_cap_is_refused(api_client, db, fake_ai, executive):

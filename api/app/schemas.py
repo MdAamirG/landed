@@ -201,6 +201,7 @@ class DemoStartOut(BaseModel):
 
 class ResendOut(BaseModel):
     sent_to: str  # Masked, like every driver phone in a response.
+    driver_token: str | None = None  # Only in DEMO_MODE, and never stored or logged.
 
 
 class QueueCountsOut(BaseModel):
@@ -266,6 +267,10 @@ class ReviewTripOut(BaseModel):
     current_attempt_id: UUID | None  # The one Review and billing use. Late photos never count.
     attempts: list[ReviewAttemptOut]
     checks: list[TripCheckOut]
+
+
+class RetakeOut(ReviewTripOut):
+    driver_token: str | None = None  # Only in DEMO_MODE, and never stored or logged.
 
 
 # What the AI must return, field for field from docs/data-model.md. A value of None means the

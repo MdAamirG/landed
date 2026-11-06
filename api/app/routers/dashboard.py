@@ -42,4 +42,4 @@ def counts(_: OfficeUser, db: Db) -> QueueCountsOut:
 
 @router.post("/trips/{trip_id}/resend-link", response_model=ResendOut)
 def resend(trip_id: UUID, user: OfficeUser, db: Db) -> ResendOut:
-    return ResendOut(sent_to=resend_link(db, trip_id, user))
+    return resend_link(db, trip_id, user)

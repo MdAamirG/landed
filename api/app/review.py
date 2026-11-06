@@ -13,6 +13,8 @@ from pydantic import BaseModel, Field, TypeAdapter, ValidationError
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.config import settings
+from app.driver_links import create_link
 from app.intake import LAST_CHECKED_ATTEMPT_NO
 from app.models import (
     ActorType,
@@ -132,11 +134,19 @@ def move_by_hand(session: Session, trip: Trip, target: PodStatus, user: User) ->
     session.commit()
 
 
-def ask_for_retake(session: Session, trip_id: UUID, version: int, user: User) -> None:
+def ask_for_retake(session: Session, trip_id: UUID, version: int, user: User) -> str | None:
+    """Returns a driver token for the mock SMS in DEMO_MODE, and None otherwise."""
     trip = locked_trip(session, trip_id, version)
     if trip.retakes_used >= MAX_RETAKES:
         raise HTTPException(status.HTTP_409_CONFLICT, "Both retakes have been used")
     move_by_hand(session, trip, PodStatus.RETAKE_REQUESTED, user)
+    if not settings.demo_mode:
+        return None
+
+    # Only a hash of the driver's link is stored, so showing a link means making a new one.
+    token = create_link(session, trip, Actor(ActorType.USER, user.id), sent=True)
+    session.commit()
+    return token
 
 
 def mark_disputed(session: Session, trip_id: UUID, version: int, user: User) -> None:

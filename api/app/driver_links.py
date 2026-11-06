@@ -55,6 +55,11 @@ def create_link(session: Session, trip: Trip, actor: Actor = SYSTEM, sent: bool 
     return token
 
 
+def demo_token(token: str) -> str | None:
+    """A real SMS carries the link, and the mock has no phone to reach, so DEMO_MODE shows it."""
+    return token if settings.demo_mode else None
+
+
 def driver_url(token: str) -> str:
     return f"{settings.web_origin}/d/{token}"
 

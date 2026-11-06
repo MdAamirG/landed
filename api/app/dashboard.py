@@ -10,7 +10,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import ColumnElement, Row, and_, func, select
 from sqlalchemy.orm import Session, aliased
 
-from app.driver_links import create_link
+from app.driver_links import create_link, demo_token
 from app.intake import WAITING_FOR_A_PHOTO
 from app.masking import mask_phone
 from app.models import (
@@ -24,6 +24,7 @@ from app.models import (
     User,
     Vehicle,
 )
+from app.schemas import ResendOut
 from app.status import Actor, send_mock_sms
 
 TARGET_WINDOW = timedelta(hours=24)  # The brief: 80% of PODs in within 24 hours of delivery.
@@ -186,9 +187,9 @@ def figures(session: Session, now: datetime) -> Figures:
     )
 
 
-def resend_link(session: Session, trip_id: UUID, user: User) -> str:
+def resend_link(session: Session, trip_id: UUID, user: User) -> ResendOut:
     """Spec assumption 5: only a hash is stored, so a resend makes a new token. The old link keeps
-    working, because a phone may be holding a photo for it. Returns the masked phone it went to.
+    working, because a phone may be holding a photo for it.
     """
     trip = session.get(Trip, trip_id)
     if trip is None:
@@ -197,10 +198,13 @@ def resend_link(session: Session, trip_id: UUID, user: User) -> str:
         raise HTTPException(status.HTTP_409_CONFLICT, "This trip isn't waiting for a photo")
 
     actor = Actor(ActorType.USER, user.id)
-    create_link(session, trip, actor, sent=True)  # The token would go in the SMS, which is mocked.
+    token = create_link(session, trip, actor, sent=True)
     send_mock_sms(session, trip, actor, {"purpose": "resend"})
     session.commit()
-    return mask_phone(session.get_one(Driver, trip.driver_id).phone)
+    return ResendOut(
+        sent_to=mask_phone(session.get_one(Driver, trip.driver_id).phone),
+        driver_token=demo_token(token),
+    )
 
 
 @dataclass(frozen=True)

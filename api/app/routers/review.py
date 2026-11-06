@@ -39,6 +39,7 @@ from app.schemas import (
     ReviewFieldOut,
     ReviewQueueItemOut,
     ReviewTripOut,
+    RetakeOut,
     VersionIn,
 )
 
@@ -196,10 +197,11 @@ def approve_trip(trip_id: UUID, body: VersionIn, user: BillingExecutive, db: Db)
     return trip_out(db, db.get_one(Trip, trip_id))
 
 
-@router.post("/trips/{trip_id}/retake", response_model=ReviewTripOut)
-def retake_trip(trip_id: UUID, body: VersionIn, user: BillingExecutive, db: Db) -> ReviewTripOut:
-    ask_for_retake(db, trip_id, body.version, user)
-    return trip_out(db, db.get_one(Trip, trip_id))
+@router.post("/trips/{trip_id}/retake", response_model=RetakeOut)
+def retake_trip(trip_id: UUID, body: VersionIn, user: BillingExecutive, db: Db) -> RetakeOut:
+    token = ask_for_retake(db, trip_id, body.version, user)
+    trip = trip_out(db, db.get_one(Trip, trip_id))
+    return RetakeOut(**trip.model_dump(), driver_token=token)
 
 
 @router.post("/trips/{trip_id}/dispute", response_model=ReviewTripOut)
