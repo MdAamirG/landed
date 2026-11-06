@@ -63,3 +63,17 @@ Fill these in once the project exists:
 - API: `cd api && uvicorn app.main:app --reload`
 - Tests: `cd api && pytest`
 - Web: `cd web && npm run dev`
+
+## Agent skills
+
+### Issue tracker
+
+Issues live as local markdown files under `.scratch/`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+The five default labels, recorded as `Status:` lines in ticket files. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.

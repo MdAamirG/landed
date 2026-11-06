@@ -76,6 +76,9 @@ The vision model reading an attempt's six fields. It suggests values and never d
 **Pending photo**:
 A photo saved on the phone and not yet sent. It isn't a trip status.
 
+**Basic phone**:
+A low-cost Android phone with a camera and browser, which is how Landed reads the brief's "basic phones". Keypad phones aren't supported.
+
 ## Status
 
 **Awaiting POD**:
