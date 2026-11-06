@@ -51,7 +51,7 @@ When an attempt's AI reading comes back, the server runs these checks in order, 
 3. The LR number read doesn't match the trip: **needs review**, `lr_mismatch`. It may be the wrong sheet, so a person decides.
 4. The photo was taken more than 2 km from the consignee: **needs review**, `location_far`. A missing location doesn't count here, because dead zones are expected.
 5. The date on the paper is more than 1 day from the date the photo was taken, in India time: **needs review**, `date_mismatch`. It may be an old LR.
-6. The remark has a kind other than none: **needs review**, `shortage_remark`, `damage_remark` or `other_remark`. This applies whatever the confidence, so a remark like "seal broken" never passes on its own.
+6. The remark has a kind other than none, or the AI labelled it none but read remark text: **needs review**, `shortage_remark`, `damage_remark` or `other_remark` (which also covers the mislabelled case). This applies whatever the confidence, so a remark like "seal broken" never passes on its own.
 7. The quantity received is below the quantity dispatched: **needs review**, `qty_short`. If it is above, or in a different unit: **needs review**, `qty_mismatch`.
 8. Any field's confidence is below 0.80: **needs review**, `low_confidence`.
 9. Otherwise: **verified**, by the AI.

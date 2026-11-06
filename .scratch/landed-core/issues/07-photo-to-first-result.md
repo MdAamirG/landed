@@ -12,6 +12,7 @@
 
 - [ ] The AI reader has one small interface: image bytes in, a validated reading or a failure out. It uses structured output, validates again with Pydantic, and has a 20-second limit
 - [ ] Settings follow `CLAUDE.md`: model from `GEMINI_MODEL`, and no `temperature`, `top_p` or `top_k`
+- [ ] The prompt asks for empty remark text when the paper has no remark, because `decide()` sends any remark text to a person, even "nil"
 - [ ] A failure, a timeout or a reply that doesn't fit the schema counts as `ai_unavailable`, and the photo is kept
 - [ ] A repeated attempt ID stores nothing new, returns the first result and doesn't count toward the rate limit
 - [ ] Intake refuses anything over 300 KB or that isn't an image by its content, and limits uploads to 10 an hour per trip, counted from `audit_events`

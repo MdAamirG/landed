@@ -146,9 +146,12 @@ def problems_for_a_person(reading: PodReading, facts: Facts) -> list[ReasonCode]
         if days_apart > MAX_DATE_GAP_DAYS:
             problems.append(ReasonCode.DATE_MISMATCH)
 
-    # Whatever the confidence: a remark like "seal broken" never passes on its own.
+    # Whatever the confidence: a remark like "seal broken" never passes on its own, even if the
+    # AI labelled it none. The cost is that text like "nil" also goes to a person.
     if reading.remarks.kind != "none":
         problems.append(REMARK_CODES[reading.remarks.kind])
+    elif not is_blank(reading.remarks.text):
+        problems.append(ReasonCode.OTHER_REMARK)
 
     quantity = quantity_problem(reading, facts)
     if quantity:

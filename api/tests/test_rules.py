@@ -209,6 +209,23 @@ def test_check_6_a_remark_at_full_confidence_still_goes_to_a_person(kind, code):
     assert decision.reason == code
 
 
+def test_check_6_remark_text_the_ai_labelled_none_still_goes_to_a_person():
+    # The AI mislabelling a remark is the failure the brief worries about, so the text decides.
+    remarks = RemarksReading(text="seal broken", kind="none", confidence=1.0)
+
+    decision = decide(reading(remarks=remarks), facts())
+
+    assert decision.status == PodStatus.NEEDS_REVIEW
+    assert decision.reason == "other_remark"
+
+
+@pytest.mark.parametrize("text", [None, "", "   "], ids=["no text", "empty", "spaces"])
+def test_check_6_no_remark_text_and_kind_none_passes(text):
+    remarks = RemarksReading(text=text, kind="none", confidence=HIGH)
+
+    assert decide(reading(remarks=remarks), facts()).status == PodStatus.VERIFIED
+
+
 @pytest.mark.parametrize(
     ("number", "unit", "status", "reason"),
     [
