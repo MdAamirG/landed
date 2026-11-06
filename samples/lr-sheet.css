@@ -1,0 +1,90 @@
+/* One A4 lorry receipt. This is a printed form, so it doesn't use the app's design tokens. */
+@page { size: A4; margin: 0; }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #fff; }
+
+.sheet {
+  width: 210mm;
+  height: 297mm;
+  padding: 16mm 15mm;
+  overflow: hidden;
+  break-after: page;
+  background: #fff;
+  color: #1b1b1b;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12pt;
+}
+.sheet:last-child { break-after: auto; }
+
+.sheet h1 { margin: 0; font-size: 24pt; }
+.sheet h2 {
+  margin: 8mm 0 6mm;
+  padding: 2mm 0;
+  border-top: 1.5pt solid;
+  border-bottom: 1.5pt solid;
+  font-size: 13pt;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.sheet h3 { margin: 0 0 4mm; font-size: 12pt; }
+.sheet p { margin: 0; }
+
+.label { font-size: 9.5pt; color: #444; }
+
+.letterhead { display: flex; justify-content: space-between; align-items: flex-start; }
+.lr-box {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: baseline;
+  gap: 1.5mm 4mm;
+  padding: 3mm 4mm;
+  border: 1pt solid;
+}
+.lr-number { font-size: 18pt; letter-spacing: 0.04em; }
+
+.details { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm 8mm; margin: 0 0 6mm; }
+.details dt { font-size: 9.5pt; color: #444; }
+.details dd { margin: 0; font-weight: 600; }
+
+.goods { width: 100%; border-collapse: collapse; }
+.goods th, .goods td { padding: 2.5mm 3mm; border: 1pt solid; text-align: left; }
+.goods th { font-size: 9.5pt; font-weight: 600; }
+
+.terms { margin-top: 3mm !important; font-size: 8.5pt; color: #444; }
+
+.receipt { margin-top: 10mm; padding: 5mm; border: 1.5pt solid; }
+.line {
+  display: flex;
+  align-items: flex-end;
+  gap: 4mm;
+  min-height: 12mm;
+  padding-bottom: 1mm;
+  border-bottom: 0.75pt solid #777;
+}
+.line .label { flex: 0 0 34mm; }
+.written { font-family: "Bradley Hand", "Noteworthy", cursive; font-size: 17pt; color: #17306e; }
+
+.marks { display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; margin-top: 6mm; }
+.mark {
+  position: relative;
+  height: 52mm;
+  padding: 2mm;
+  border: 0.75pt solid #777;
+  display: flex;
+  align-items: flex-end;
+}
+
+.signature { position: absolute; left: 7mm; top: 9mm; width: 58mm; transform: rotate(-3deg); }
+.signature path { fill: none; stroke: #17306e; stroke-width: 2.4; stroke-linecap: round; }
+
+.stamp { position: absolute; left: 20mm; top: 2mm; width: 44mm; transform: rotate(-9deg); opacity: 0.82; }
+.stamp circle { fill: none; stroke: #4b3a93; stroke-width: 3; }
+.stamp text { fill: #4b3a93; font-weight: 700; }
+.stamp-ring { font-size: 13.5px; letter-spacing: 0.08em; }
+.stamp-centre { font-size: 21px; letter-spacing: 0.02em; }
+
+/* What separates the scenarios. */
+.print .filled, .no-stamp .stamp { display: none; }
+.blurred { filter: blur(3.6px); }

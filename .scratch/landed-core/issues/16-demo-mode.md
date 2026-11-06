@@ -19,3 +19,7 @@
 - [ ] Demo trips stay out of the dashboard figures but appear in Review and Billing
 - [ ] The API returns the link once, and office screens show "Mock SMS sent" with "Open link"
 - [ ] Nothing here runs when `DEMO_MODE` is off
+
+## Comments
+
+- From ticket 03: `samples/pods/scenarios.json` holds each demo trip's details and LR number. The sample sheets are dated 6 Nov 2026, and check 5 compares that with the capture date. When a reviewer uses a sample photo, send the scenario's `delivery_date` as `captured_at`. Otherwise the clean sheet goes to review with `date_mismatch` instead of verifying. A reviewer's own photo keeps its real capture time.

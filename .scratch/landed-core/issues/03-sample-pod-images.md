@@ -10,10 +10,10 @@
 
 ## ready-for-agent
 
-- [ ] An LR template renders with sample names and numbers only
-- [ ] The five scenarios are in `samples/pods/`, each with its LR number recorded so the demo trips in ticket 16 can match it
-- [ ] Each scenario is under 300 KB
-- [ ] The template prints cleanly on A4, ready for the human part below
+- [x] An LR template renders with sample names and numbers only
+- [x] The five scenarios are in `samples/pods/`, each with its LR number recorded so the demo trips in ticket 16 can match it
+- [x] Each scenario is under 300 KB
+- [x] The template prints cleanly on A4, ready for the human part below
 
 ## ready-for-human
 

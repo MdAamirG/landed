@@ -14,7 +14,7 @@ Deadline: about Sunday night, 8 Nov 2026. Submit by Sunday evening. The brief le
 - [x] Neon project (use the pooled connection string, `sslmode=require`)
 - [x] Gemini API key
 - [x] Render account (API) and Vercel account (web)
-- [ ] Rendered LR template and the five scenarios (clean, blurry, no stamp, "short by 6 cartons", wrong LR number) in `samples/pods/`, so the build isn't blocked
+- [x] Rendered LR template and the five scenarios (clean, blurry, no stamp, "short by 6 cartons", wrong LR number) in `samples/pods/`, so the build isn't blocked
 - [ ] Aamir prints, stamps, signs and photographs the five scenarios by Saturday midday. Real photos are the ones used to tune the threshold
 
 The days below follow the tickets in `.scratch/landed-core/issues/`, in the order listed. The tickets hold the acceptance criteria.

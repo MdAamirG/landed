@@ -1,0 +1,142 @@
+[
+  {
+    "id": "clean",
+    "image": "clean.jpg",
+    "trip": {
+      "lr_number": "48301",
+      "lr_date": "2026-11-03",
+      "client": "Company B",
+      "destination": "Nagpur",
+      "consignee_name": "Sample Consignee Nagpur",
+      "vehicle": "MH20 EL 4521",
+      "eway_bill_no": "341099217801",
+      "goods": "Cement, 50 kg bags",
+      "qty_dispatched": 800,
+      "qty_unit": "bags"
+    },
+    "sheet_lr_number": "48301",
+    "reading": {
+      "consignee_stamp": "present",
+      "signature": "present",
+      "quantity_received": 800,
+      "remarks": null,
+      "remarks_kind": "none",
+      "delivery_date": "2026-11-06",
+      "image_quality": "ok"
+    },
+    "expected_status": "verified",
+    "expected_reasons": []
+  },
+  {
+    "id": "blurry",
+    "image": "blurry.jpg",
+    "trip": {
+      "lr_number": "48302",
+      "lr_date": "2026-11-03",
+      "client": "Company C",
+      "destination": "Pune",
+      "consignee_name": "Sample Consignee Chakan",
+      "vehicle": "MH20 GT 7718",
+      "eway_bill_no": "341099217802",
+      "goods": "Steel coils",
+      "qty_dispatched": 24,
+      "qty_unit": "tonnes"
+    },
+    "sheet_lr_number": "48302",
+    "reading": {
+      "consignee_stamp": "present",
+      "signature": "present",
+      "quantity_received": 24,
+      "remarks": null,
+      "remarks_kind": "none",
+      "delivery_date": "2026-11-06",
+      "image_quality": "blurred"
+    },
+    "expected_status": "retake_requested",
+    "expected_reasons": ["photo_blurred"]
+  },
+  {
+    "id": "no-stamp",
+    "image": "no-stamp.jpg",
+    "trip": {
+      "lr_number": "48303",
+      "lr_date": "2026-11-03",
+      "client": "Company C",
+      "destination": "Pune",
+      "consignee_name": "Sample Consignee Chakan",
+      "vehicle": "MH20 GT 7718",
+      "eway_bill_no": "341099217803",
+      "goods": "Steel coils",
+      "qty_dispatched": 24,
+      "qty_unit": "tonnes"
+    },
+    "sheet_lr_number": "48303",
+    "reading": {
+      "consignee_stamp": "absent",
+      "signature": "present",
+      "quantity_received": 24,
+      "remarks": null,
+      "remarks_kind": "none",
+      "delivery_date": "2026-11-06",
+      "image_quality": "ok"
+    },
+    "expected_status": "retake_requested",
+    "expected_reasons": ["stamp_missing"]
+  },
+  {
+    "id": "short-6-cartons",
+    "image": "short-6-cartons.jpg",
+    "trip": {
+      "lr_number": "48304",
+      "lr_date": "2026-11-03",
+      "client": "Company D",
+      "destination": "Indore",
+      "consignee_name": "Sample Consignee Indore",
+      "vehicle": "MH17 BY 3092",
+      "eway_bill_no": "341099217804",
+      "goods": "Packaged goods",
+      "qty_dispatched": 400,
+      "qty_unit": "cartons"
+    },
+    "sheet_lr_number": "48304",
+    "reading": {
+      "consignee_stamp": "present",
+      "signature": "present",
+      "quantity_received": 394,
+      "remarks": "Short by 6 cartons",
+      "remarks_kind": "shortage",
+      "delivery_date": "2026-11-06",
+      "image_quality": "ok"
+    },
+    "expected_status": "needs_review",
+    "expected_reasons": ["shortage_remark", "qty_short"]
+  },
+  {
+    "id": "wrong-lr",
+    "image": "wrong-lr.jpg",
+    "trip": {
+      "lr_number": "48305",
+      "lr_date": "2026-11-03",
+      "client": "Company B",
+      "destination": "Nagpur",
+      "consignee_name": "Sample Consignee Nagpur",
+      "vehicle": "MH20 EL 4521",
+      "eway_bill_no": "341099217805",
+      "goods": "Cement, 50 kg bags",
+      "qty_dispatched": 800,
+      "qty_unit": "bags"
+    },
+    "sheet_lr_number": "48350",
+    "reading": {
+      "consignee_stamp": "present",
+      "signature": "present",
+      "quantity_received": 800,
+      "remarks": null,
+      "remarks_kind": "none",
+      "delivery_date": "2026-11-06",
+      "image_quality": "ok"
+    },
+    "expected_status": "needs_review",
+    "expected_reasons": ["lr_mismatch"]
+  }
+]

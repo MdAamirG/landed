@@ -1,0 +1,65 @@
+<section class="sheet $classes">
+  <header class="letterhead">
+    <div>
+      <h1>Company A</h1>
+      <p>Fleet owners and transport contractors</p>
+      <p>Chhatrapati Sambhajinagar, Maharashtra</p>
+    </div>
+    <div class="lr-box">
+      <span class="label">LR No.</span>
+      <strong class="lr-number">$lr_number</strong>
+      <span class="label">Date</span>
+      <strong>$lr_date</strong>
+    </div>
+  </header>
+
+  <h2>Lorry receipt: consignee copy</h2>
+
+  <dl class="details">
+    <div><dt>From</dt><dd>Chhatrapati Sambhajinagar</dd></div>
+    <div><dt>To</dt><dd>$destination</dd></div>
+    <div><dt>Consignor</dt><dd>$client</dd></div>
+    <div><dt>Consignee</dt><dd>$consignee_name</dd></div>
+    <div><dt>Vehicle No.</dt><dd>$vehicle</dd></div>
+    <div><dt>E-way bill No.</dt><dd>$eway_bill_no</dd></div>
+  </dl>
+
+  <table class="goods">
+    <thead>
+      <tr><th>Description of goods</th><th>Quantity dispatched</th><th>Freight</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>$goods</td><td>$qty_dispatched $qty_unit</td><td>To be billed</td></tr>
+    </tbody>
+  </table>
+
+  <p class="terms">Goods carried at owner's risk. Subject to Chhatrapati Sambhajinagar jurisdiction.</p>
+
+  <div class="receipt">
+    <h3>Received by consignee</h3>
+    <div class="line"><span class="label">Quantity received</span><span class="written filled">$quantity_received</span></div>
+    <div class="line"><span class="label">Date of delivery</span><span class="written filled">$delivery_date</span></div>
+    <div class="line"><span class="label">Remarks</span><span class="written filled">$remarks</span></div>
+
+    <div class="marks">
+      <div class="mark">
+        <!-- Hand-drawn path, so the rendered signature doesn't look like typed text. -->
+        <svg class="signature filled" viewBox="0 0 240 90" aria-hidden="true">
+          <path d="M12 62 C30 18 44 14 46 34 C48 54 30 74 38 74 C52 74 62 30 74 30 C82 30 68 66 78 66 C90 66 96 40 104 42 C112 44 100 62 110 62 C126 62 136 34 150 36 C160 38 146 58 158 58 C176 58 196 44 228 40" />
+          <path d="M26 78 C80 68 150 66 214 62" />
+        </svg>
+        <span class="label">Receiver's signature</span>
+      </div>
+      <div class="mark">
+        <svg class="stamp filled" viewBox="0 0 200 200" aria-hidden="true">
+          <circle cx="100" cy="100" r="92" />
+          <circle cx="100" cy="100" r="64" />
+          <path id="stamp-arc-$id" d="M100 100 m-74 0 a74 74 0 1 1 148 0 a74 74 0 1 1 -148 0" fill="none" stroke="none" />
+          <text class="stamp-ring"><textPath href="#stamp-arc-$id">$consignee_upper</textPath></text>
+          <text class="stamp-centre" x="100" y="108" text-anchor="middle">RECEIVED</text>
+        </svg>
+        <span class="label">Consignee stamp</span>
+      </div>
+    </div>
+  </div>
+</section>
