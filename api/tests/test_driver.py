@@ -43,6 +43,7 @@ def test_a_link_opens_its_trip(api_client, db):
         "pod_status": "awaiting_pod",
         "retakes_used": 0,
         "reason_codes": [],
+        "demo_sample": None,
     }
 
 

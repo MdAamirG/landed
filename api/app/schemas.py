@@ -40,6 +40,19 @@ class OfficeUserOut(BaseModel):
     role: Role
 
 
+class DemoSampleOut(BaseModel):
+    """What the driver screen sends with a demo trip's sample photo.
+
+    It's taken at the gate, on the sheet's own date, so the sample shows its scenario and not
+    location_far or date_mismatch. A reviewer's own photo keeps its real time and place.
+    """
+
+    scenario: str
+    captured_at: datetime
+    gps_lat: float
+    gps_lng: float
+
+
 class DriverTripOut(BaseModel):
     """What a driver may see. It lists fields one by one, so consignee details can't leak in."""
 
@@ -53,6 +66,7 @@ class DriverTripOut(BaseModel):
     pod_status: PodStatus
     retakes_used: int
     reason_codes: list[str]  # Why a retake was asked for. Empty for any other status.
+    demo_sample: DemoSampleOut | None = None  # Only for a demo trip with DEMO_MODE on.
 
 
 class AttemptForm(BaseModel):
@@ -170,6 +184,19 @@ class DashboardOut(BaseModel):
     pod_to_invoice_days: float | None
     lost_or_disputed_percent: float | None
     branches: list[BranchDaysOut]
+
+
+class DemoScenarioOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    trip_code: str
+    title: str
+    expected: str
+
+
+class DemoStartOut(BaseModel):
+    driver_token: str
 
 
 class ResendOut(BaseModel):

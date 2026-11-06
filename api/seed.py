@@ -1,4 +1,4 @@
-"""Seeds the brief's sample data and the history. Safe to run twice: rows that exist stay as they are.
+"""Seeds the brief's sample data, the demo trips and the history. Safe to run twice: rows that exist stay as they are.
 
 Run with: cd api && python seed.py
 
@@ -16,6 +16,7 @@ from app.auth import DEMO_EMAILS, hash_password
 from app.db import SessionLocal
 from app.models import Language, Ownership, PodStatus, Role, User
 from app.rules import ReasonCode
+from seed_demo import seed_demo
 from seed_history import seed_history
 from seed_trips import SHEET_DATE, SampleTrip, Sheet, get_or_create, seed_trip
 
@@ -130,6 +131,7 @@ def seed(session: Session) -> None:
 if __name__ == "__main__":
     with SessionLocal() as session:
         seed(session)
+        seed_demo(session, SAMPLE_TRIPS)
         seed_history(session)
         session.commit()
     print("Seed complete.")

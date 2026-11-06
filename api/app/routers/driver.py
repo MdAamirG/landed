@@ -6,6 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db import get_db
+from app.demo import SAMPLE_CAPTURED_AT, sample_scenario
 from app.driver_links import valid_driver_link
 from app.intake import (
     LAST_CHECKED_ATTEMPT_NO,
@@ -15,7 +16,7 @@ from app.intake import (
     sweep_stuck_attempts,
 )
 from app.models import Client, DriverLink, PodAttempt, Trip, Vehicle
-from app.schemas import AttemptForm, AttemptOut, DriverTripOut
+from app.schemas import AttemptForm, AttemptOut, DemoSampleOut, DriverTripOut
 
 router = APIRouter(prefix="/driver")
 
@@ -44,6 +45,18 @@ def retake_reasons(db: Session, trip: Trip) -> list[str]:
     return [trip.status_reason] if trip.status_reason else []
 
 
+def demo_sample(trip: Trip) -> DemoSampleOut | None:
+    scenario = sample_scenario(trip)
+    if scenario is None:
+        return None
+    return DemoSampleOut(
+        scenario=scenario.id,
+        captured_at=SAMPLE_CAPTURED_AT,
+        gps_lat=trip.consignee_lat,
+        gps_lng=trip.consignee_lng,
+    )
+
+
 @router.get("/trip", response_model=DriverTripOut)
 def get_trip(
     link: Annotated[DriverLink, Depends(valid_driver_link)],
@@ -63,6 +76,7 @@ def get_trip(
         pod_status=trip.pod_status,
         retakes_used=trip.retakes_used,
         reason_codes=retake_reasons(db, trip) if trip.pod_status == "retake_requested" else [],
+        demo_sample=demo_sample(trip),
     )
 
 

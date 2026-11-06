@@ -18,6 +18,12 @@ PUBLIC_ROUTES = {
     ("POST", "/api/auth/logout"),
 }
 
+# Open to anyone, but only with DEMO_MODE on. test_demo.py proves they answer 404 with it off.
+DEMO_ROUTES = {
+    ("GET", "/api/demo/scenarios"),
+    ("POST", "/api/demo/scenarios/{scenario_id}/start"),
+}
+
 # (method, path with any IDs filled in, the path as the router declares it, roles allowed)
 NO_ID = "00000000-0000-0000-0000-000000000000"
 BILLING_ONLY = {Role.BILLING_EXECUTIVE}
@@ -88,6 +94,7 @@ def test_every_api_route_is_listed_here():
     }
     listed = (
         PUBLIC_ROUTES
+        | DEMO_ROUTES
         | {(method, path) for method, _, path, _ in OFFICE_ROUTES}
         | {(method, path) for method, _, path in DRIVER_ROUTES}
     )
