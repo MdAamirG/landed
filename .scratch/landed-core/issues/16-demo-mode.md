@@ -12,7 +12,7 @@
 
 - [ ] Five demo trips exist, one per scenario, each with an LR number matching its sample photo. They use ticket 15's code for seeding photo attempts where a scenario needs one
 - [ ] "Open the driver demo" leads to the scenario picker
-- [ ] Picking a scenario resets that trip and creates a fresh link
+- [ ] Picking a scenario resets that trip through `reset_demo_trip()`, removes its attempts, fields and links, and creates a fresh link
 - [ ] The reviewer can use the sample photo or take a real one
 - [ ] A reset touches only `is_demo` rows, and a test proves seeded history is unchanged
 - [ ] A reset adds a `demo_reset` audit event, and the upload count carries on

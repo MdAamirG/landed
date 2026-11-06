@@ -1,14 +1,15 @@
 """The status machine, against the seven-status diagram in docs/data-model.md."""
 
+from datetime import UTC, date, datetime
 from itertools import product
 
 import pytest
 from sqlalchemy import select
 
 from app.db import SessionLocal
-from app.models import ActorType, AuditEvent, PodStatus, Trip
+from app.models import ActorType, AuditEvent, ExportBatch, PodStatus, Trip
 from app.rules import ReasonCode
-from app.status import SYSTEM, Actor, IllegalMove, check_move, move_trip
+from app.status import SYSTEM, Actor, IllegalMove, check_move, move_trip, reset_demo_trip
 from tests.factories import make_trip, make_user
 
 # Copied from the diagram, so this table can disagree with the code.
@@ -158,3 +159,88 @@ def test_a_stale_copy_of_a_trip_cannot_slip_past_the_rules(db):
         assert stale_trip.pod_status == "checking"
         with pytest.raises(IllegalMove):
             move_trip(other_session, stale_trip, PodStatus.VERIFIED, SYSTEM)
+
+
+def exported_demo_values(db) -> dict:
+    """Everything a demo trip can pick up on its way to invoiced."""
+    user = make_user(db)
+    batch = ExportBatch(
+        cycle_start=date(2026, 11, 1),
+        cycle_end=date(2026, 11, 15),
+        created_by=user.id,
+        trip_count=1,
+        total_paise=3_200_000,
+        xml="<ENVELOPE />",
+    )
+    db.add(batch)
+    db.flush()
+    now = datetime.now(UTC)
+    return {
+        "is_demo": True,
+        "status_reason": "shortage_remark",
+        "retakes_used": 2,
+        "verified_at": now,
+        "verified_by": user.id,
+        "export_batch_id": batch.id,
+        "voucher_no": "V-1",
+        "invoiced_at": now,
+    }
+
+
+@pytest.mark.parametrize("status", list(PodStatus))
+def test_a_demo_reset_returns_the_trip_to_the_start_from_any_status(db, status):
+    trip = make_trip(db, pod_status=status, **exported_demo_values(db))
+
+    reset_demo_trip(db, trip)
+
+    assert trip.pod_status == "awaiting_pod"
+    assert trip.status_reason is None
+    assert trip.retakes_used == 0
+    assert (trip.verified_at, trip.verified_by) == (None, None)
+    assert (trip.export_batch_id, trip.voucher_no, trip.invoiced_at) == (None, None, None)
+
+
+def test_a_demo_reset_adds_to_the_audit_log_and_keeps_what_was_there(db):
+    # The 10-an-hour upload limit counts from this log, so a reset must not clear it.
+    trip = make_trip(db, pod_status="checking", is_demo=True)
+    move_trip(db, trip, PodStatus.NEEDS_REVIEW, SYSTEM)
+
+    reset_demo_trip(db, trip)
+
+    first, reset = events_for(db, trip)
+    assert first.action == "status_change"
+    assert reset.action == "demo_reset"
+    assert (reset.from_status, reset.to_status) == ("needs_review", "awaiting_pod")
+    assert (reset.actor_type, reset.actor_id) == ("system", None)
+
+
+def test_a_demo_reset_bumps_the_version(db):
+    trip = make_trip(db, pod_status="verified", is_demo=True)
+
+    reset_demo_trip(db, trip)
+
+    assert trip.version == 2
+
+
+def test_a_demo_reset_refuses_a_real_trip_and_changes_nothing(db):
+    trip = make_trip(db, pod_status="verified", retakes_used=1)
+
+    with pytest.raises(IllegalMove):
+        reset_demo_trip(db, trip)
+
+    assert trip.pod_status == "verified"
+    assert trip.retakes_used == 1
+    assert events_for(db, trip) == []
+
+
+def test_a_stale_copy_cannot_reset_a_trip_that_is_no_longer_a_demo_trip(db):
+    trip = make_trip(db, pod_status="verified", is_demo=True)
+
+    with SessionLocal() as other_session:
+        stale_trip = other_session.get(Trip, trip.id)
+        trip.is_demo = False
+        db.commit()
+
+        assert stale_trip.is_demo is True
+        with pytest.raises(IllegalMove):
+            reset_demo_trip(other_session, stale_trip)

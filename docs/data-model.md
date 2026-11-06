@@ -179,7 +179,7 @@ These rules apply only when the `DEMO_MODE` env flag is on.
 
 - **Five demo trips.** One for each scenario: clean, blurry, no stamp, short by 6 cartons and wrong LR. Each trip's LR number matches its sample photo.
 - **Trying one.** "Open the driver demo" shows the five scenarios. Picking one resets that trip and creates a fresh link. The reviewer can use the sample photo or take a real one, and either goes through the real Gemini check.
-- **What a reset touches.** Only rows with `is_demo` true: that trip plus its attempts, fields and links. It never touches seeded history, and it leaves `export_batches` as they are. A test proves this.
+- **What a reset touches.** Only rows with `is_demo` true: that trip plus its attempts, fields and links. `reset_demo_trip()` in `api/app/status.py` is the one move outside the status diagram, and it refuses any other trip. It never touches seeded history, and it leaves `export_batches` as they are. A test proves this.
 - **What a reset keeps.** `audit_events` stays append-only, so the reset adds a `demo_reset` event and the upload count carries on.
 - **Gemini limit.** The 10-an-hour limit still applies per trip, so demo use tops out at 50 Gemini calls an hour.
 - **Figures.** Demo trips stay out of the dashboard figures, so a reset can't move them. They do appear in Review and Billing, so a reviewer can follow one end to end.

@@ -94,3 +94,36 @@ def move_trip(
         )
     )
     session.flush()
+
+
+def reset_demo_trip(session: Session, trip: Trip) -> None:
+    """Send a demo trip back to the start, from any status. Only demo trips can leave the diagram.
+
+    This covers the trip row. Ticket 16 removes its attempts, fields and links. The audit log
+    stays append-only, so the upload limit carries on counting across a reset.
+    """
+    session.refresh(trip, with_for_update=True)  # As in move_trip: never trust a stale is_demo.
+    if not trip.is_demo:
+        raise IllegalMove("Only a demo trip can be reset.")
+
+    previous = trip.pod_status
+    trip.pod_status = PodStatus.AWAITING_POD
+    trip.status_reason = None
+    trip.retakes_used = 0
+    trip.verified_at = None
+    trip.verified_by = None
+    trip.export_batch_id = None  # The export batch itself stays as it was.
+    trip.voucher_no = None
+    trip.invoiced_at = None
+    trip.version += 1
+
+    session.add(
+        AuditEvent(
+            trip_id=trip.id,
+            actor_type=ActorType.SYSTEM,
+            action="demo_reset",
+            from_status=previous,
+            to_status=PodStatus.AWAITING_POD,
+        )
+    )
+    session.flush()
