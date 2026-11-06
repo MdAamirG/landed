@@ -11,9 +11,9 @@ Deadline: about Sunday night, 8 Nov 2026. Submit by Sunday evening. The brief le
 ## Before code
 
 - [x] Public GitHub repo, first commit of this folder
-- [ ] Neon project (use the pooled connection string, `sslmode=require`)
+- [x] Neon project (use the pooled connection string, `sslmode=require`)
 - [x] Gemini API key
-- [ ] Render account (API) and Vercel account (web)
+- [x] Render account (API) and Vercel account (web)
 - [ ] Rendered LR template and the five scenarios (clean, blurry, no stamp, "short by 6 cartons", wrong LR number) in `samples/pods/`, so the build isn't blocked
 - [ ] Aamir prints, stamps, signs and photographs the five scenarios by Saturday midday. Real photos are the ones used to tune the threshold
 
@@ -27,8 +27,8 @@ Tickets 01, 04, 03, 02.
 - [x] SQLAlchemy models for the twelve tables in `docs/data-model.md`, Alembic migration
 - [x] Seed script: the brief's 3 trips, 3 clients, 3 branches, demo users
 - [x] `decide()` in `api/app/rules.py`: the decision rule as a pure function, with a pytest case for every rule and edge case
-- [ ] Deploy the API to Render's free tier in Singapore, next to Neon, with an uptime ping to `/api/ping` every 10 minutes, and run the seed against Neon
-- [ ] Vercel rewrite from `/api/*` to Render, so the sign-in cookie is first-party and CORS isn't needed
+- [x] Deploy the API to Render's free tier in Singapore, next to Neon, with an uptime ping to `/api/ping` every 10 minutes, and run the seed against Neon
+- [x] Vercel rewrite from `/api/*` to Render, so the sign-in cookie is first-party and CORS isn't needed
 
 ## Saturday: sign-in, driver side and first review
 
