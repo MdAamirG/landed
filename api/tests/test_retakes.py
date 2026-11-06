@@ -6,7 +6,7 @@ from uuid import uuid4
 from sqlalchemy import select
 
 from app.db import SessionLocal
-from app.driver_links import create_link
+from app.driver_links import create_link, hash_token
 from app.models import AuditEvent, DriverLink, PodAttempt, PodField, Trip
 from app.status import LINK_LIFETIME
 from tests.factories import clean_reading, make_trip
@@ -128,7 +128,8 @@ def test_a_retake_renews_every_unrevoked_link(api_client, db, fake_ai):
     create_link(db, trip)
     db.commit()
     links = db.scalars(select(DriverLink).where(DriverLink.trip_id == trip.id)).all()
-    revoked = links[-1]
+    # Any link but the one uploading below: a revoked token would be refused before the retake.
+    revoked = next(link for link in links if link.token_hash != hash_token(token))
     revoked.revoked_at = datetime.now(UTC)
     old_expiry = revoked.expires_at
     db.commit()
