@@ -790,3 +790,171 @@
     margin-left: 0;
   }
 }
+
+/* Missing PODs */
+.dashboard__figures {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+  margin: 0 0 36px;
+}
+
+.dashboard__figure dd {
+  margin: 0;
+}
+
+.dashboard__figure {
+  padding: 4px 24px 4px 0;
+  border-right: 1px solid var(--color-rule);
+}
+
+.dashboard__figure:last-child {
+  border-right: 0;
+}
+
+.dashboard__value {
+  font-size: 30px;
+  line-height: 1.1;
+}
+
+.dashboard__label {
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.dashboard__note {
+  font-size: 13px;
+}
+
+.dashboard__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 40px;
+  align-items: start;
+}
+
+.dashboard__grid h2 {
+  margin-bottom: 12px;
+  font-size: 18px;
+}
+
+.dashboard__table {
+  min-width: 700px;
+}
+
+.dashboard__table .fig {
+  white-space: nowrap;
+}
+
+.dashboard__hours {
+  font-weight: 600;
+}
+
+.dashboard__late {
+  margin-left: 6px;
+}
+
+.dashboard__sent {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.dashboard__sent--failed {
+  color: var(--color-retake-ink);
+}
+
+.dashboard__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 24px 0;
+}
+
+.dashboard__grid h2 + .dashboard__bars-note {
+  margin: -8px 0 12px;
+  font-size: 13px;
+}
+
+.dashboard__branch {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr) 40px;
+  gap: 12px;
+  align-items: center;
+  padding: 7px 0;
+  font-size: 14px;
+}
+
+.dashboard__track {
+  position: relative;
+  height: 16px;
+}
+
+.dashboard__bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: 3px;
+  background-color: var(--color-ink-2);
+}
+
+.dashboard__target {
+  position: absolute;
+  top: -5px;
+  bottom: -5px;
+  width: 0;
+  border-left: 2px dashed var(--color-muted);
+}
+
+/* Earlier than the figures below, or the table's Resend button scrolls out of sight. */
+@media (max-width: 75rem) {
+  .dashboard__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+}
+
+@media (max-width: 60rem) {
+  .dashboard__figures {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard__figure:nth-child(2n) {
+    border-right: 0;
+  }
+}
+
+/* On a phone a row becomes a block, so Resend can't sit off-screen beside a scrolling table. */
+@media (max-width: 40rem) {
+  .dashboard__table {
+    min-width: 0;
+  }
+
+  .dashboard__table thead {
+    display: none;
+  }
+
+  .dashboard__table tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .dashboard__table td {
+    display: block;
+    padding: 0;
+    border: 0;
+  }
+
+  .dashboard__table td.r {
+    grid-column: 1 / -1;
+    margin-top: 8px;
+    text-align: left;
+  }
+}

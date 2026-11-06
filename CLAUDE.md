@@ -40,10 +40,13 @@ api/
     review.py     # field edits, approve, reveal, each with its audit event
     masking.py    # how names and phones appear in responses
     billing.py    # cycles, the billing queue, exports and the POD ZIP
+    dashboard.py  # the missing-POD list, the three figures, resend, top-bar counts
     tally.py      # Tally XML export
     routers/      # health, auth, driver, review, billing, dashboard, trips
   tests/
-  seed.py
+  seed.py         # the brief's trips and demo users, then the history
+  seed_trips.py   # a sample trip and its photo attempt; ticket 16 reuses add_attempt()
+  seed_history.py # about 200 backdated trips for the dashboard
   alembic/
 web/
   src/driver/ src/office/ src/lib/

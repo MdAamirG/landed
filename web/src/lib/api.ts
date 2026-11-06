@@ -335,3 +335,42 @@ export async function createExport(tripIds: string[]): Promise<ExportSummary> {
 export function exportFileUrl(exportId: string, file: "xml" | "photos"): string {
   return `/api/billing/exports/${exportId}/${file}`;
 }
+
+export type MissingPod = {
+  trip_id: string;
+  trip_code: string;
+  registration_no: string;
+  ownership: "own" | "hired";
+  client_name: string;
+  destination: string;
+  branch_name: string;
+  hours_since_delivery: number;
+  over_24_hours: boolean;
+};
+
+export type BranchDays = { branch_name: string; median_days: number };
+
+/** A figure is null when there's nothing to measure yet, which isn't the same as zero. */
+export type Dashboard = {
+  window_days: number;
+  missing: MissingPod[];
+  within_24_hours_percent: number | null;
+  pod_to_invoice_days: number | null;
+  lost_or_disputed_percent: number | null;
+  branches: BranchDays[];
+};
+
+export type QueueCounts = { review: number; billing: number; missing_pods: number };
+
+export async function getDashboard(): Promise<Dashboard> {
+  return (await (await request("/dashboard")).json()) as Dashboard;
+}
+
+export async function getQueueCounts(): Promise<QueueCounts> {
+  return (await (await request("/dashboard/counts")).json()) as QueueCounts;
+}
+
+export async function resendDriverLink(tripId: string): Promise<{ sent_to: string }> {
+  const path = `/dashboard/trips/${tripId}/resend-link`;
+  return (await (await request(path, { method: "POST" })).json()) as { sent_to: string };
+}

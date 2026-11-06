@@ -4,6 +4,7 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router";
 import DriverTrip from "./driver/DriverTrip";
 import Billing from "./office/Billing";
 import { DESTINATIONS } from "./office/destinations";
+import MissingPods from "./office/MissingPods";
 import { OfficeHome, OfficeLayout, RoleGate } from "./office/OfficeLayout";
 import Placeholder from "./office/Placeholder";
 import Review from "./office/Review";
@@ -12,7 +13,11 @@ import SignIn from "./office/SignIn";
 import Status from "./Status";
 
 // The destinations built so far. Anything else shows the placeholder until its ticket lands.
-const SCREENS: Record<string, ReactNode> = { review: <Review />, billing: <Billing /> };
+const SCREENS: Record<string, ReactNode> = {
+  review: <Review />,
+  billing: <Billing />,
+  "missing-pods": <MissingPods />,
+};
 
 export default function App() {
   return (

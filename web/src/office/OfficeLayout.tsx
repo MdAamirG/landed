@@ -1,7 +1,7 @@
-import { useState, type ReactNode } from "react";
-import { Link, Navigate, NavLink, Outlet } from "react-router";
+import { useEffect, useState, type ReactNode } from "react";
+import { Link, Navigate, NavLink, Outlet, useLocation } from "react-router";
 
-import { logout, type OfficeUser, type Role } from "../lib/api";
+import { getQueueCounts, logout, type OfficeUser, type QueueCounts, type Role } from "../lib/api";
 import { DESTINATIONS, ROLE_LABELS } from "./destinations";
 import { useSession } from "./session";
 
@@ -9,9 +9,32 @@ function allowedDestinations(user: OfficeUser) {
   return DESTINATIONS.filter((destination) => destination.roles.includes(user.role));
 }
 
+/** Reloaded on each move between screens. Only a nicety, so a failure just leaves them out. */
+function useQueueCounts(): QueueCounts | null {
+  const { pathname } = useLocation();
+  const [counts, setCounts] = useState<QueueCounts | null>(null);
+
+  useEffect(() => {
+    let current = true;
+    getQueueCounts()
+      .then((found) => {
+        if (current) setCounts(found);
+      })
+      .catch(() => {
+        if (current) setCounts(null);
+      });
+    return () => {
+      current = false;
+    };
+  }, [pathname]);
+
+  return counts;
+}
+
 function TopBar({ user }: { user: OfficeUser }) {
   const { setUser } = useSession();
   const [signingOut, setSigningOut] = useState(false);
+  const counts = useQueueCounts();
 
   async function signOut() {
     setSigningOut(true);
@@ -32,6 +55,9 @@ function TopBar({ user }: { user: OfficeUser }) {
         {allowedDestinations(user).map((destination) => (
           <NavLink key={destination.path} to={`/office/${destination.path}`}>
             {destination.label}
+            {counts && destination.count && (
+              <span className="count">{counts[destination.count]}</span>
+            )}
           </NavLink>
         ))}
       </nav>

@@ -46,8 +46,8 @@ Tickets 13, 14, 15, 16, 09, 21.
 
 - [x] Review actions: ask for retake, mark disputed, pull back from verified, Disputed filter
 - [x] Billing queue by client and cycle (from delivery date), Tally XML export with one voucher per client per export, POD photos ZIP
-- [ ] History seed: about 200 backdated trips sharing a few sample images. The dashboard needs that many: one dispute in 18 trips is 5.6%, and 0.6% takes at least 167. It shows whatever the data computes
-- [ ] Missing-POD dashboard, open to the billing executive and the operations head
+- [x] History seed: about 200 backdated trips sharing a few sample images. The dashboard needs that many: one dispute in 18 trips is 5.6%, and 0.6% takes at least 167. It shows whatever the data computes
+- [x] Missing-POD dashboard, open to the billing executive and the operations head
 - [ ] Demo mode behind `DEMO_MODE`: five demo trips, scenario picker, reset limited to `is_demo` rows with a test proving seeded history is untouched, mock SMS toast
 - [ ] Script reporting accuracy per field on the sample photos; tune the confidence threshold and put the numbers in the TDD
 - [ ] Loading, empty and error states on every data region
@@ -72,7 +72,7 @@ Tickets 17 to 20.
 ## Screen changes from the approved designs
 
 - `Trips.html`: replace the "Driver gets" column with own or hired, and send every driver the SMS link
-- `Dashboard.html`: every missing-POD row shows "Resend SMS link", because the driver's phone is masked and "Call driver" would be a dead button
+- `Dashboard.html`: every missing-POD row shows "Resend SMS link", because the driver's phone is masked and "Call driver" would be a dead button. The figures cover 90 days, not 30 (spec assumption 26). The client POD link waits for ticket 19, so there's no dead button. On a phone each row becomes a stacked block, so Resend stays in reach
 - `Review.html`: add "Mark disputed", a Disputed filter and a flag for late photos
 - `Main.html`: "Open the driver demo" leads to the five-scenario picker
 - Office screens: a "Mock SMS sent" toast with an "Open link" button in demo mode
