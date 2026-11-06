@@ -9,10 +9,18 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import update
+from sqlalchemy import delete, select, update
 from sqlalchemy.orm import Session
 
-from app.models import ActorType, AuditEvent, DriverLink, PodStatus, Trip
+from app.models import (
+    ActorType,
+    AuditEvent,
+    DriverLink,
+    PodAttempt,
+    PodField,
+    PodStatus,
+    Trip,
+)
 from app.rules import ReasonCode
 
 
@@ -136,12 +144,17 @@ def move_trip(
 def reset_demo_trip(session: Session, trip: Trip) -> None:
     """Send a demo trip back to the start, from any status. Only demo trips can leave the diagram.
 
-    This covers the trip row. Ticket 16 removes its attempts, fields and links. The audit log
-    stays append-only, so the upload limit carries on counting across a reset.
+    Its attempts, fields and links go too, so the old link stops working. Every delete names this
+    one trip. The audit log stays append-only, so the upload limit carries on across a reset.
     """
     session.refresh(trip, with_for_update=True)  # As in move_trip: never trust a stale is_demo.
     if not trip.is_demo:
         raise IllegalMove("Only a demo trip can be reset.")
+
+    attempts = select(PodAttempt.id).where(PodAttempt.trip_id == trip.id)
+    session.execute(delete(PodField).where(PodField.attempt_id.in_(attempts)))
+    session.execute(delete(PodAttempt).where(PodAttempt.trip_id == trip.id))
+    session.execute(delete(DriverLink).where(DriverLink.trip_id == trip.id))
 
     previous = trip.pod_status
     trip.pod_status = PodStatus.AWAITING_POD

@@ -237,10 +237,13 @@ def apply_result(session: Session, attempt: PodAttempt, trip: Trip, result: ai.A
 
 
 def fail_stuck_attempt(session: Session, attempt_id: UUID) -> None:
-    attempt = session.get_one(PodAttempt, attempt_id)
+    attempt = session.get(PodAttempt, attempt_id)
+    if attempt is None:  # A demo reset removed it.
+        return
     trip = session.get_one(Trip, attempt.trip_id, with_for_update=True)
-    session.refresh(attempt)  # The lock may have waited for the real check to finish.
-    if attempt.ai_status == AiStatus.PENDING:
+    # Read again, because the lock may have waited for the real check to finish, or for a reset.
+    attempt = session.get(PodAttempt, attempt_id, populate_existing=True)
+    if attempt is not None and attempt.ai_status == AiStatus.PENDING:
         result = ai.AiResult(None, {"error": "stuck in checking"}, settings.gemini_model, None)
         apply_result(session, attempt, trip, result)
     session.commit()
@@ -263,7 +266,9 @@ def sweep_stuck_attempts(session: Session, trip_id: UUID | None = None) -> None:
 def run_check(attempt_id: UUID) -> None:
     """The background task. It opens its own sessions, because the request's has closed."""
     with SessionLocal() as session:
-        attempt = session.get_one(PodAttempt, attempt_id)
+        attempt = session.get(PodAttempt, attempt_id)
+        if attempt is None:  # A demo reset got here first, so there's nothing to check.
+            return
         image, trip_id = attempt.image_bytes, attempt.trip_id
 
     # No database connection is held during the AI call, which can take 20 seconds.
@@ -271,9 +276,14 @@ def run_check(attempt_id: UUID) -> None:
 
     with SessionLocal() as session:
         trip = session.get_one(Trip, trip_id, with_for_update=True)
-        attempt = session.get_one(PodAttempt, attempt_id)
-        # A late result must not overwrite a person's decision, or a newer attempt's check.
-        if trip.pod_status != PodStatus.CHECKING or attempt.ai_status != AiStatus.PENDING:
+        attempt = session.get(PodAttempt, attempt_id)
+        # A late result must not overwrite a person's decision, or a newer attempt's check. A demo
+        # reset during the AI call leaves no attempt at all.
+        if (
+            attempt is None
+            or trip.pod_status != PodStatus.CHECKING
+            or attempt.ai_status != AiStatus.PENDING
+        ):
             logger.info("Dropped a late AI result for attempt %s", attempt_id)
             return
         apply_result(session, attempt, trip, result)
