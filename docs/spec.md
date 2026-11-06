@@ -277,6 +277,11 @@ The docs leave these open. Each is a default to follow unless changed, and each 
 18. **Operations head's top bar.** It shows only Missing PODs. The billing executive sees all four destinations. The server enforces roles either way.
 19. **Verified filter.** Review lists verified trips as well, beyond the Disputed filter the stories ask for. Pull back needs a way to reach a verified trip before export.
 20. **Resolving a dispute.** Resolve is Approve: it moves the trip to `verified` and applies the same six-field check, so a dispute can't be closed on a blank POD.
+21. **Freight ledger.** The brief names no sales ledger, so every trip credits one called "Freight Income". The client's side uses `tally_ledger_name`.
+22. **Voucher numbers.** Each is `LND-` plus the first eight characters of the batch ID and the voucher's position, so no sequence is needed and Tally never sees a number twice.
+23. **Voucher date.** A voucher is dated the day of the export in India time. A trip's cycle still comes from its delivery date.
+24. **One cycle per export.** An export is refused if its trips span two cycles, since `export_batches` records a single cycle.
+25. **Export time.** It's read from the trips' shared `invoiced_at`, because `export_batches` has no time column.
 
 ### Screen changes
 

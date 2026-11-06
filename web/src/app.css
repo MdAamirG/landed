@@ -656,3 +656,137 @@
     transition: none;
   }
 }
+
+/* Billing: the trip table beside what is selected, as in Billing.html. */
+.billing {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 40px;
+  align-items: start;
+}
+
+.billing__head {
+  align-items: center;
+}
+
+.billing__cycles {
+  flex-wrap: wrap;
+}
+
+.billing__filter {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.billing__filter select {
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--color-muted);
+  border-radius: var(--radius-input);
+  background-color: var(--color-cotton);
+}
+
+.billing__review-link {
+  margin-left: auto;
+  font-size: 14px;
+}
+
+.billing__table {
+  min-width: 640px;
+}
+
+.billing__client td {
+  background-color: var(--color-paper-2);
+  font-weight: 600;
+}
+
+.billing__client .muted {
+  font-weight: 400;
+}
+
+.billing__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-left: 28px;
+  border-left: 1px solid var(--color-rule);
+}
+
+.billing__panel .btn {
+  min-height: 44px;
+}
+
+.billing__label {
+  font-size: 14px;
+}
+
+.billing__total {
+  font-size: 44px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.billing__summary {
+  font-size: 15px;
+}
+
+.billing__note {
+  font-size: 13px;
+}
+
+.billing__problem {
+  padding: 10px 12px;
+  border-radius: var(--radius-input);
+  background-color: var(--color-retake-wash);
+  color: var(--color-retake-ink);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.billing__finished {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-rule);
+  font-size: 15px;
+}
+
+.billing__earlier {
+  padding-top: 14px;
+  border-top: 1px solid var(--color-rule);
+  font-size: 14px;
+}
+
+.billing__earlier-title {
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.billing__export {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+@media (max-width: 75rem) {
+  .billing {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+
+  .billing__panel {
+    padding-left: 0;
+    padding-top: 20px;
+    border-left: 0;
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .billing__review-link {
+    margin-left: 0;
+  }
+}

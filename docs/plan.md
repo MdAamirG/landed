@@ -45,7 +45,7 @@ Tickets 05, 06, 07, 08, 10, 11, 12.
 Tickets 13, 14, 15, 16, 09, 21.
 
 - [x] Review actions: ask for retake, mark disputed, pull back from verified, Disputed filter
-- [ ] Billing queue by client and cycle (from delivery date), Tally XML export with one voucher per client per export, POD photos ZIP
+- [x] Billing queue by client and cycle (from delivery date), Tally XML export with one voucher per client per export, POD photos ZIP
 - [ ] History seed: about 200 backdated trips sharing a few sample images. The dashboard needs that many: one dispute in 18 trips is 5.6%, and 0.6% takes at least 167. It shows whatever the data computes
 - [ ] Missing-POD dashboard, open to the billing executive and the operations head
 - [ ] Demo mode behind `DEMO_MODE`: five demo trips, scenario picker, reset limited to `is_demo` rows with a test proving seeded history is untouched, mock SMS toast

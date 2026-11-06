@@ -42,6 +42,13 @@ OFFICE_ROUTES = [
         ("POST", f"/api/review/trips/{NO_ID}/{action}", f"/api/review/trips/{{trip_id}}/{action}", BILLING_ONLY)
         for action in ("approve", "retake", "dispute", "pull-back", "reveal")
     ),
+    ("GET", "/api/billing/queue", "/api/billing/queue", BILLING_ONLY),
+    ("GET", "/api/billing/exports", "/api/billing/exports", BILLING_ONLY),
+    ("POST", "/api/billing/exports", "/api/billing/exports", BILLING_ONLY),
+    *(
+        ("GET", f"/api/billing/exports/{NO_ID}/{file}", f"/api/billing/exports/{{batch_id}}/{file}", BILLING_ONLY)
+        for file in ("xml", "photos")
+    ),
 ]
 
 # Each of these takes a driver token, and opens only that token's trip. test_driver.py covers

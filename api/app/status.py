@@ -111,6 +111,8 @@ def move_trip(
     elif current == PodStatus.VERIFIED and target == PodStatus.NEEDS_REVIEW:
         trip.verified_at = None
         trip.verified_by = None
+    elif target == PodStatus.INVOICED:
+        trip.invoiced_at = datetime.now(UTC)
 
     session.add(
         AuditEvent(

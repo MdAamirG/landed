@@ -100,6 +100,48 @@ class ReviewQueueItemOut(BaseModel):
     late_photos: int
 
 
+class BillingTripOut(BaseModel):
+    id: UUID
+    trip_code: str
+    destination: str
+    lr_number: str
+    remark: str | None
+    freight_paise: int
+
+
+class BillingClientOut(BaseModel):
+    client_id: UUID
+    client_name: str
+    trips: list[BillingTripOut]
+
+
+class BillingCycleOut(BaseModel):
+    start: date
+    end: date
+    trip_count: int
+
+
+class BillingQueueOut(BaseModel):
+    cycles: list[BillingCycleOut]
+    cycle_start: date | None
+    clients: list[BillingClientOut]
+    in_review: int
+
+
+class ExportIn(BaseModel):
+    # About 1,100 trips land in a cycle at the brief's 2,200 a month, so this is a generous ceiling.
+    trip_ids: list[UUID] = Field(min_length=1, max_length=2000)
+
+
+class ExportOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)  # Built from a row of named columns.
+
+    id: UUID
+    trip_count: int
+    total_paise: int
+    exported_at: datetime
+
+
 class ReviewFieldOut(BaseModel):
     field: PodFieldName
     ai_value: Any

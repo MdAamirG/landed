@@ -21,9 +21,8 @@ import {
   type ReviewTrip,
 } from "../lib/api";
 import { FIELD_LABELS, MIN_CONFIDENCE, REASON_LABELS } from "./reviewLabels";
+import { ErrorState, Skeleton, type Loadable } from "./LoadStates";
 import { useSession } from "./session";
-
-type Loadable<T> = { state: "loading" } | { state: "error" } | { state: "ready"; value: T };
 
 function indiaTime(iso: string): string {
   return new Intl.DateTimeFormat("en-IN", {
@@ -69,32 +68,6 @@ const FILTERS: { value: ReviewFilter; label: string; emptyTitle: string; emptyTe
     emptyText: "Verified PODs wait here for export. Pull one back if it was passed by mistake.",
   },
 ];
-
-function Skeleton() {
-  return (
-    <div role="status" aria-label="Loading">
-      {[0, 1, 2].map((row) => (
-        <div className="skeleton-row" key={row}>
-          <span style={{ width: "42%" }} />
-          <span style={{ width: "68%" }} />
-          <span style={{ width: "30%" }} />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function ErrorState({ onRetry }: { onRetry: () => void }) {
-  return (
-    <div className="notice" role="alert">
-      <h1>We couldn't load this</h1>
-      <p className="muted">Check your connection, then try again.</p>
-      <button className="btn btn--ink" type="button" onClick={onRetry}>
-        Try again
-      </button>
-    </div>
-  );
-}
 
 function Queue({
   items,

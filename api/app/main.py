@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.routers import auth, driver, health, review
+from app.routers import auth, billing, driver, health, review
 
 app = FastAPI(title="Landed API")
 
@@ -9,3 +9,4 @@ app.include_router(health.router, prefix="/api")
 app.include_router(auth.router, prefix="/api")
 app.include_router(driver.router, prefix="/api")
 app.include_router(review.router, prefix="/api")
+app.include_router(billing.router, prefix="/api")

@@ -49,8 +49,20 @@ export type OfficeUser = { name: string; email: string; role: Role };
 
 /** A request that failed. Status 0 means no answer came back at all. */
 export class ApiError extends Error {
-  constructor(public status: number) {
+  constructor(
+    public status: number,
+    public detail: string | null = null, // The server's own words, such as which trips moved.
+  ) {
     super(`API request failed with status ${status}`);
+  }
+}
+
+async function errorDetail(response: Response): Promise<string | null> {
+  try {
+    const body: { detail?: unknown } = await response.json();
+    return typeof body.detail === "string" ? body.detail : null; // A 422's detail is a list.
+  } catch {
+    return null;
   }
 }
 
@@ -73,7 +85,7 @@ async function request(
   } catch {
     throw new ApiError(0);
   }
-  if (!response.ok) throw new ApiError(response.status);
+  if (!response.ok) throw new ApiError(response.status, await errorDetail(response));
   return response;
 }
 
@@ -278,4 +290,48 @@ export async function actOnTrip(
 export async function revealContact(tripId: string): Promise<{ name: string; phone: string }> {
   const response = await postJson(`/review/trips/${tripId}/reveal`, {});
   return (await response.json()) as { name: string; phone: string };
+}
+
+export type BillingTrip = {
+  id: string;
+  trip_code: string;
+  destination: string;
+  lr_number: string;
+  remark: string | null;
+  freight_paise: number;
+};
+
+export type BillingClient = { client_id: string; client_name: string; trips: BillingTrip[] };
+
+export type BillingCycle = { start: string; end: string; trip_count: number };
+
+export type BillingQueue = {
+  cycles: BillingCycle[];
+  cycle_start: string | null;
+  clients: BillingClient[];
+  in_review: number;
+};
+
+export type ExportSummary = {
+  id: string;
+  trip_count: number;
+  total_paise: number;
+  exported_at: string;
+};
+
+export async function getBillingQueue(cycle: string | null): Promise<BillingQueue> {
+  const query = cycle ? `?cycle=${cycle}` : "";
+  return (await (await request(`/billing/queue${query}`)).json()) as BillingQueue;
+}
+
+export async function getExports(): Promise<ExportSummary[]> {
+  return (await (await request("/billing/exports")).json()) as ExportSummary[];
+}
+
+export async function createExport(tripIds: string[]): Promise<ExportSummary> {
+  return (await (await postJson("/billing/exports", { trip_ids: tripIds })).json()) as ExportSummary;
+}
+
+export function exportFileUrl(exportId: string, file: "xml" | "photos"): string {
+  return `/api/billing/exports/${exportId}/${file}`;
 }
