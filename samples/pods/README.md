@@ -14,6 +14,10 @@ Five lorry receipts, one per demo scenario. Every name and number is a sample.
 
 The rendered sheets are dated 6 Nov 2026. Check 5 compares that date with the photo's capture date, so a rendered sheet needs a capture date within a day of it.
 
+## Seeded trips' sheets
+
+`seeded-sheets.json` holds five more sheets, in the same shape, for the seeded trips a reviewer opens in Review: the brief's three and two more. Each shows that trip's own LR number, so the photo agrees with the fields beside it. The history seed's other trips share `photos/clean.jpg`, so their LR numbers don't match it; the seed exists for the figures, not for reading those sheets.
+
 ## Printing and photographing
 
 `print/lr-sheets.pdf` has five A4 pages, in the order of the table, with the consignee's part left blank. Print at 100%, then fill in each page. Use the date you take the photo as the date of delivery.

@@ -8,9 +8,9 @@ a first estimate, and real photos of printed sheets are the better test.
 Usage (needs Pillow and numpy):
     python3 samples/photograph_pods.py
 
-Reads samples/pods/scenarios.json and the rendered sheets beside it, and writes
-samples/pods/photos/<scenario>.jpg, each under 300 KB. Each scenario uses a fixed seed,
-so running it again gives the same photos.
+Reads samples/pods/scenarios.json, samples/pods/seeded-sheets.json and the rendered sheets
+beside them, and writes samples/pods/photos/<id>.jpg, each under 300 KB. Each sheet uses a
+fixed seed, so running it again gives the same photos.
 """
 
 import io
@@ -129,7 +129,8 @@ def save_under_limit(photo, path):
 def main():
     OUT.mkdir(exist_ok=True)
     scenarios = json.loads((PODS / "scenarios.json").read_text())
-    for scenario in scenarios:
+    seeded = json.loads((PODS / "seeded-sheets.json").read_text())
+    for scenario in scenarios + seeded:
         sheet = Image.open(PODS / scenario["image"])
         seed = zlib.crc32(scenario["id"].encode())
         photo = photograph(sheet, seed, shaky=scenario["id"] == "blurry")

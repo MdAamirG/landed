@@ -3,7 +3,8 @@
 Run with: python3 samples/render_pods.py
 
 It writes one filled-in JPEG per scenario, plus print/lr-sheets.pdf: five A4 pages with the
-consignee's part left blank, for the printed versions.
+consignee's part left blank, for the printed versions. It also renders pods/seeded-sheets.json,
+the sheets for seeded trips a reviewer opens in Review, so each photo shows its trip's LR number.
 
 Needs Chrome and macOS's sips, and no Python packages. It only runs when the samples change,
 so a browser is a simpler way to lay out a form than adding an image library to the API.
@@ -121,9 +122,10 @@ def render_print_file(scenarios: list[dict], workdir: Path) -> None:
 
 def main() -> None:
     scenarios = json.loads((PODS / "scenarios.json").read_text())
+    seeded = json.loads((PODS / "seeded-sheets.json").read_text())
     with tempfile.TemporaryDirectory() as folder:
         workdir = Path(folder)
-        for scenario in scenarios:
+        for scenario in scenarios + seeded:
             render_image(scenario, workdir)
         render_print_file(scenarios, workdir)
 
