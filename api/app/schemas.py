@@ -3,7 +3,9 @@
 from datetime import date
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
+
+from app.models import Role
 
 
 class PingOut(BaseModel):
@@ -13,6 +15,28 @@ class PingOut(BaseModel):
 class HealthOut(BaseModel):
     status: Literal["ok", "degraded"]
     database: Literal["reachable", "unreachable"]
+
+
+class AuthOptionsOut(BaseModel):
+    demo_mode: bool
+
+
+class LoginIn(BaseModel):
+    email: str = Field(min_length=1, max_length=254)
+    # The cap stops someone making the server hash a huge string.
+    password: str = Field(min_length=1, max_length=128)
+
+
+class DemoLoginIn(BaseModel):
+    role: Role
+
+
+class OfficeUserOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    name: str
+    email: str
+    role: Role
 
 
 # What the AI must return, field for field from docs/data-model.md. A value of None means the

@@ -5,6 +5,7 @@ from uuid import uuid4
 
 from sqlalchemy.orm import Session
 
+from app.auth import hash_password
 from app.models import Branch, Client, Driver, Role, Trip, User, Vehicle
 
 
@@ -13,11 +14,19 @@ def unique_digits(length: int) -> str:
     return str(uuid4().int)[:length]
 
 
-def make_user(session: Session, role: Role = Role.BILLING_EXECUTIVE) -> User:
-    """An office user. The hash is a placeholder, because nothing signs in with it."""
+def make_user(
+    session: Session,
+    role: Role = Role.BILLING_EXECUTIVE,
+    password: str = "unused",
+    email: str | None = None,
+) -> User:
+    """An office user. Hashes the password for real, so the user can sign in through the API."""
     tag = unique_digits(8)
     user = User(
-        name=f"Test user {tag}", email=f"{tag}@example.com", password_hash="unused", role=role
+        name=f"Test user {tag}",
+        email=email or f"{tag}@example.com",
+        password_hash=hash_password(password),
+        role=role,
     )
     session.add(user)
     session.commit()

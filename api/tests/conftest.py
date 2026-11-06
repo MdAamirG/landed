@@ -44,6 +44,8 @@ def pytest_configure(config):
     # after this point, because app.config reads these once at import.
     os.environ["DATABASE_URL"] = test_url
     os.environ["DATABASE_URL_POOLED"] = test_url
+    # The test client talks plain http, so a Secure cookie would never be sent back.
+    os.environ["WEB_ORIGIN"] = "http://localhost:5173"
 
 
 def empty_tables() -> None:

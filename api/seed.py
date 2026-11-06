@@ -11,10 +11,10 @@ phone numbers, the other quantities, branches and times. No real person's data.
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
-from argon2 import PasswordHasher
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.auth import DEMO_EMAILS, hash_password
 from app.db import SessionLocal
 from app.models import (
     ActorType,
@@ -136,8 +136,8 @@ SAMPLE_TRIPS = [
 ]
 
 DEMO_USERS = [
-    ("Sample Billing Executive", "billing@example.com", Role.BILLING_EXECUTIVE),
-    ("Sample Operations Head", "ops@example.com", Role.OPERATIONS_HEAD),
+    ("Sample Billing Executive", DEMO_EMAILS[Role.BILLING_EXECUTIVE], Role.BILLING_EXECUTIVE),
+    ("Sample Operations Head", DEMO_EMAILS[Role.OPERATIONS_HEAD], Role.OPERATIONS_HEAD),
 ]
 
 
@@ -214,7 +214,7 @@ def seed_trip(session: Session, sample: SampleTrip, now: datetime) -> None:
 def seed(session: Session) -> None:
     """Add the sample data to the session. The caller commits."""
     now = datetime.now(UTC)
-    password_hash = PasswordHasher().hash(DEMO_PASSWORD)
+    password_hash = hash_password(DEMO_PASSWORD)
 
     for name, email, role in DEMO_USERS:
         get_or_create(
