@@ -49,6 +49,14 @@ OFFICE_ROUTES = [
         ("GET", f"/api/billing/exports/{NO_ID}/{file}", f"/api/billing/exports/{{batch_id}}/{file}", BILLING_ONLY)
         for file in ("xml", "photos")
     ),
+    ("GET", "/api/dashboard", "/api/dashboard", set(Role)),
+    ("GET", "/api/dashboard/counts", "/api/dashboard/counts", set(Role)),
+    (
+        "POST",
+        f"/api/dashboard/trips/{NO_ID}/resend-link",
+        "/api/dashboard/trips/{trip_id}/resend-link",
+        set(Role),
+    ),
 ]
 
 # Each of these takes a driver token, and opens only that token's trip. test_driver.py covers

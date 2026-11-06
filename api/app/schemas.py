@@ -142,6 +142,48 @@ class ExportOut(BaseModel):
     exported_at: datetime
 
 
+class MissingPodOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    trip_id: UUID
+    trip_code: str
+    registration_no: str
+    ownership: Ownership
+    client_name: str
+    destination: str
+    branch_name: str
+    hours_since_delivery: int
+    over_24_hours: bool
+
+
+class BranchDaysOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    branch_name: str
+    median_days: float
+
+
+class DashboardOut(BaseModel):
+    window_days: int
+    missing: list[MissingPodOut]
+    within_24_hours_percent: float | None
+    pod_to_invoice_days: float | None
+    lost_or_disputed_percent: float | None
+    branches: list[BranchDaysOut]
+
+
+class ResendOut(BaseModel):
+    sent_to: str  # Masked, like every driver phone in a response.
+
+
+class QueueCountsOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    review: int
+    billing: int
+    missing_pods: int
+
+
 class ReviewFieldOut(BaseModel):
     field: PodFieldName
     ai_value: Any

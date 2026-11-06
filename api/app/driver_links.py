@@ -29,13 +29,16 @@ def hash_token(token: str) -> str:
     return hmac.new(key, token.encode(), hashlib.sha256).hexdigest()
 
 
-def create_link(session: Session, trip: Trip, actor: Actor = SYSTEM) -> str:
+def create_link(session: Session, trip: Trip, actor: Actor = SYSTEM, sent: bool = False) -> str:
     """Add a link for the trip and return its token, the one time it is available. Caller commits."""
     token = secrets.token_urlsafe(32)
+    now = datetime.now(UTC)
     link = DriverLink(
         trip_id=trip.id,
         token_hash=hash_token(token),
-        expires_at=trip.expected_delivery_at + LINK_LIFETIME,
+        # From now if the trip is already overdue: a resend must never make a dead link.
+        expires_at=max(trip.expected_delivery_at, now) + LINK_LIFETIME,
+        sent_at=now if sent else None,
     )
     session.add(link)
     session.flush()

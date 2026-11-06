@@ -6,6 +6,7 @@ same transaction. The caller commits, so a status and its audit event land toget
 
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import update
@@ -61,6 +62,19 @@ def check_move(current: PodStatus, target: PodStatus, actor_type: ActorType) -> 
         raise IllegalMove(f"Only {allowed_actor} can move a trip out of {current}.")
 
 
+def send_mock_sms(session: Session, trip: Trip, actor: Actor, detail: dict[str, Any]) -> None:
+    """The SMS is mocked, so this event is the send. It never holds the token."""
+    session.add(
+        AuditEvent(
+            trip_id=trip.id,
+            actor_type=actor.type,
+            actor_id=actor.id,
+            action="sms_sent",
+            detail=detail,
+        )
+    )
+
+
 def ask_driver_for_a_retake(
     session: Session, trip: Trip, actor: Actor, reason: ReasonCode | None
 ) -> None:
@@ -72,16 +86,7 @@ def ask_driver_for_a_retake(
         .where(DriverLink.trip_id == trip.id, DriverLink.revoked_at.is_(None))
         .values(expires_at=datetime.now(UTC) + LINK_LIFETIME)
     )
-    # The SMS is mocked, so this event is the send. It never holds the token.
-    session.add(
-        AuditEvent(
-            trip_id=trip.id,
-            actor_type=actor.type,
-            actor_id=actor.id,
-            action="sms_sent",
-            detail={"purpose": "retake", "reason": reason},
-        )
-    )
+    send_mock_sms(session, trip, actor, {"purpose": "retake", "reason": reason})
 
 
 def move_trip(

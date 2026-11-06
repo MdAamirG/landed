@@ -1,12 +1,13 @@
 """Small builders, so each test makes its own rows and shares nothing with other tests."""
 
 from datetime import UTC, datetime, timedelta
+from hashlib import sha256
 from uuid import uuid4
 
 from sqlalchemy.orm import Session
 
 from app.auth import hash_password
-from app.models import Branch, Client, Driver, Role, Trip, User, Vehicle
+from app.models import Branch, Client, Driver, PodAttempt, Role, Trip, User, Vehicle
 from app.rules import INDIA
 from app.schemas import PodReading
 
@@ -90,3 +91,23 @@ def make_trip(session: Session, **overrides) -> Trip:
     # Commit, not flush: API requests run on their own session and must be able to see this row.
     session.commit()
     return trip
+
+
+def make_attempt(
+    session: Session, trip: Trip, captured_at: datetime, received_at: datetime
+) -> PodAttempt:
+    """A stored photo at chosen times, for tests about timing. An upload always stamps now."""
+    photo = b"\xff\xd8\xff test photo"
+    attempt = PodAttempt(
+        id=uuid4(),
+        trip_id=trip.id,
+        attempt_no=1,
+        image_bytes=photo,
+        size_bytes=len(photo),
+        sha256=sha256(photo).hexdigest(),
+        captured_at=captured_at,
+        received_at=received_at,
+    )
+    session.add(attempt)
+    session.commit()
+    return attempt

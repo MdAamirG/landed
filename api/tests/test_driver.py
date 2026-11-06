@@ -83,7 +83,7 @@ def test_a_revoked_link_is_refused(api_client, db):
 
 
 def test_a_link_lasts_72_hours_past_expected_delivery(db):
-    expected = datetime(2026, 11, 10, 6, 30, tzinfo=UTC)
+    expected = datetime.now(UTC) + timedelta(days=1)  # Ahead of today, or the link counts from now.
     trip, _token = linked_trip(db, expected_delivery_at=expected)
 
     assert link_row(db, trip).expires_at == expected + timedelta(hours=72)

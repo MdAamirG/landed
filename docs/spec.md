@@ -282,6 +282,10 @@ The docs leave these open. Each is a default to follow unless changed, and each 
 23. **Voucher date.** A voucher is dated the day of the export in India time. A trip's cycle still comes from its delivery date.
 24. **One cycle per export.** An export is refused if its trips span two cycles, since `export_batches` records a single cycle.
 25. **Export time.** It's read from the trips' shared `invoiced_at`, because `export_batches` has no time column.
+26. **Figure window.** The figures cover trips due in the last 90 days, not the 30 in `Dashboard.html`. The seed spans about 30 days, so a 30-day window would empty as the demo ages during review. The missing-POD list has no window, so an old trip is never forgotten.
+27. **Lost-or-disputed base.** The percentage is out of delivered trips: those with a photo, or past expected delivery. A trip still on the road can't be lost yet, so it doesn't dilute the figure.
+28. **Resending on an overdue trip.** A new link lasts 72 hours from now if that's later than 72 hours after expected delivery. Otherwise a resend on a long-overdue trip, which is who the list is for, would make a link that had already expired. Only trips still waiting for a photo can be resent.
+29. **Seeded history.** Seeded invoiced trips have `invoiced_at` but no export batch, so they feed the figures and don't appear under "Earlier exports". Most seeded trips share one sample photo, so their LR numbers don't match it. The trips a reviewer meets first in Review have their own sheets, listed in `samples/pods/seeded-sheets.json`.
 
 ### Screen changes
 
@@ -289,6 +293,7 @@ The docs leave these open. Each is a default to follow unless changed, and each 
 
 ### Limits to state in the TDD
 
+- Seeded missing-POD rows are set relative to the day of seeding and age with real time, so the hours since delivery grow and trips cross the 24-hour mark, then the 20-day lost mark. The figures stay computed, so they move too.
 - Masking can't cover the photo itself, which shows the stamp and possibly a signature.
 - Photos go to Google for the AI check. The terms for this key's tier still need checking.
 - The first open of a driver link needs network.
