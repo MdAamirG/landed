@@ -302,6 +302,6 @@ The docs leave these open. Each is a default to follow unless changed, and each 
 - Masking can't cover the photo itself, which shows the stamp and possibly a signature.
 - Photos go to Google for the AI check. The terms for this key's tier still need checking.
 - The first open of a driver link needs network.
-- The model's confidence isn't calibrated, so 0.80 is a starting value tuned on sample photos.
+- The model's confidence isn't calibrated, so 0.80 is a starting value. It was checked on synthetic sheets, where every readable field was right, so the measurement can't show what it would catch on real photos. On the blurred sheet the model invented values at high confidence despite being told not to guess, so the threshold alone doesn't protect billing. The checks against the trip do. Stamp, signature and remarks have no trip value to check against, so confidence is their only guard, and no wrong reading of those was seen to test it.
 - Sign out clears the cookie but can't cancel the token, so a copied token works until it expires. Sessions are short for this reason.
 - Sign-in has no attempt limit, so password guessing is only slowed by the hash.

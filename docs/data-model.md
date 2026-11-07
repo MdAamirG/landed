@@ -83,7 +83,7 @@ The AI must return this shape, validated with Pydantic. A response that doesn't 
 | `signature` | present or absent | 0 to 1 |
 | `image_quality` | ok, blurred or dark | none |
 
-The model reports its own confidence, and that isn't calibrated. Tune the 0.80 threshold on the sample photos, and say so in the TDD.
+The model reports its own confidence, and that isn't calibrated. The 0.80 threshold was checked on the sample photos and stays: see `docs/accuracy.md`. The only wrong readings measured came from the blurred sheet, and most were at 0.85 or above, so 0.80 stopped 1 of 11. The checks against the trip and the image quality flag are what caught them, and no sheet was wrongly verified. Raising the threshold to 0.95 would sit exactly on the lowest right reading, on evidence from one synthetic sheet, so it isn't justified until real photos exist.
 
 ## The AI check flow
 
@@ -192,7 +192,7 @@ These rules apply only when the `DEMO_MODE` env flag is on.
 - The trip file carries the branch, the quantity dispatched and the consignee's location. The brief's sample data shows none of these.
 - The branches (Sambhajinagar, Pune, Nagpur) are sample names.
 - Every client bills on the same two cycles a month.
-- The confidence threshold is 0.80, the location radius is 2 km, the date tolerance is 1 day and the AI time limit is 20 seconds. All four are starting values to tune.
+- The confidence threshold is 0.80, the location radius is 2 km, the date tolerance is 1 day and the AI time limit is 20 seconds. All four are starting values to tune. The threshold has been checked on synthetic photos only, and the slowest of 60 calls took 12.8 seconds.
 - The driver link lasts until 72 hours after expected delivery.
 - "Basic phones" means low-cost Android phones with a camera and browser. Keypad phones aren't supported, so those trips stay on the missing-POD list.
 - A POD is lost once it is still missing 20 days after expected delivery, the top of the brief's 10 to 20 day range.
