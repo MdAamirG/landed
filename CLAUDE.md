@@ -49,6 +49,7 @@ api/
   seed_trips.py   # a sample trip and its photo attempt
   seed_demo.py    # the five demo trips, from samples/pods/scenarios.json
   seed_history.py # about 200 backdated trips for the dashboard
+  measure_accuracy.py # real Gemini over the sample sheets; writes docs/accuracy.md
   alembic/
 web/
   src/driver/ src/office/ src/demo/ src/lib/
@@ -78,6 +79,7 @@ Fill these in once the project exists:
 - Web tests: `cd web && npm test`
 - Migrate: `cd api && alembic upgrade head`
 - Seed: `cd api && python seed.py`
+- Measure AI accuracy: `cd api && .venv/bin/python measure_accuracy.py --runs 3` (real paid calls; `--report-only` rebuilds the report from the saved replies)
 - Deploy: see `deployment.md`
 
 ## Agent skills
