@@ -286,6 +286,11 @@ The docs leave these open. Each is a default to follow unless changed, and each 
 27. **Lost-or-disputed base.** The percentage is out of delivered trips: those with a photo, or past expected delivery. A trip still on the road can't be lost yet, so it doesn't dilute the figure.
 28. **Resending on an overdue trip.** A new link lasts 72 hours from now if that's later than 72 hours after expected delivery. Otherwise a resend on a long-overdue trip, which is who the list is for, would make a link that had already expired. Only trips still waiting for a photo can be resent.
 29. **Seeded history.** Seeded invoiced trips have `invoiced_at` but no export batch, so they feed the figures and don't appear under "Earlier exports". Most seeded trips share one sample photo, so their LR numbers don't match it. The trips a reviewer meets first in Review have their own sheets, listed in `samples/pods/seeded-sheets.json`.
+30. **Demo routes.** The scenario routes have no sign-in, because a reviewer opens the picker from a QR code on a phone. They answer 404 with `DEMO_MODE` off. Picking a scenario costs no Gemini call, and the upload limit counts from the audit log, so resetting can't get round it.
+31. **Sample photos.** A sample is sent with its sheet's date and the consignee's location, so it shows its scenario and not `date_mismatch` or `location_far`. The phone check still runs, but a failure can't stop a sample, because the blurred one has to reach the AI check. It's recorded as `sent_anyway`. A reviewer's own photo keeps its real time and place, so it may go to Review for that reason.
+32. **Two reviewers on one scenario.** The trips are shared, so a second reviewer picking a scenario kills the first one's link, and the first sees the "call the office" screen. Picking the scenario again recovers it.
+33. **Links in a mock SMS.** Only a hash is stored, so in `DEMO_MODE` an office retake makes a new link to show. A retake the system asks for shows no toast, because the driver is already on that screen.
+34. **Resetting an exported demo trip.** The export keeps its stored XML, its count and its total, as the data model says. The trip leaves the POD ZIP, and an export holding only demo trips drops off "Earlier exports", because that list is read through the trips.
 
 ### Screen changes
 

@@ -48,7 +48,7 @@ Tickets 13, 14, 15, 16, 09, 21.
 - [x] Billing queue by client and cycle (from delivery date), Tally XML export with one voucher per client per export, POD photos ZIP
 - [x] History seed: about 200 backdated trips sharing a few sample images. The dashboard needs that many: one dispute in 18 trips is 5.6%, and 0.6% takes at least 167. It shows whatever the data computes
 - [x] Missing-POD dashboard, open to the billing executive and the operations head
-- [ ] Demo mode behind `DEMO_MODE`: five demo trips, scenario picker, reset limited to `is_demo` rows with a test proving seeded history is untouched, mock SMS toast
+- [x] Demo mode behind `DEMO_MODE`: five demo trips, scenario picker, reset limited to `is_demo` rows with a test proving seeded history is untouched, mock SMS toast
 - [ ] Script reporting accuracy per field on the sample photos; tune the confidence threshold and put the numbers in the TDD
 - [ ] Loading, empty and error states on every data region
 - [ ] Test on a real Android phone over mobile data, airplane mode on and off

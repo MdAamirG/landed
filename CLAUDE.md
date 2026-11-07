@@ -41,15 +41,17 @@ api/
     masking.py    # how names and phones appear in responses
     billing.py    # cycles, the billing queue, exports and the POD ZIP
     dashboard.py  # the missing-POD list, the three figures, resend, top-bar counts
+    demo.py       # the five scenarios: starting one, and which trip offers which sample
     tally.py      # Tally XML export
-    routers/      # health, auth, driver, review, billing, dashboard, trips
+    routers/      # health, auth, driver, review, billing, dashboard, demo, trips
   tests/
-  seed.py         # the brief's trips and demo users, then the history
-  seed_trips.py   # a sample trip and its photo attempt; ticket 16 reuses add_attempt()
+  seed.py         # the brief's trips and demo users, then the demo trips and the history
+  seed_trips.py   # a sample trip and its photo attempt
+  seed_demo.py    # the five demo trips, from samples/pods/scenarios.json
   seed_history.py # about 200 backdated trips for the dashboard
   alembic/
 web/
-  src/driver/ src/office/ src/lib/
+  src/driver/ src/office/ src/demo/ src/lib/
   public/manifest.webmanifest
 design/  docs/  samples/pods/
 ```

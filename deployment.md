@@ -14,12 +14,12 @@ cd api && .venv/bin/alembic upgrade head
 cd api && .venv/bin/python seed.py
 ```
 
-The seed is safe to run twice. When a later commit adds a migration, run it before pushing that commit, so the new code never meets the old schema.
+The seed adds the brief's trips, the five demo trips and the history. It's safe to run twice. When a later commit adds a migration, run it before pushing that commit, so the new code never meets the old schema.
 
 ## Deploy the API on Render
 
 1. In Render, choose **New**, then **Blueprint**, and connect the repo. Render reads `render.yaml`.
-2. When asked, paste `DATABASE_URL`, `DATABASE_URL_POOLED`, `GEMINI_API_KEY`, `SESSION_SECRET` and `DRIVER_LINK_SECRET` from your local `.env`. The two secrets must be the same everywhere, so don't generate new ones. Enter `pending` for `WEB_ORIGIN` until the web app has its URL. Set `DEMO_MODE` to `true` for a reviewer's build, or `false` to hide the demo role buttons. `render.yaml` sets `GEMINI_MODEL`.
+2. When asked, paste `DATABASE_URL`, `DATABASE_URL_POOLED`, `GEMINI_API_KEY`, `SESSION_SECRET` and `DRIVER_LINK_SECRET` from your local `.env`. The two secrets must be the same everywhere, so don't generate new ones. Enter `pending` for `WEB_ORIGIN` until the web app has its URL. Set `DEMO_MODE` to `true` for a reviewer's build, or `false` to turn off the demo role buttons, the driver demo and the links shown after a mock SMS. `render.yaml` sets `GEMINI_MODEL`.
 3. Check the service URL before deploying the web app. It's `https://landed-api-80b4.onrender.com`. Render chooses that address, so a recreated service may get a different one. If it changes, put the new URL in `vercel.json` and push, and use it for the uptime monitor below.
 
 Each push that changes `api/` deploys again.

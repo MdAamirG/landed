@@ -1,7 +1,7 @@
 """Shared by the seed scripts: adds a sample trip, and the photo attempt its status came from.
 
 The seed bypasses the status machine and the AI, so it stores the same rows they would: an attempt
-with its six fields, and an audit event. Ticket 16's demo trips reuse add_attempt().
+with its six fields, and an audit event.
 """
 
 import hashlib
