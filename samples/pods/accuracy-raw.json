@@ -1,0 +1,3586 @@
+{
+ "model": "gemini-3.5-flash-lite",
+ "runs": 3,
+ "records": [
+  {
+   "set": "rendered",
+   "sheet": "clean",
+   "run": 1,
+   "latency_ms": 2652,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48301"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 800.0,
+      "unit": "bags"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "verified",
+   "reasons": [],
+   "expected_outcome": "verified",
+   "expected_reasons": []
+  },
+  {
+   "set": "rendered",
+   "sheet": "blurry",
+   "run": 1,
+   "latency_ms": 3340,
+   "image_quality": "blurred",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 0.99,
+     "read": {
+      "value": "48302"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 0.99,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 0.95,
+     "read": {
+      "number": 24.0,
+      "unit": "tonnes"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 0.95,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": false,
+     "confidence": 0.9,
+     "read": {
+      "value": "2024-11-04"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 0.99,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "retake_requested",
+   "reasons": [
+    "photo_blurred",
+    "date_mismatch"
+   ],
+   "expected_outcome": "retake_requested",
+   "expected_reasons": [
+    "photo_blurred"
+   ]
+  },
+  {
+   "set": "rendered",
+   "sheet": "no-stamp",
+   "run": 1,
+   "latency_ms": 4418,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48303"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "absent"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 24.0,
+      "unit": "tonnes"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "retake_requested",
+   "reasons": [
+    "stamp_missing"
+   ],
+   "expected_outcome": "retake_requested",
+   "expected_reasons": [
+    "stamp_missing"
+   ]
+  },
+  {
+   "set": "rendered",
+   "sheet": "short-6-cartons",
+   "run": 1,
+   "latency_ms": 4836,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48304"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 394.0,
+      "unit": "cartons"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": "Short by 6 cartons",
+      "kind": "shortage"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "shortage_remark",
+    "qty_short"
+   ],
+   "expected_outcome": "needs_review",
+   "expected_reasons": [
+    "shortage_remark",
+    "qty_short"
+   ]
+  },
+  {
+   "set": "rendered",
+   "sheet": "wrong-lr",
+   "run": 1,
+   "latency_ms": 3710,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48350"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 800.0,
+      "unit": "bags"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "lr_mismatch"
+   ],
+   "expected_outcome": "needs_review",
+   "expected_reasons": [
+    "lr_mismatch"
+   ]
+  },
+  {
+   "set": "rendered",
+   "sheet": "trp-66120",
+   "run": 1,
+   "latency_ms": 4055,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48190"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 800.0,
+      "unit": "bags"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "verified",
+   "reasons": [],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "rendered",
+   "sheet": "trp-66134",
+   "run": 1,
+   "latency_ms": 3807,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48207"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "absent"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 24.0,
+      "unit": "tonnes"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "retake_requested",
+   "reasons": [
+    "stamp_missing"
+   ],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "rendered",
+   "sheet": "trp-66141",
+   "run": 1,
+   "latency_ms": 12831,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48213"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 0.99,
+     "read": {
+      "number": 394.0,
+      "unit": "cartons"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 0.99,
+     "read": {
+      "text": "Short by 6 cartons",
+      "kind": "shortage"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 0.98,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "shortage_remark",
+    "qty_short"
+   ],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "rendered",
+   "sheet": "trp-66137",
+   "run": 1,
+   "latency_ms": 2993,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48209"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 800.0,
+      "unit": "bags"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": "12 bags torn",
+      "kind": "damage"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "damage_remark"
+   ],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "rendered",
+   "sheet": "trp-66128",
+   "run": 1,
+   "latency_ms": 3084,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48196"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 24.0,
+      "unit": "tonnes"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "verified",
+   "reasons": [],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "photos",
+   "sheet": "clean",
+   "run": 1,
+   "latency_ms": 3606,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48301"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 800.0,
+      "unit": "bags"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "verified",
+   "reasons": [],
+   "expected_outcome": "verified",
+   "expected_reasons": []
+  },
+  {
+   "set": "photos",
+   "sheet": "blurry",
+   "run": 1,
+   "latency_ms": 4125,
+   "image_quality": "blurred",
+   "fields": {
+    "lr_number": {
+     "right": false,
+     "confidence": 0.9,
+     "read": {
+      "value": "48392"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 0.95,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": false,
+     "confidence": 0.85,
+     "read": {
+      "number": 214.0,
+      "unit": "Pallets"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 0.95,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": false,
+     "confidence": 0.9,
+     "read": {
+      "value": "2024-11-04"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 0.95,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "retake_requested",
+   "reasons": [
+    "photo_blurred",
+    "lr_mismatch",
+    "date_mismatch",
+    "qty_mismatch"
+   ],
+   "expected_outcome": "retake_requested",
+   "expected_reasons": [
+    "photo_blurred"
+   ]
+  },
+  {
+   "set": "photos",
+   "sheet": "no-stamp",
+   "run": 1,
+   "latency_ms": 2860,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48303"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "absent"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 24.0,
+      "unit": "tonnes"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "retake_requested",
+   "reasons": [
+    "stamp_missing"
+   ],
+   "expected_outcome": "retake_requested",
+   "expected_reasons": [
+    "stamp_missing"
+   ]
+  },
+  {
+   "set": "photos",
+   "sheet": "short-6-cartons",
+   "run": 1,
+   "latency_ms": 3146,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48304"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 394.0,
+      "unit": "cartons"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": "Short by 6 cartons",
+      "kind": "shortage"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "shortage_remark",
+    "qty_short"
+   ],
+   "expected_outcome": "needs_review",
+   "expected_reasons": [
+    "shortage_remark",
+    "qty_short"
+   ]
+  },
+  {
+   "set": "photos",
+   "sheet": "wrong-lr",
+   "run": 1,
+   "latency_ms": 3819,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48350"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 800.0,
+      "unit": "bags"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "lr_mismatch"
+   ],
+   "expected_outcome": "needs_review",
+   "expected_reasons": [
+    "lr_mismatch"
+   ]
+  },
+  {
+   "set": "photos",
+   "sheet": "trp-66120",
+   "run": 1,
+   "latency_ms": 2588,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48190"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 800.0,
+      "unit": "bags"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "verified",
+   "reasons": [],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "photos",
+   "sheet": "trp-66134",
+   "run": 1,
+   "latency_ms": 3612,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48207"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "absent"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 24.0,
+      "unit": "tonnes"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "retake_requested",
+   "reasons": [
+    "stamp_missing"
+   ],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "photos",
+   "sheet": "trp-66141",
+   "run": 1,
+   "latency_ms": 3828,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48213"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 394.0,
+      "unit": "cartons"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": "Short by 6 cartons",
+      "kind": "shortage"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "shortage_remark",
+    "qty_short"
+   ],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "photos",
+   "sheet": "trp-66137",
+   "run": 1,
+   "latency_ms": 4918,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48209"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 800.0,
+      "unit": "bags"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": "12 bags torn",
+      "kind": "damage"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "damage_remark"
+   ],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "photos",
+   "sheet": "trp-66128",
+   "run": 1,
+   "latency_ms": 4861,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48196"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 24.0,
+      "unit": "tonnes"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "verified",
+   "reasons": [],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "rendered",
+   "sheet": "clean",
+   "run": 2,
+   "latency_ms": 4672,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48301"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 800.0,
+      "unit": "bags"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "verified",
+   "reasons": [],
+   "expected_outcome": "verified",
+   "expected_reasons": []
+  },
+  {
+   "set": "rendered",
+   "sheet": "blurry",
+   "run": 2,
+   "latency_ms": 2924,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 0.99,
+     "read": {
+      "value": "48302"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 0.99,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 0.95,
+     "read": {
+      "number": 24.0,
+      "unit": "tonnes"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 0.99,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": false,
+     "confidence": 0.9,
+     "read": {
+      "value": "2024-11-04"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 0.99,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "date_mismatch"
+   ],
+   "expected_outcome": "retake_requested",
+   "expected_reasons": [
+    "photo_blurred"
+   ]
+  },
+  {
+   "set": "rendered",
+   "sheet": "no-stamp",
+   "run": 2,
+   "latency_ms": 5626,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48303"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "absent"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 24.0,
+      "unit": "tonnes"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "retake_requested",
+   "reasons": [
+    "stamp_missing"
+   ],
+   "expected_outcome": "retake_requested",
+   "expected_reasons": [
+    "stamp_missing"
+   ]
+  },
+  {
+   "set": "rendered",
+   "sheet": "short-6-cartons",
+   "run": 2,
+   "latency_ms": 9428,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48304"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 394.0,
+      "unit": "cartons"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": "Short by 6 cartons",
+      "kind": "shortage"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "shortage_remark",
+    "qty_short"
+   ],
+   "expected_outcome": "needs_review",
+   "expected_reasons": [
+    "shortage_remark",
+    "qty_short"
+   ]
+  },
+  {
+   "set": "rendered",
+   "sheet": "wrong-lr",
+   "run": 2,
+   "latency_ms": 5394,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48350"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 800.0,
+      "unit": "bags"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "lr_mismatch"
+   ],
+   "expected_outcome": "needs_review",
+   "expected_reasons": [
+    "lr_mismatch"
+   ]
+  },
+  {
+   "set": "rendered",
+   "sheet": "trp-66120",
+   "run": 2,
+   "latency_ms": 2462,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48190"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 800.0,
+      "unit": "bags"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "verified",
+   "reasons": [],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "rendered",
+   "sheet": "trp-66134",
+   "run": 2,
+   "latency_ms": 2063,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48207"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "absent"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 24.0,
+      "unit": "tonnes"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "retake_requested",
+   "reasons": [
+    "stamp_missing"
+   ],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "rendered",
+   "sheet": "trp-66141",
+   "run": 2,
+   "latency_ms": 3618,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48213"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 394.0,
+      "unit": "cartons"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": "Short by 6 cartons",
+      "kind": "shortage"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "shortage_remark",
+    "qty_short"
+   ],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "rendered",
+   "sheet": "trp-66137",
+   "run": 2,
+   "latency_ms": 2055,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48209"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 800.0,
+      "unit": "bags"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": "12 bags torn",
+      "kind": "damage"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "damage_remark"
+   ],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "rendered",
+   "sheet": "trp-66128",
+   "run": 2,
+   "latency_ms": 2240,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48196"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 24.0,
+      "unit": "tonnes"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "verified",
+   "reasons": [],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "photos",
+   "sheet": "clean",
+   "run": 2,
+   "latency_ms": 2018,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48301"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 800.0,
+      "unit": "bags"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "verified",
+   "reasons": [],
+   "expected_outcome": "verified",
+   "expected_reasons": []
+  },
+  {
+   "set": "photos",
+   "sheet": "blurry",
+   "run": 2,
+   "latency_ms": 2053,
+   "image_quality": "blurred",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 0.95,
+     "read": {
+      "value": "48302"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 0.98,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": false,
+     "confidence": 0.8,
+     "read": {
+      "number": 5.0,
+      "unit": "bundles"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 0.95,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": false,
+     "confidence": 0.95,
+     "read": {
+      "value": null
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 0.98,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "retake_requested",
+   "reasons": [
+    "photo_blurred",
+    "date_missing",
+    "qty_mismatch"
+   ],
+   "expected_outcome": "retake_requested",
+   "expected_reasons": [
+    "photo_blurred"
+   ]
+  },
+  {
+   "set": "photos",
+   "sheet": "no-stamp",
+   "run": 2,
+   "latency_ms": 2550,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48303"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "absent"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 24.0,
+      "unit": "tonnes"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "retake_requested",
+   "reasons": [
+    "stamp_missing"
+   ],
+   "expected_outcome": "retake_requested",
+   "expected_reasons": [
+    "stamp_missing"
+   ]
+  },
+  {
+   "set": "photos",
+   "sheet": "short-6-cartons",
+   "run": 2,
+   "latency_ms": 2237,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48304"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 394.0,
+      "unit": "cartons"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": "Short by 6 cartons",
+      "kind": "shortage"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "shortage_remark",
+    "qty_short"
+   ],
+   "expected_outcome": "needs_review",
+   "expected_reasons": [
+    "shortage_remark",
+    "qty_short"
+   ]
+  },
+  {
+   "set": "photos",
+   "sheet": "wrong-lr",
+   "run": 2,
+   "latency_ms": 2347,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48350"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 800.0,
+      "unit": "bags"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "lr_mismatch"
+   ],
+   "expected_outcome": "needs_review",
+   "expected_reasons": [
+    "lr_mismatch"
+   ]
+  },
+  {
+   "set": "photos",
+   "sheet": "trp-66120",
+   "run": 2,
+   "latency_ms": 1852,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48190"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 800.0,
+      "unit": "bags"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "verified",
+   "reasons": [],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "photos",
+   "sheet": "trp-66134",
+   "run": 2,
+   "latency_ms": 2422,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48207"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "absent"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 24.0,
+      "unit": "tonnes"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "retake_requested",
+   "reasons": [
+    "stamp_missing"
+   ],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "photos",
+   "sheet": "trp-66141",
+   "run": 2,
+   "latency_ms": 2397,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48213"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 394.0,
+      "unit": "cartons"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": "Short by 6 cartons",
+      "kind": "shortage"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "shortage_remark",
+    "qty_short"
+   ],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "photos",
+   "sheet": "trp-66137",
+   "run": 2,
+   "latency_ms": 2090,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48209"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 800.0,
+      "unit": "bags"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": "12 bags torn",
+      "kind": "damage"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "damage_remark"
+   ],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "photos",
+   "sheet": "trp-66128",
+   "run": 2,
+   "latency_ms": 2126,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48196"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 24.0,
+      "unit": "tonnes"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "verified",
+   "reasons": [],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "rendered",
+   "sheet": "clean",
+   "run": 3,
+   "latency_ms": 2219,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48301"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 800.0,
+      "unit": "bags"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "verified",
+   "reasons": [],
+   "expected_outcome": "verified",
+   "expected_reasons": []
+  },
+  {
+   "set": "rendered",
+   "sheet": "blurry",
+   "run": 3,
+   "latency_ms": 1933,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 0.99,
+     "read": {
+      "value": "48302"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 0.99,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 0.95,
+     "read": {
+      "number": 24.0,
+      "unit": "tonnes"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 0.99,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": false,
+     "confidence": 0.9,
+     "read": {
+      "value": "2024-11-04"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 0.99,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "date_mismatch"
+   ],
+   "expected_outcome": "retake_requested",
+   "expected_reasons": [
+    "photo_blurred"
+   ]
+  },
+  {
+   "set": "rendered",
+   "sheet": "no-stamp",
+   "run": 3,
+   "latency_ms": 2114,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48303"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "absent"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 24.0,
+      "unit": "tonnes"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "retake_requested",
+   "reasons": [
+    "stamp_missing"
+   ],
+   "expected_outcome": "retake_requested",
+   "expected_reasons": [
+    "stamp_missing"
+   ]
+  },
+  {
+   "set": "rendered",
+   "sheet": "short-6-cartons",
+   "run": 3,
+   "latency_ms": 2285,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48304"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 394.0,
+      "unit": "cartons"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": "Short by 6 cartons",
+      "kind": "shortage"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "shortage_remark",
+    "qty_short"
+   ],
+   "expected_outcome": "needs_review",
+   "expected_reasons": [
+    "shortage_remark",
+    "qty_short"
+   ]
+  },
+  {
+   "set": "rendered",
+   "sheet": "wrong-lr",
+   "run": 3,
+   "latency_ms": 1955,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48350"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 800.0,
+      "unit": "bags"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "lr_mismatch"
+   ],
+   "expected_outcome": "needs_review",
+   "expected_reasons": [
+    "lr_mismatch"
+   ]
+  },
+  {
+   "set": "rendered",
+   "sheet": "trp-66120",
+   "run": 3,
+   "latency_ms": 2246,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48190"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 800.0,
+      "unit": "bags"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "verified",
+   "reasons": [],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "rendered",
+   "sheet": "trp-66134",
+   "run": 3,
+   "latency_ms": 2015,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48207"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "absent"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 24.0,
+      "unit": "tonnes"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "retake_requested",
+   "reasons": [
+    "stamp_missing"
+   ],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "rendered",
+   "sheet": "trp-66141",
+   "run": 3,
+   "latency_ms": 3467,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48213"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 394.0,
+      "unit": "cartons"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": "Short by 6 cartons",
+      "kind": "shortage"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "shortage_remark",
+    "qty_short"
+   ],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "rendered",
+   "sheet": "trp-66137",
+   "run": 3,
+   "latency_ms": 2342,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48209"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 800.0,
+      "unit": "bags"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": "12 bags torn",
+      "kind": "damage"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "damage_remark"
+   ],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "rendered",
+   "sheet": "trp-66128",
+   "run": 3,
+   "latency_ms": 2255,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48196"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 24.0,
+      "unit": "tonnes"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "verified",
+   "reasons": [],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "photos",
+   "sheet": "clean",
+   "run": 3,
+   "latency_ms": 2418,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48301"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 800.0,
+      "unit": "bags"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "verified",
+   "reasons": [],
+   "expected_outcome": "verified",
+   "expected_reasons": []
+  },
+  {
+   "set": "photos",
+   "sheet": "blurry",
+   "run": 3,
+   "latency_ms": 1912,
+   "image_quality": "blurred",
+   "fields": {
+    "lr_number": {
+     "right": false,
+     "confidence": 0.95,
+     "read": {
+      "value": "48362"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 0.98,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": false,
+     "confidence": 0.6,
+     "read": {
+      "number": 219.0,
+      "unit": "Pallets"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 0.95,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": false,
+     "confidence": 0.95,
+     "read": {
+      "value": null
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 0.98,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "retake_requested",
+   "reasons": [
+    "photo_blurred",
+    "date_missing",
+    "lr_mismatch",
+    "qty_mismatch",
+    "low_confidence"
+   ],
+   "expected_outcome": "retake_requested",
+   "expected_reasons": [
+    "photo_blurred"
+   ]
+  },
+  {
+   "set": "photos",
+   "sheet": "no-stamp",
+   "run": 3,
+   "latency_ms": 2270,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48303"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "absent"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 24.0,
+      "unit": "tonnes"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "retake_requested",
+   "reasons": [
+    "stamp_missing"
+   ],
+   "expected_outcome": "retake_requested",
+   "expected_reasons": [
+    "stamp_missing"
+   ]
+  },
+  {
+   "set": "photos",
+   "sheet": "short-6-cartons",
+   "run": 3,
+   "latency_ms": 2003,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48304"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 394.0,
+      "unit": "cartons"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": "Short by 6 cartons",
+      "kind": "shortage"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "shortage_remark",
+    "qty_short"
+   ],
+   "expected_outcome": "needs_review",
+   "expected_reasons": [
+    "shortage_remark",
+    "qty_short"
+   ]
+  },
+  {
+   "set": "photos",
+   "sheet": "wrong-lr",
+   "run": 3,
+   "latency_ms": 2257,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48350"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 800.0,
+      "unit": "bags"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "lr_mismatch"
+   ],
+   "expected_outcome": "needs_review",
+   "expected_reasons": [
+    "lr_mismatch"
+   ]
+  },
+  {
+   "set": "photos",
+   "sheet": "trp-66120",
+   "run": 3,
+   "latency_ms": 2446,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48190"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 800.0,
+      "unit": "bags"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "verified",
+   "reasons": [],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "photos",
+   "sheet": "trp-66134",
+   "run": 3,
+   "latency_ms": 2360,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48207"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "absent"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 24.0,
+      "unit": "tonnes"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "retake_requested",
+   "reasons": [
+    "stamp_missing"
+   ],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "photos",
+   "sheet": "trp-66141",
+   "run": 3,
+   "latency_ms": 2238,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48213"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 0.98,
+     "read": {
+      "number": 394.0,
+      "unit": "cartons"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 0.98,
+     "read": {
+      "text": "Short by 6 cartons",
+      "kind": "shortage"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 0.95,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "shortage_remark",
+    "qty_short"
+   ],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "photos",
+   "sheet": "trp-66137",
+   "run": 3,
+   "latency_ms": 2623,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48209"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 800.0,
+      "unit": "bags"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": "12 bags torn",
+      "kind": "damage"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "needs_review",
+   "reasons": [
+    "damage_remark"
+   ],
+   "expected_outcome": null,
+   "expected_reasons": null
+  },
+  {
+   "set": "photos",
+   "sheet": "trp-66128",
+   "run": 3,
+   "latency_ms": 2127,
+   "image_quality": "ok",
+   "fields": {
+    "lr_number": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "48196"
+     }
+    },
+    "consignee_stamp": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    },
+    "quantity_received": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "number": 24.0,
+      "unit": "tonnes"
+     }
+    },
+    "remarks": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "text": null,
+      "kind": "none"
+     }
+    },
+    "delivery_date": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "2026-11-06"
+     }
+    },
+    "signature": {
+     "right": true,
+     "confidence": 1.0,
+     "read": {
+      "value": "present"
+     }
+    }
+   },
+   "outcome": "verified",
+   "reasons": [],
+   "expected_outcome": null,
+   "expected_reasons": null
+  }
+ ]
+}

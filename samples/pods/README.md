@@ -45,6 +45,10 @@ pip install pillow numpy
 python3 samples/photograph_pods.py
 ```
 
+## Measuring accuracy
+
+`api/measure_accuracy.py` runs the real model over both sets and saves every reply to `accuracy-raw.json`. `docs/accuracy.md` is the report built from it. On a blurred sheet `decide()` lists every failed check, so `expected_reasons` is the first reason and more can follow it. The status is what has to match.
+
 ## Rendering again
 
 After changing `scenarios.json` or the template (`samples/lr-sheet.html` and `samples/lr-sheet.css`):
