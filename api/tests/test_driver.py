@@ -44,6 +44,7 @@ def test_a_link_opens_its_trip(api_client, db):
         "retakes_used": 0,
         "reason_codes": [],
         "demo_sample": None,
+        "language": "hi",  # The factory's driver speaks Hindi.
     }
 
 
@@ -125,3 +126,45 @@ def test_the_response_reports_the_trip_status(api_client, db, status):
     _trip, token = linked_trip(db, pod_status=status)
 
     assert open_link(api_client, token).json()["pod_status"] == status
+
+
+def set_language(client, token: str, language: str):
+    return client.put(
+        "/api/driver/language",
+        json={"language": language},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+
+def test_the_language_switch_changes_the_drivers_language(api_client, db):
+    trip, token = linked_trip(db)
+
+    response = set_language(api_client, token, "mr")
+    event = db.scalar(
+        select(AuditEvent).where(
+            AuditEvent.trip_id == trip.id, AuditEvent.action == "driver_language_changed"
+        )
+    )
+
+    assert response.status_code == 204
+    assert open_link(api_client, token).json()["language"] == "mr"
+    assert event.actor_type == "driver_link"
+    assert event.actor_id == link_row(db, trip).id
+    assert event.detail == {"from": "hi", "to": "mr"}
+
+
+def test_choosing_the_same_language_writes_no_event(api_client, db):
+    trip, token = linked_trip(db)
+
+    assert set_language(api_client, token, "hi").status_code == 204
+    actions = db.scalars(select(AuditEvent.action).where(AuditEvent.trip_id == trip.id)).all()
+
+    assert "driver_language_changed" not in actions
+
+
+@pytest.mark.parametrize("language", ["fr", "", "HI"])
+def test_only_hindi_marathi_or_english_is_accepted(api_client, db, language):
+    _trip, token = linked_trip(db)
+
+    assert set_language(api_client, token, language).status_code == 422
+    assert open_link(api_client, token).json()["language"] == "hi"

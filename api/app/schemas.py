@@ -6,7 +6,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
 
-from app.models import DeviceCheck, Ownership, PodFieldName, PodStatus, Role
+from app.models import DeviceCheck, Language, Ownership, PodFieldName, PodStatus, Role
 
 
 class PingOut(BaseModel):
@@ -67,6 +67,13 @@ class DriverTripOut(BaseModel):
     retakes_used: int
     reason_codes: list[str]  # Why a retake was asked for. Empty for any other status.
     demo_sample: DemoSampleOut | None = None  # Only for a demo trip with DEMO_MODE on.
+    language: Language  # drivers.language: the voice prompts start in it.
+
+
+class LanguageChoice(BaseModel):
+    """The driver's pick on the language switch."""
+
+    language: Language
 
 
 class AttemptForm(BaseModel):

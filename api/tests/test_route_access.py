@@ -69,6 +69,7 @@ OFFICE_ROUTES = [
 # valid tokens; here a route only has to refuse a request without one.
 DRIVER_ROUTES = [
     ("GET", "/api/driver/trip", "/api/driver/trip"),
+    ("PUT", "/api/driver/language", "/api/driver/language"),
     ("POST", "/api/driver/attempts", "/api/driver/attempts"),
     (
         "GET",

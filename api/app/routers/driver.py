@@ -15,8 +15,8 @@ from app.intake import (
     run_check,
     sweep_stuck_attempts,
 )
-from app.models import Client, DriverLink, PodAttempt, Trip, Vehicle
-from app.schemas import AttemptForm, AttemptOut, DemoSampleOut, DriverTripOut
+from app.models import ActorType, AuditEvent, Client, Driver, DriverLink, PodAttempt, Trip, Vehicle
+from app.schemas import AttemptForm, AttemptOut, DemoSampleOut, DriverTripOut, LanguageChoice
 
 router = APIRouter(prefix="/driver")
 
@@ -77,7 +77,33 @@ def get_trip(
         retakes_used=trip.retakes_used,
         reason_codes=retake_reasons(db, trip) if trip.pod_status == "retake_requested" else [],
         demo_sample=demo_sample(trip),
+        language=db.get_one(Driver, trip.driver_id).language,
     )
+
+
+@router.put("/language", status_code=status.HTTP_204_NO_CONTENT)
+def set_language(
+    choice: LanguageChoice,
+    link: Annotated[DriverLink, Depends(valid_driver_link)],
+    db: Annotated[Session, Depends(get_db)],
+) -> None:
+    """The language switch. It changes the driver, not just this trip, so their next link starts
+    in the language they picked."""
+    trip = db.get_one(Trip, link.trip_id)
+    driver = db.get_one(Driver, trip.driver_id)
+    if driver.language == choice.language:
+        return  # Nothing changed, so there is nothing to record.
+    db.add(
+        AuditEvent(
+            trip_id=trip.id,
+            actor_type=ActorType.DRIVER_LINK,
+            actor_id=link.id,
+            action="driver_language_changed",
+            detail={"from": driver.language, "to": choice.language},
+        )
+    )
+    driver.language = choice.language
+    db.commit()
 
 
 @router.post("/attempts", response_model=AttemptOut)
