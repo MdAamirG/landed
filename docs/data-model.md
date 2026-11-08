@@ -204,7 +204,7 @@ These rules apply only when the `DEMO_MODE` env flag is on.
 ## Limits to state in the TDD
 
 - Masking can't cover the photo itself, which shows the consignee's stamp and possibly a signature.
-- Photos go to Google for the AI check. Check the Gemini terms for this key's tier before writing this up.
+- Photos go to Google for the AI check. The key is on the free tier, so real PODs need a paid project first: see the TDD, section 10.
 - The first open of a driver link needs network.
 - A closed app sends nothing until it is reopened, unless the Background Sync stretch goal lands.
 - Disputes after invoicing aren't handled.

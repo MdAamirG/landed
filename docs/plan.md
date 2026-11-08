@@ -53,7 +53,7 @@ Tickets 13, 14, 15, 16, 09, 21.
 - [ ] Loading, empty and error states on every data region
 - [ ] Test on a real Android phone over mobile data, airplane mode on and off
 - [ ] Aamir decides whether to move Render to a paid plan before submitting
-- [ ] `deployment.md` and the TDD (GitHub URL and live link at the top)
+- [x] `deployment.md` and the TDD (GitHub URL and live link at the top). The TDD is `docs/tdd.md`; `uv run docs/build_submission.py` builds the PDF and the ZIP
 - [ ] Submit
 
 ## Only if time remains

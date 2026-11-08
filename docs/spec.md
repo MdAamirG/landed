@@ -300,7 +300,7 @@ The docs leave these open. Each is a default to follow unless changed, and each 
 
 - Seeded missing-POD rows are set relative to the day of seeding and age with real time, so the hours since delivery grow and trips cross the 24-hour mark, then the 20-day lost mark. The figures stay computed, so they move too.
 - Masking can't cover the photo itself, which shows the stamp and possibly a signature.
-- Photos go to Google for the AI check. The terms for this key's tier still need checking.
+- Photos go to Google for the AI check, and the key is on the free tier, where Google may use them to improve its products and people may review them. Fine for synthetic sheets; real PODs need a paid project. See the TDD, section 10.
 - The first open of a driver link needs network.
 - The model's confidence isn't calibrated, so 0.80 is a starting value. It was checked on synthetic sheets, where every readable field was right, so the measurement can't show what it would catch on real photos. On the blurred sheet the model invented values at high confidence despite being told not to guess, so the threshold alone doesn't protect billing. The checks against the trip do. Stamp, signature and remarks have no trip value to check against, so confidence is their only guard, and no wrong reading of those was seen to test it.
 - Sign out clears the cookie but can't cancel the token, so a copied token works until it expires. Sessions are short for this reason.
