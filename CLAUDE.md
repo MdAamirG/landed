@@ -81,6 +81,7 @@ Fill these in once the project exists:
 - Seed: `cd api && python seed.py`
 - Measure AI accuracy: `cd api && .venv/bin/python measure_accuracy.py --runs 3` (real paid calls; `--report-only` rebuilds the report from the saved replies)
 - Deploy: see `deployment.md`
+- Build the submission (TDD PDF and ZIP into `submission/`): `uv run docs/build_submission.py`
 
 ## Agent skills
 
