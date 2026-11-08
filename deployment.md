@@ -1,5 +1,101 @@
 # Deployment
 
+- **Live app:** https://landed-lovat.vercel.app
+- **Code:** https://github.com/MdAamirG/landed
+
+## Demo logins
+
+Both office accounts use the password `landed-demo`. They hold sample data only.
+
+| Role | Email | What it can do |
+| --- | --- | --- |
+| Billing executive | `billing@example.com` | Review, Billing, Missing PODs: the whole core build |
+| Operations head | `ops@example.com` | Missing PODs and resending driver links. Approving and exporting are refused |
+
+The sign-in screen also has one button per role, so you don't have to type these.
+
+Drivers have no login. Each trip has its own link, sent by SMS, and the SMS is mocked. To try the driver side:
+
+- **On a phone:** scan the QR code on the sign-in screen, or open https://landed-lovat.vercel.app/demo. Pick one of the five scenarios, then send its sample photo or take your own. Both go through the real Gemini check.
+- **From the office:** "Ask for retake" in Review and "Resend SMS link" in Missing PODs show a "Mock SMS sent" toast. Its "Open link" button opens the link the driver would have received.
+
+The API sleeps after 15 minutes without traffic on Render's free tier. If the first page takes about a minute, that's Render waking up. See "Keep the API awake" below.
+
+## Run it locally
+
+You need Python 3.12, [uv](https://docs.astral.sh/uv/) (or plain `venv` and `pip`), Node 22 or newer, a Gemini API key and two Postgres databases. The steps use Neon, as production does: one branch for the app and a second branch for the tests, because the tests empty every table.
+
+1. Copy the example environment file to `.env` at the repo root, and fill it in. The table at the end says what each variable is.
+
+```bash
+cp .env.example .env
+```
+
+- For local work, set `WEB_ORIGIN=http://localhost:5173`, `VITE_API_URL=http://localhost:8000` and `DEMO_MODE=true`.
+- `SESSION_SECRET` and `DRIVER_LINK_SECRET` must each be at least 32 characters. This makes one:
+
+```bash
+python3 -c "import secrets; print(secrets.token_urlsafe(48))"
+```
+
+2. Install the API's packages.
+
+```bash
+cd api && uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python -r requirements-dev.txt
+```
+
+3. Create the tables, then add the sample data. The seed adds the brief's three trips, the two demo logins, the five demo trips and about 200 backdated trips for the dashboard. It takes about a minute against Neon and is safe to run twice.
+
+```bash
+cd api && .venv/bin/alembic upgrade head
+```
+
+```bash
+cd api && .venv/bin/python seed.py
+```
+
+4. Start the API. It reads `.env` from the repo root.
+
+```bash
+cd api && .venv/bin/uvicorn app.main:app --reload
+```
+
+5. In a second terminal, start the web app, then open http://localhost:5173. Vite forwards `/api` to `VITE_API_URL`, so the browser only talks to one origin, as it does on Vercel.
+
+```bash
+cd web && npm ci && npm run dev
+```
+
+6. Optional: print a driver link for any seeded trip. Only a hash is stored, so each run makes a new link.
+
+```bash
+cd api && .venv/bin/python make_driver_link.py TRP-66134
+```
+
+### Tests
+
+The API tests run against the database in `DATABASE_URL_TEST`. They refuse to start if it's unset or has the same host as the app's database, because they migrate it and empty its tables. The whole suite makes network calls to Neon and takes a while, so run one file while working.
+
+```bash
+cd api && .venv/bin/pytest
+```
+
+```bash
+cd api && .venv/bin/pytest tests/test_rules.py
+```
+
+```bash
+cd web && npm run typecheck && npm test
+```
+
+The tests never call Gemini: they swap in a fake reader. The real model is measured separately, with paid calls, and the result is in `docs/accuracy.md`.
+
+```bash
+cd api && .venv/bin/python measure_accuracy.py --runs 3
+```
+
+## How it's deployed
+
 The web app runs on Vercel, the API on Render's free tier in Singapore, and the database on Neon in `ap-southeast-1`. The browser only ever talks to Vercel: `vercel.json` forwards `/api/*` to Render, so the sign-in cookie stays first-party and CORS isn't needed.
 
 ## Set up the database
@@ -14,7 +110,7 @@ cd api && .venv/bin/alembic upgrade head
 cd api && .venv/bin/python seed.py
 ```
 
-The seed adds the brief's trips, the five demo trips and the history. It's safe to run twice. When a later commit adds a migration, run it before pushing that commit, so the new code never meets the old schema.
+The seed adds the brief's trips, the five demo trips and the history. It's safe to run twice. Seeded missing-POD rows are dated relative to the day of seeding, so run it close to when reviewers will look. When a later commit adds a migration, run it before pushing that commit, so the new code never meets the old schema.
 
 ## Deploy the API on Render
 
@@ -56,9 +152,9 @@ Names only. `.env.example` lists all of these except `PYTHON_VERSION`, which onl
 | `DATABASE_URL` | Render, local | Neon direct URL, for migrations |
 | `DATABASE_URL_POOLED` | Render, local | Neon pooled URL, for the app |
 | `GEMINI_API_KEY` | Render, local | Gemini vision |
-| `GEMINI_MODEL` | Render, local | Gemini model name |
+| `GEMINI_MODEL` | Render, local | Gemini model name. Defaults to `gemini-3.5-flash-lite` |
 | `SESSION_SECRET` | Render, local | Signs office sessions. At least 32 characters, or the API won't start |
-| `DRIVER_LINK_SECRET` | Render, local | Protects driver links |
+| `DRIVER_LINK_SECRET` | Render, local | Protects driver links. At least 32 characters |
 | `WEB_ORIGIN` | Render, local | The web app's URL. Any value not starting `http://` makes the session cookie Secure |
 | `DEMO_MODE` | Render, local | Turns on the demo rules |
 | `PYTHON_VERSION` | Render | Python version for the build, set in `render.yaml` |
