@@ -219,9 +219,16 @@ Vitest tests with fake storage and a fake network. This is a new seam, and it's 
 
 It covers one pending photo per trip, a new capture replacing an unsent one, the same attempt ID on every retry, keeping the photo after a failed send, and clearing it only after the server confirms.
 
+### Seam 4: voice prompts
+
+Vitest tests on `web/src/driver/voice.ts`, with a fake speaker in place of the browser's audio and speech. Added for ticket 17, agreed with Aamir on 8 Nov 2026.
+
+It covers which prompt a retake plays for its reasons, and the playback order: the audio file first, the phone's speech if the file can't play, silence when the browser blocks sound before the driver's first tap or a newer prompt cuts in, and speech straight away for a language with no files. A last test checks that every prompt has its file on disk in each language that claims files. Real sound on a real phone is checked by hand.
+
 ### Not covered by automated tests
 
 - The real Gemini call. A separate script reports accuracy per field on the sample photos and is used to tune the threshold. It's a measurement, not a test.
+- How the voice prompts sound, and whether the words are right. A Hindi and a Marathi speaker check them; see `docs/voice-prompts.md`.
 - Camera, compression and service worker behaviour on real devices. These are checked by hand on a real Android phone over mobile data, with airplane mode on and off.
 
 ## Out of Scope
@@ -291,6 +298,11 @@ The docs leave these open. Each is a default to follow unless changed, and each 
 32. **Two reviewers on one scenario.** The trips are shared, so a second reviewer picking a scenario kills the first one's link, and the first sees the "call the office" screen. Picking the scenario again recovers it.
 33. **Links in a mock SMS.** Only a hash is stored, so in `DEMO_MODE` an office retake makes a new link to show. A retake the system asks for shows no toast, because the driver is already on that screen.
 34. **Resetting an exported demo trip.** The export keeps its stored XML, its count and its total, as the data model says. The trip leaves the POD ZIP, and an export holding only demo trips drops off "Earlier exports", because that list is read through the trips.
+35. **The language switch changes the driver.** `PUT /api/driver/language` sets `drivers.language`, so the driver's next trip starts in it, and writes a `driver_language_changed` audit event. Choosing the language already set writes nothing. With no signal the phone keeps the choice, uses it over the server's, and sends it the next time the link opens.
+36. **The switch changes the voice, not the screen.** Driver screens keep their Hindi headline with English beside it, as approved. The design puts the switch on the trip screen only.
+37. **Nine prompts, and English too.** The ticket says about eight. Two done screens share one prompt, and English is included because the design's switch offers it.
+38. **Marathi is spoken by the phone.** There's no macOS Marathi voice and no Gemini speech model on the key, so Marathi has no audio files yet. Hindi and English files come from macOS voices, standing in for a native speaker's recordings.
+39. **When a prompt plays.** It plays as a screen opens and stops when the screen goes. Phones block sound before the first tap, so a freshly opened link is silent until the driver taps the speaker or the switch. The Checking screen has no speaker button, as in its design. The phone-check retake and the dead-link screen have one, though their designs don't show it: the first copies the Retake screen, and the second is the first screen a driver sees on a dead link, so without the button its prompt could never play.
 
 ### Screen changes
 
@@ -302,6 +314,7 @@ The docs leave these open. Each is a default to follow unless changed, and each 
 - Masking can't cover the photo itself, which shows the stamp and possibly a signature.
 - Photos go to Google for the AI check, and the key is on the free tier, where Google may use them to improve its products and people may review them. Fine for synthetic sheets; real PODs need a paid project. See the TDD, section 10.
 - The first open of a driver link needs network.
+- The voice prompts are synthetic voices, or the phone's own for Marathi, until a native speaker records them.
 - The model's confidence isn't calibrated, so 0.80 is a starting value. It was checked on synthetic sheets, where every readable field was right, so the measurement can't show what it would catch on real photos. On the blurred sheet the model invented values at high confidence despite being told not to guess, so the threshold alone doesn't protect billing. The checks against the trip do. Stamp, signature and remarks have no trip value to check against, so confidence is their only guard, and no wrong reading of those was seen to test it.
 - Sign out clears the cookie but can't cancel the token, so a copied token works until it expires. Sessions are short for this reason.
 - Sign-in has no attempt limit, so password guessing is only slowed by the hash.

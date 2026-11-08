@@ -73,6 +73,9 @@ The blur and brightness check made on the phone before sending. Failing it costs
 **AI check**:
 The vision model reading an attempt's six fields. It suggests values and never decides on money.
 
+**Voice prompt**:
+A short spoken instruction on a driver screen, in the driver's language: Hindi, Marathi or English. It plays when the screen opens and again from the speaker button.
+
 **Pending photo**:
 A photo saved on the phone and not yet sent. It isn't a trip status.
 

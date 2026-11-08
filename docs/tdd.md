@@ -24,6 +24,8 @@ The brief's core build is the slice that must work end to end. All of it is buil
 | Missing-POD dashboard | Trips with no POD, the three target figures, POD-to-invoice days by branch, resend link |
 | Roles: driver and billing executive | Driver links per trip; email and password sign-in for the office; operations head added as depth |
 
+Beyond the core, drivers hear spoken prompts in Hindi, Marathi or English, which the brief's constraints ask for (section 6).
+
 ## 2. Architecture and why
 
 ```
@@ -122,7 +124,7 @@ Any other move is refused with a 409. A photo that arrives in any other status i
 
 ### Driver at the gate, with signal
 
-1. The driver opens the link from the SMS. It shows the trip code, number plate, route, LR and e-way bill numbers, and one big button labelled "फोटो लें".
+1. The driver opens the link from the SMS. It shows the trip code, number plate, route, LR and e-way bill numbers, and one big button labelled "फोटो लें". A speaker button plays a short spoken prompt in Hindi, Marathi or English, starting from the driver's language, and each later screen speaks its own (section 6).
 2. The phone checks brightness and sharpness on a small copy of the photo. A blurred or dark photo is caught at once, with no network, and doesn't use up a retake. After two failures the driver can send it anyway, so a bad threshold can't trap them at the gate.
 3. The phone shrinks the photo until it fits under 300 KB, lowering JPEG quality first and size second, because text stays readable at 1600 px. It draws a strip below the receipt with the time, GPS and trip code, so the proof stays with the image in the POD ZIP.
 4. The upload stores the attempt, moves the trip to `checking` and returns at once. The phone polls every 2 seconds.
@@ -214,10 +216,11 @@ The client asked for minimal design, and many drivers don't read well. The desig
 - **Green and ochre on driver screens only.** The brief asks for a clear success and retake colour. Coral would read as an error at a gate, so drivers see green for done and ochre for retake.
 - **Type:** Instrument Sans throughout, Noto Sans Devanagari for Hindi, and Geist Mono for trip codes, LR numbers, amounts and times, so figures line up in columns.
 - **No decoration without a job.** No gradients, no cards inside cards, no emoji as icons, no labels in capitals.
+- **Spoken prompts for drivers who don't read well.** Nine short prompts, one per driver situation, play as each screen opens and again from a speaker button, for a noisy gate. The switch changes the driver's language on the server, so the next trip starts in it. Hindi and English play stored audio files; the page caches them, so they work in a dead zone. Marathi is spoken by the phone's own voice for now, and any file that can't play falls back to the phone's speech. The words are in `docs/voice-prompts.md`.
 
 | Screen | What it looks like, and why |
 | --- | --- |
-| **Driver home** | The trip, then one huge button labelled "फोटो लें" with a camera icon. No forms and no menus. The driver checks one thing (is this my trip?) and does one thing. Location and network state show as icons, so the driver knows before shooting whether it will send now. |
+| **Driver home** | The trip, then one huge button labelled "फोटो लें" with a camera icon. No forms and no menus. The driver checks one thing (is this my trip?) and does one thing. Location and network state show as icons, so the driver knows before shooting whether it will send now. A language switch (हिंदी, मराठी, English) and a speaker button sit above the trip. |
 | **Checking** | The photo, then three steps ticking off: phone check, compressed and sent, AI reading. The driver can see progress and that the photo left the phone, which matters more than speed. |
 | **Retake** | Ochre, "फिर से फोटो लें", the reason, six field checks with a tick or cross, and "Retake 1 of 2". The driver learns what to fix, not just that it failed. |
 | **Done** | A big green tick and "हो गया". When a person must decide, the same green screen says "Sent to office", because the driver can't fix that and shouldn't wait at the gate. |
@@ -241,13 +244,14 @@ Office screens use a top bar with at most four destinations, not a sidebar. The 
 
 ## 8. Testing
 
-The tests follow three seams, chosen to test what a caller can see rather than how the code does it.
+The tests follow four seams, chosen to test what a caller can see rather than how the code does it.
 
 1. **The HTTP API (the main seam).** FastAPI's test client against a real Postgres test branch on Neon, with only the AI reader faked. SQLite would prove less, because idempotency depends on real unique constraints and the schema uses `jsonb` and `bytea`. The suite refuses to run if the test database shares a host with the app's, because it empties tables. It covers upload idempotency, intake limits, every allowed and refused status move, the retake cap, stuck attempts, role checks on every route, masking and reveal logging, stale versions, demo reset and the edge cases in the data model.
 2. **The decision rule.** `decide()` is pure, so it has a table of cases for every check and every order that matters, including a remark at high confidence, a missing location versus a far one, and confidence just below and exactly at 0.80.
 3. **The pending-photo queue.** Vitest with fake storage and a fake network: one photo per trip, replacement, the same attempt ID on every retry, and clearing only after the server confirms.
+4. **Voice prompts.** Vitest with a fake speaker: which prompt a retake plays, the audio file first, the phone's speech when the file can't play, silence when the browser blocks sound or a newer prompt cuts in, and a file on disk for every prompt.
 
-The Tally export test parses the XML and checks voucher grouping, lines, LR and e-way bill numbers, narration, totals and that a re-download is identical. On 8 November 2026 there were 311 pytest test functions (646 cases with parameters) and 19 Vitest tests. The real Gemini call is measured, not tested (section 5).
+The Tally export test parses the XML and checks voucher grouping, lines, LR and e-way bill numbers, narration, totals and that a re-download is identical. On 8 November 2026 there were 314 pytest test functions (652 cases with parameters) and 28 Vitest tests. The real Gemini call is measured, not tested (section 5).
 
 ## 9. Assumptions
 
@@ -305,6 +309,11 @@ The brief leaves many details open. Each assumption below is labelled so it can 
 - **S32. Two reviewers on one scenario.** The demo trips are shared, so a second reviewer picking a scenario kills the first one's link, and the first sees the "call the office" screen. Picking the scenario again recovers it.
 - **S33. Links in a mock SMS.** In demo mode an office retake makes a new link to show in the toast. A retake the system asks for shows none, because the driver is already on that screen.
 - **S34. Resetting an exported demo trip.** The export keeps its stored XML, count and total. The trip leaves the POD ZIP, and an export holding only demo trips drops off "Earlier exports", because that list is read through the trips.
+- **S35. The language switch changes the driver.** It sets the driver's language, so their next trip starts in it, and logs the change. With no signal the phone keeps the choice and sends it the next time the link opens.
+- **S36. The switch changes the voice, not the screen.** Driver screens keep their Hindi headline with English beside it, as approved, and the switch sits on the trip screen only, as designed.
+- **S37. Nine prompts, and English too.** The brief asks for Hindi or Marathi; English is there because the approved switch offers it.
+- **S38. Marathi is spoken by the phone.** macOS has no Marathi voice and the Gemini key has no speech model, so Marathi has no audio files yet. Hindi and English files come from macOS voices, standing in for recordings.
+- **S39. When a prompt plays.** As a screen opens. Phones block sound before the first tap, so a freshly opened link is silent until the driver taps the speaker or the switch.
 
 ## 10. Limits
 
@@ -316,6 +325,7 @@ Honest notes on what this build doesn't do, or hasn't proven.
 - **The Tally XML has never been imported into a real Tally.** It follows Tally's import format and the tests parse it, but the first real import may need adjustments.
 - **Not yet tested on a real Android phone over mobile data.** Camera capture, compression, the service worker and airplane mode still need that check. The phone's blur and brightness limits came from the synthetic photos and need tuning on real phones.
 - **The first open of a driver link needs network**, because a PWA can't cache itself before its first visit. The SMS goes out at dispatch to make that likely.
+- **The voice prompts haven't been checked by native speakers.** The words are mine, the Hindi and English voices are synthetic, and Marathi depends on the phone having a Marathi voice. A Hindi and a Marathi speaker should check the words and record them before drivers rely on them.
 - **A closed app sends nothing until it's reopened.** Background Sync would fix this and was left as a stretch goal.
 - **Sessions can't be cancelled early.** Sign out clears the cookie, but a copied token works until it expires, which is why sessions last 8 hours.
 - **Sign-in has no attempt limit**, so password guessing is only slowed by the argon2 hash.
@@ -329,7 +339,6 @@ I built the core slice first and cut from the optional depth, in the order plann
 
 | Cut | Why, and what's there instead |
 | --- | --- |
-| **Hindi and Marathi voice prompts** | The brief's constraints ask for them. Drivers get icons, colour and short Hindi labels with English beside them, but no audio and no language switch. This is the first thing I'd add: about eight short recorded prompts per language, cached with the app, checked by a native speaker. |
 | **Daily trip CSV import** | The schema has `import_batches` and the rules are written (S15), but there's no screen; the Trips destination in the top bar is a placeholder. Trips are seeded instead. |
 | **Client POD link** | Optional depth. Designed as a signed, expiring link (S14), not built. |
 | **Landing page** | Not part of the core build. |
@@ -339,7 +348,7 @@ Next, in order:
 
 1. **Field test on real phones and real paper** with a few drivers on one route: tune the phone's blur limits, re-run the accuracy script on real PODs, and set the confidence threshold from that.
 2. **Move to a paid Gemini project** before any real POD is sent (section 10), and add a real SMS gateway, which in India needs DLT registration of the sender and templates.
-3. **Voice prompts and the trip import**, which the brief asks for and which the client would use daily.
+3. **Native recordings of the voice prompts**, checked by a Hindi and a Marathi speaker, and **the trip import**, which the client would use daily.
 4. **Import the XML into a real Tally** with the billing team, and fix what it rejects.
 5. **Photos to object storage**, using the existing `image_key` column, once volume grows: about 2,200 trips a month at up to 300 KB each is roughly 0.5 GB of photos a month.
 6. **Background Sync**, so a closed app still sends its photo.

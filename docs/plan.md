@@ -60,7 +60,7 @@ Tickets 13, 14, 15, 16, 09, 21.
 
 Tickets 17 to 20.
 
-- [ ] Voice prompts: about 8 short prompts in Hindi and Marathi as cached audio files. Browser speech is the fallback. A Hindi and Marathi speaker checks them
+- [ ] Voice prompts: about 8 short prompts in Hindi and Marathi as cached audio files. Browser speech is the fallback. A Hindi and Marathi speaker checks them. Built on 8 Nov 2026 (ticket 17); waiting on the speaker check in `docs/voice-prompts.md`
 - [ ] Trip CSV import
 - [ ] Client POD link
 - [ ] Landing page

@@ -4,14 +4,14 @@
 
 **Blocked by:** 08
 
-**Status:** ready-for-agent
+**Status:** done, except the speaker check, which is ready-for-human
 
 **Scheduled:** Only if time remains
 
 **Spec stories:** 7, 8
 
-- [ ] About 8 prompts exist as cached audio files in Hindi and Marathi
-- [ ] The language starts from `drivers.language`, and the switch changes it
-- [ ] The speaker button replays the current prompt
-- [ ] Browser speech is used if an audio file can't play
-- [ ] A Hindi and Marathi speaker's check is recorded before this is called done
+- [x] About 8 prompts exist as cached audio files in Hindi and Marathi. Nine prompts; Hindi and English have files from macOS voices, and Marathi is spoken by the phone because macOS has no Marathi voice (spec assumption 38)
+- [x] The language starts from `drivers.language`, and the switch changes it
+- [x] The speaker button replays the current prompt
+- [x] Browser speech is used if an audio file can't play
+- [ ] A Hindi and Marathi speaker's check is recorded before this is called done (ready-for-human: record it in `docs/voice-prompts.md`)
