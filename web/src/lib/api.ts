@@ -1,4 +1,5 @@
 import type { PreparedPhoto } from "../driver/capture";
+import type { Language } from "../driver/voice";
 
 export type ApiHealth = "healthy" | "database-down" | "api-down";
 
@@ -50,6 +51,7 @@ export type DriverTrip = {
   retakes_used: number;
   reason_codes: string[];
   demo_sample: DemoSample | null;
+  language: Language; // The driver's language. The voice prompts start in it.
 };
 
 export type Role = "billing_executive" | "operations_head";
@@ -162,6 +164,15 @@ export type AttemptResult = {
   reason_codes: string[];
   retakes_used: number;
 };
+
+/** The language switch. It changes the driver's language, so their next trip starts in it too. */
+export async function setDriverLanguage(token: string, language: Language): Promise<void> {
+  await request("/driver/language", {
+    method: "PUT",
+    headers: { ...driverHeaders(token), "Content-Type": "application/json" },
+    body: JSON.stringify({ language }),
+  });
+}
 
 function driverHeaders(token: string): HeadersInit {
   return { Authorization: `Bearer ${token}` };

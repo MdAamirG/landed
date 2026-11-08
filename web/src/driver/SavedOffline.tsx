@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import type { AttemptResult, DriverTrip } from "../lib/api";
 import type { PendingPhoto, SendOutcome } from "./pendingPhotos";
 import { photoQueue } from "./photoQueue";
+import { SpeakerButton, useVoicePrompt } from "./useVoice";
 
 const RETRY_EVERY_MS = 30_000;
 
@@ -33,6 +34,7 @@ export default function SavedOffline({
 }) {
   // This screen only opens after a send has failed, so "now" is right for a first try.
   const [triedAt, setTriedAt] = useState(photo.triedAt ?? new Date());
+  const replay = useVoicePrompt("saved_offline");
 
   // In refs, so a parent re-render doesn't restart the 30-second timer.
   const handlers = useRef({ onSent, onStopped });
@@ -79,6 +81,7 @@ export default function SavedOffline({
       </span>
       <h1 className="driver__saved-title">फोटो फ़ोन में सेव है</h1>
       <p className="muted">Saved on the phone. It sends by itself when the network is back.</p>
+      <SpeakerButton onPlay={replay} />
 
       <section className="stock driver__saved-item">
         <div>

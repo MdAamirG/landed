@@ -3,6 +3,7 @@
 // answer can't reach anyone, and photos waiting to send live in IndexedDB rather than here.
 
 const SHELL = "landed-shell";
+const VOICE = "landed-voice"; // Filled by the page: see keepVoiceFilesOnPhone in useVoice.tsx.
 
 // The page that registers this worker loaded before it existed, so nothing from that visit passed
 // through it. Fetch the app's files now, or the very first visit would leave nothing to work with.
@@ -47,10 +48,30 @@ async function asset(request) {
   return response;
 }
 
+// A voice prompt plays from the phone at once, signal or not. With signal, the stored copy is
+// refreshed in the background, so a re-recorded prompt reaches the phone by its next play. The
+// refresh asks for the whole file: the audio player's own request asks for a byte range, and a
+// partial answer can't be stored.
+// The whole file answers the player's range request. Chrome on Android plays that; Safari may
+// not, and then the page speaks the words instead.
+async function voice(event) {
+  const cache = await caches.open(VOICE);
+  const url = new URL(event.request.url).pathname;
+  const fresh = fetch(url)
+    .then(async (response) => {
+      if (response.ok) await cache.put(url, response.clone());
+      return response;
+    })
+    .catch(() => null);
+  event.waitUntil(fresh); // Keeps the worker alive until the refresh is stored.
+  return (await cache.match(url)) ?? (await fresh) ?? Response.error();
+}
+
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
   if (request.method !== "GET" || url.origin !== self.location.origin) return;
   if (request.mode === "navigate") event.respondWith(page(request));
   else if (url.pathname.startsWith("/assets/")) event.respondWith(asset(request));
+  else if (url.pathname.startsWith("/voice/")) event.respondWith(voice(event));
 });

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { getAttempt, type AttemptResult, type DriverTrip } from "../lib/api";
 import type { PendingPhoto } from "./pendingPhotos";
 import { photoQueue } from "./photoQueue";
+import { useVoicePrompt } from "./useVoice";
 
 const POLL_EVERY_MS = 2_000;
 const GIVE_UP_AFTER_MS = 30_000; // The driver isn't kept at the gate after this. The check goes on.
@@ -105,6 +106,7 @@ export default function PhotoCheck({
   const [preview, setPreview] = useState<string | null>(null);
   const [sent, setSent] = useState(alreadySent !== null);
   const started = useRef(false);
+  useVoicePrompt("checking"); // No speaker button here, as in Checking.html: it lasts seconds.
 
   useEffect(() => {
     const url = URL.createObjectURL(photo.blob);

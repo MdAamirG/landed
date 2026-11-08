@@ -1,5 +1,7 @@
 import DemoControls from "../demo/DemoControls";
 import type { DriverTrip } from "../lib/api";
+import { SpeakerButton, useVoicePrompt } from "./useVoice";
+import { retakePrompt } from "./voice";
 
 const MAX_RETAKES = 2;
 
@@ -63,6 +65,7 @@ export default function Retake({
   const reason = trip.reason_codes.find((code) => code in REASON_TEXT);
   // A blurred or dark photo can't vouch for anything on it, so no field gets a tick.
   const photoIsBad = trip.reason_codes.some((code) => PHOTO_PROBLEMS.includes(code));
+  const replay = useVoicePrompt(retakePrompt(trip.reason_codes));
 
   return (
     <main className="driver-check">
@@ -88,10 +91,11 @@ export default function Retake({
               <path d="M20 12a8 8 0 11-3-6.2M20 4v5h-5" />
             </svg>
           </span>
-          <div>
+          <div className="retake__words">
             <h1>फिर से फोटो लें</h1>
             <p className="muted">{reason ? REASON_TEXT[reason] : "Please take the photo again"}</p>
           </div>
+          <SpeakerButton onPlay={replay} />
         </div>
         <div className="field-checks">
           {FIELD_CHECKS.map(({ label, failedBy }) => (

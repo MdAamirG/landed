@@ -2,6 +2,7 @@ import { useMemo } from "react";
 
 import type { DriverTrip } from "../lib/api";
 import type { PhotoProblem } from "./capture";
+import { SpeakerButton, useVoicePrompt } from "./useVoice";
 
 const PROBLEM_TEXT: Record<PhotoProblem, string> = {
   blurred: "The photo is blurred. Hold the phone still.",
@@ -25,6 +26,7 @@ export default function PhoneCheckFailed({
   onSendAnyway: () => void;
 }) {
   const photoUrl = useMemo(() => URL.createObjectURL(photo), [photo]);
+  const replay = useVoicePrompt(problem); // "blurred" and "dark" are prompts of their own.
 
   return (
     <main className="driver-check">
@@ -50,10 +52,11 @@ export default function PhoneCheckFailed({
               <path d="M20 12a8 8 0 11-3-6.2M20 4v5h-5" />
             </svg>
           </span>
-          <div>
+          <div className="retake__words">
             <h1>फिर से फोटो लें</h1>
             <p className="muted">{PROBLEM_TEXT[problem]}</p>
           </div>
+          <SpeakerButton onPlay={replay} />
         </div>
         <button className="btn btn--ink big retake__button" type="button" onClick={onRetake}>
           फिर से फोटो, Retake

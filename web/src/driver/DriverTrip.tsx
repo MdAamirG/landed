@@ -6,6 +6,7 @@ import { samplePhoto } from "../demo/samples";
 import {
   ApiError,
   getDriverTrip,
+  setDriverLanguage,
   type AttemptResult,
   type DriverTrip as Trip,
   type PodStatus,
@@ -27,6 +28,14 @@ import { photoQueue } from "./photoQueue";
 import Retake from "./Retake";
 import SavedOffline from "./SavedOffline";
 import { useLocationFix } from "./useLocationFix";
+import {
+  keepVoiceFilesOnPhone,
+  LanguageSwitch,
+  SpeakerButton,
+  useVoicePrompt,
+  VoiceContext,
+} from "./useVoice";
+import type { Language, PromptId } from "./voice";
 
 // Only these two statuses wait on the driver. Any other means the photo has been dealt with.
 const NEEDS_PHOTO: PodStatus[] = ["awaiting_pod", "retake_requested"];
@@ -50,10 +59,13 @@ const SAMPLE_GPS_ACCURACY_M = 12; // A sample has no real fix, so it claims a ph
 
 type DoneMessage = "verified" | "with-office" | "sms-later";
 
-const DONE_MESSAGES: Record<DoneMessage, { line: string; sent?: string }> = {
-  verified: { line: "POD verified. You can leave.", sent: "Sent to billing" },
-  "with-office": { line: "You can leave.", sent: "Sent to office" },
-  "sms-later": { line: "You can go, we'll SMS if needed." },
+const DONE_MESSAGES: Record<
+  DoneMessage,
+  { line: string; sent?: string; prompt: PromptId }
+> = {
+  verified: { line: "POD verified. You can leave.", sent: "Sent to billing", prompt: "verified" },
+  "with-office": { line: "You can leave.", sent: "Sent to office", prompt: "can_leave" },
+  "sms-later": { line: "You can go, we'll SMS if needed.", prompt: "can_leave" },
 };
 
 function doneMessageFor(status: PodStatus): DoneMessage {
@@ -78,9 +90,42 @@ function rememberTrip(token: string, trip: Trip) {
 function rememberedTrip(token: string): Trip | null {
   try {
     const stored = localStorage.getItem(`trip:${token}`);
-    return stored ? (JSON.parse(stored) as Trip) : null;
+    if (!stored) return null;
+    const trip = JSON.parse(stored) as Omit<Trip, "language"> & { language?: Language };
+    // A trip remembered before voice prompts existed has no language: Hindi, as on screen.
+    return { ...trip, language: trip.language ?? "hi" };
   } catch {
     return null;
+  }
+}
+
+// A language the driver picked when the server couldn't be told. It wins over the server's until
+// it has been sent, so a choice made in a dead zone survives the next open with signal.
+function unsentLanguage(token: string): Language | null {
+  try {
+    return localStorage.getItem(`language:${token}`) as Language | null;
+  } catch {
+    return null;
+  }
+}
+
+function keepUnsentLanguage(token: string, language: Language | null) {
+  try {
+    if (language) localStorage.setItem(`language:${token}`, language);
+    else localStorage.removeItem(`language:${token}`);
+  } catch {
+    // Without storage the choice lasts until the page closes, which covers this gate.
+  }
+}
+
+/** Saves the choice on the driver, so their next trip starts in it. Kept on the phone if that
+ * fails, and sent again the next time the link opens. */
+async function sendLanguage(token: string, language: Language) {
+  try {
+    await setDriverLanguage(token, language);
+    keepUnsentLanguage(token, null);
+  } catch {
+    keepUnsentLanguage(token, language);
   }
 }
 
@@ -168,10 +213,15 @@ function TakePhoto({
 }) {
   const camera = useRef<HTMLInputElement>(null);
   const online = useOnline();
+  const replay = useVoicePrompt(notice === REFUSED_NOTICE ? "call_office" : "take_photo");
 
   return (
     <main className="driver desk">
       <CameraInput input={camera} onPhoto={onPhoto} />
+      <div className="voice-bar">
+        <LanguageSwitch />
+        <SpeakerButton onPlay={replay} />
+      </div>
       <TripCard trip={trip} />
       {notice && (
         <p className="form-error" role="alert">
@@ -231,7 +281,8 @@ function TakePhoto({
 }
 
 function Done({ trip, message }: { trip: Trip; message: DoneMessage }) {
-  const { line, sent } = DONE_MESSAGES[message];
+  const { line, sent, prompt } = DONE_MESSAGES[message];
+  const replay = useVoicePrompt(prompt);
   return (
     <main className="driver driver--centred desk">
       <div className="driver__tick">
@@ -257,12 +308,14 @@ function Done({ trip, message }: { trip: Trip; message: DoneMessage }) {
         {trip.trip_code}, {trip.destination}
       </p>
       {sent && <p className="driver__sent">{sent}</p>}
+      <SpeakerButton onPlay={replay} />
       <DemoControls trip={trip} />
     </main>
   );
 }
 
 function DeadLink() {
+  const replay = useVoicePrompt("call_office");
   return (
     <main className="driver driver--centred desk" role="alert">
       <svg
@@ -281,6 +334,7 @@ function DeadLink() {
       </svg>
       <h1 className="driver__title">ऑफिस को फोन करें</h1>
       <p className="muted">This link has stopped working. Call the office for a new one.</p>
+      <SpeakerButton onPlay={replay} />
     </main>
   );
 }
@@ -319,6 +373,7 @@ export default function DriverTrip() {
   const phoneCheckFailures = useRef(0);
   const retakeCamera = useRef<HTMLInputElement>(null);
   const location = useLocationFix();
+  const [language, setLanguage] = useState<Language>("hi");
 
   const newCamera = useRef<HTMLInputElement>(null);
 
@@ -326,8 +381,20 @@ export default function DriverTrip() {
     // Only in a build: Vite's dev server would be fighting a worker that caches its files.
     if (import.meta.env.PROD && "serviceWorker" in navigator) {
       void navigator.serviceWorker.register("/sw.js");
+      void keepVoiceFilesOnPhone();
     }
   }, []);
+
+  const voice = useMemo(
+    () => ({
+      language,
+      changeLanguage: (next: Language) => {
+        setLanguage(next);
+        void sendLanguage(token, next);
+      },
+    }),
+    [language, token],
+  );
 
   /** The trip from the server, or the remembered one if the server can't be reached. */
   const fetchTrip = useCallback(async (): Promise<Trip | "dead-link" | "unreachable"> => {
@@ -348,6 +415,9 @@ export default function DriverTrip() {
       setScreen(trip === "dead-link" ? { name: "dead-link" } : { name: "unreachable" });
       return;
     }
+    const unsent = unsentLanguage(token);
+    setLanguage(unsent ?? trip.language);
+    if (unsent) void sendLanguage(token, unsent);
     // A photo left from earlier goes first. This is the "on app open" retry.
     const pending = await photoQueue.pending(trip.trip_code);
     setScreen(
@@ -355,7 +425,7 @@ export default function DriverTrip() {
         ? { name: "checking", trip, photo: pending, alreadySent: null }
         : { name: "trip", trip },
     );
-  }, [fetchTrip]);
+  }, [fetchTrip, token]);
 
   useEffect(() => {
     void load();
@@ -470,108 +540,114 @@ export default function DriverTrip() {
     [load, stopSending],
   );
 
-  switch (screen.name) {
-    case "loading":
-      return (
-        <main className="driver desk" role="status" aria-label="Loading your trip">
-          <section className="stock driver__trip driver__trip--loading">
-            <span className="line" />
-            <span className="line" />
-            <span className="line" />
-          </section>
-        </main>
-      );
-    case "unreachable":
-      return (
-        <main className="driver driver--centred desk" role="alert">
-          <h1 className="driver__title">नेटवर्क नहीं है</h1>
-          <p className="muted">We couldn't reach the office. Try again when you have signal.</p>
-          <button
-            className="btn btn--ink big driver__retry"
-            type="button"
-            onClick={() => void load()}
-          >
-            फिर से कोशिश करें
-          </button>
-        </main>
-      );
-    case "dead-link":
-      return <DeadLink />;
-    case "trip": {
-      const { trip, notice } = screen;
-      const onPhoto = (file: File) => void handlePhoto(trip, file);
-      const onUseSample = () => void sendSample(trip);
-      if (trip.pod_status === "retake_requested" && !notice) {
+  function content() {
+    switch (screen.name) {
+      case "loading":
         return (
-          <RetakeScreen
+          <main className="driver desk" role="status" aria-label="Loading your trip">
+            <section className="stock driver__trip driver__trip--loading">
+              <span className="line" />
+              <span className="line" />
+              <span className="line" />
+            </section>
+          </main>
+        );
+      case "unreachable":
+        return (
+          <main className="driver driver--centred desk" role="alert">
+            <h1 className="driver__title">नेटवर्क नहीं है</h1>
+            <p className="muted">We couldn't reach the office. Try again when you have signal.</p>
+            <button
+              className="btn btn--ink big driver__retry"
+              type="button"
+              onClick={() => void load()}
+            >
+              फिर से कोशिश करें
+            </button>
+          </main>
+        );
+      case "dead-link":
+        return <DeadLink />;
+      case "trip": {
+        const { trip, notice } = screen;
+        const onPhoto = (file: File) => void handlePhoto(trip, file);
+        const onUseSample = () => void sendSample(trip);
+        if (trip.pod_status === "retake_requested" && !notice) {
+          return (
+            <RetakeScreen
+              trip={trip}
+              lastPhoto={lastPhoto}
+              onPhoto={onPhoto}
+              onUseSample={onUseSample}
+            />
+          );
+        }
+        return NEEDS_PHOTO.includes(trip.pod_status) ? (
+          <TakePhoto
             trip={trip}
-            lastPhoto={lastPhoto}
+            notice={notice}
+            hasLocation={location !== null}
             onPhoto={onPhoto}
             onUseSample={onUseSample}
           />
+        ) : (
+          <Done trip={trip} message={doneMessageFor(trip.pod_status)} />
         );
       }
-      return NEEDS_PHOTO.includes(trip.pod_status) ? (
-        <TakePhoto
-          trip={trip}
-          notice={notice}
-          hasLocation={location !== null}
-          onPhoto={onPhoto}
-          onUseSample={onUseSample}
-        />
-      ) : (
-        <Done trip={trip} message={doneMessageFor(trip.pod_status)} />
-      );
-    }
-    case "preparing":
-      return (
-        <main className="driver driver--centred desk" role="status">
-          <p className="muted">Checking the photo…</p>
-        </main>
-      );
-    case "phone-check-failed": {
-      const { trip, shot, problem } = screen;
-      return (
-        <>
-          <CameraInput input={retakeCamera} onPhoto={(file) => void handlePhoto(trip, file)} />
-          <PhoneCheckFailed
-            trip={trip}
-            photo={shot.file}
-            problem={problem}
-            canSendAnyway={phoneCheckFailures.current >= SEND_ANYWAY_AFTER_FAILURES}
-            onRetake={() => retakeCamera.current?.click()}
-            onSendAnyway={() => void sendAnyway(trip, shot)}
+      case "preparing":
+        return (
+          <main className="driver driver--centred desk" role="status">
+            <p className="muted">Checking the photo…</p>
+          </main>
+        );
+      case "phone-check-failed": {
+        const { trip, shot, problem } = screen;
+        return (
+          <>
+            <CameraInput input={retakeCamera} onPhoto={(file) => void handlePhoto(trip, file)} />
+            <PhoneCheckFailed
+              trip={trip}
+              photo={shot.file}
+              problem={problem}
+              canSendAnyway={phoneCheckFailures.current >= SEND_ANYWAY_AFTER_FAILURES}
+              onRetake={() => retakeCamera.current?.click()}
+              onSendAnyway={() => void sendAnyway(trip, shot)}
+            />
+          </>
+        );
+      }
+      case "checking":
+        return (
+          <PhotoCheck
+            trip={screen.trip}
+            photo={screen.photo}
+            alreadySent={screen.alreadySent}
+            onEnd={(end) => finishCheck(screen.trip, screen.photo, end)}
           />
-        </>
-      );
+        );
+      case "saved": {
+        const { trip, photo } = screen;
+        return (
+          <>
+            <CameraInput input={newCamera} onPhoto={(file) => void handlePhoto(trip, file)} />
+            <SavedOffline
+              trip={trip}
+              photo={photo}
+              onTakeNew={() => newCamera.current?.click()}
+              onSent={(attempt) =>
+                setScreen({ name: "checking", trip, photo, alreadySent: attempt })
+              }
+              onStopped={(outcome) => stopSending(trip, outcome.status)}
+            />
+          </>
+        );
+      }
+      case "done":
+        return <Done trip={screen.trip} message={screen.message} />;
     }
-    case "checking":
-      return (
-        <PhotoCheck
-          trip={screen.trip}
-          photo={screen.photo}
-          alreadySent={screen.alreadySent}
-          onEnd={(end) => finishCheck(screen.trip, screen.photo, end)}
-        />
-      );
-    case "saved": {
-      const { trip, photo } = screen;
-      return (
-        <>
-          <CameraInput input={newCamera} onPhoto={(file) => void handlePhoto(trip, file)} />
-          <SavedOffline
-            trip={trip}
-            photo={photo}
-            onTakeNew={() => newCamera.current?.click()}
-            onSent={(attempt) =>
-              setScreen({ name: "checking", trip, photo, alreadySent: attempt })
-            }
-            onStopped={(outcome) => stopSending(trip, outcome.status)}
-          />
-        </>
-      );
-    }
-    case "done":
-      return <Done trip={screen.trip} message={screen.message} />;
   }
+
+  return (
+    <VoiceContext.Provider value={voice}>{content()}</VoiceContext.Provider>
+  );
 }
