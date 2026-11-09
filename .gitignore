@@ -9,3 +9,6 @@ node_modules/
 dist/
 .DS_Store
 submission/
+# Sources and renders of the demo films (about 120 MB). The README's copy is in docs/media/.
+video/
+brag-output/

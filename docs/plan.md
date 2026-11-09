@@ -50,11 +50,11 @@ Tickets 13, 14, 15, 16, 09, 21.
 - [x] Missing-POD dashboard, open to the billing executive and the operations head
 - [x] Demo mode behind `DEMO_MODE`: five demo trips, scenario picker, reset limited to `is_demo` rows with a test proving seeded history is untouched, mock SMS toast
 - [x] Script reporting accuracy per field on the sample photos; tune the confidence threshold and put the numbers in the TDD
-- [ ] Loading, empty and error states on every data region
+- [x] Loading, empty and error states on every data region. Seen working across the end-to-end check on 9 Nov 2026
 - [ ] Test on a real Android phone over mobile data, airplane mode on and off
-- [ ] Aamir decides whether to move Render to a paid plan before submitting
+- [x] Aamir decides whether to move Render to a paid plan before submitting. Stayed on the free plan, with an uptime ping to `/api/ping`
 - [x] `deployment.md` and the TDD (GitHub URL and live link at the top). The TDD is `docs/tdd.md`; `uv run docs/build_submission.py` builds the PDF and the ZIP
-- [ ] Submit
+- [x] Submit. Submitted on 9 Nov 2026
 
 ## Only if time remains
 
