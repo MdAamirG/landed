@@ -332,3 +332,32 @@ class PodReading(BaseModel):
             self.delivery_date.confidence,
             self.signature.confidence,
         )
+
+
+class ImportRowOut(BaseModel):
+    """One row's check. No consignee or driver contact, as in every response."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    # The row's lines in the file, so the screen can copy the rows to fix out of the file it holds.
+    first_line: int
+    last_line: int
+    trip_code: str
+    lr_number: str
+    eway_bill_no: str
+    client_name: str
+    destination: str
+    registration_no: str
+    ownership: str  # The fleet's record for a known vehicle, which is what the trip will use.
+    freight_paise: int | None  # Empty when the freight cell couldn't be read.
+    problems: list[str]
+    imported: bool = False
+    driver_token: str | None = None  # Only after an import, and only in DEMO_MODE.
+
+
+class ImportOut(BaseModel):
+    filename: str
+    rows_total: int
+    rows_ok: int
+    rows: list[ImportRowOut]
+    import_batch_id: UUID | None = None  # Empty for a check, which stores nothing.

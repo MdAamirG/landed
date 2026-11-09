@@ -55,6 +55,8 @@ OFFICE_ROUTES = [
         ("GET", f"/api/billing/exports/{NO_ID}/{file}", f"/api/billing/exports/{{batch_id}}/{file}", BILLING_ONLY)
         for file in ("xml", "photos")
     ),
+    ("POST", "/api/trips/import/check", "/api/trips/import/check", BILLING_ONLY),
+    ("POST", "/api/trips/import", "/api/trips/import", BILLING_ONLY),
     ("GET", "/api/dashboard", "/api/dashboard", set(Role)),
     ("GET", "/api/dashboard/counts", "/api/dashboard/counts", set(Role)),
     (
