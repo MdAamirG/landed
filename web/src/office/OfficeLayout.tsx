@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 import { Link, Navigate, NavLink, Outlet, useLocation } from "react-router";
 
 import { getQueueCounts, logout, type OfficeUser, type QueueCounts, type Role } from "../lib/api";
@@ -31,10 +31,31 @@ function useQueueCounts(): QueueCounts | null {
   return counts;
 }
 
+/** On a phone the menu scrolls sideways, so a later screen's tab can sit off the edge. This brings
+ * the current tab into view whenever the screen changes, and does nothing when it is already in
+ * view, as it always is on a wider screen. The counts arrive after the tabs and widen them, so it
+ * looks again when they do. */
+function useCurrentTabInView(nav: RefObject<HTMLElement | null>, counts: QueueCounts | null) {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    const menu = nav.current;
+    const tab = menu?.querySelector<HTMLElement>('[aria-current="page"]');
+    if (!menu || !tab) return;
+    const menuBox = menu.getBoundingClientRect();
+    const tabBox = tab.getBoundingClientRect();
+    if (tabBox.left < menuBox.left || tabBox.right > menuBox.right) {
+      menu.scrollLeft += tabBox.left - menuBox.left;
+    }
+  }, [nav, pathname, counts]);
+}
+
 function TopBar({ user }: { user: OfficeUser }) {
   const { setUser } = useSession();
   const [signingOut, setSigningOut] = useState(false);
   const counts = useQueueCounts();
+  const nav = useRef<HTMLElement>(null);
+  useCurrentTabInView(nav, counts);
 
   async function signOut() {
     setSigningOut(true);
@@ -51,7 +72,7 @@ function TopBar({ user }: { user: OfficeUser }) {
       <Link to="/office" className="word">
         Landed
       </Link>
-      <nav className="nav" aria-label="Main">
+      <nav className="nav" aria-label="Main" ref={nav}>
         {allowedDestinations(user).map((destination) => (
           <NavLink key={destination.path} to={`/office/${destination.path}`}>
             {destination.label}
