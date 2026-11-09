@@ -1,0 +1,406 @@
+/* The public page, from Landing.html. Every class starts with landing__, so nothing here
+   reaches the app's screens. */
+
+.landing {
+  background-color: var(--color-paper);
+}
+
+/* A jump from the menu stops below the sticky pill, not under it. */
+.landing [id] {
+  scroll-margin-top: 96px;
+}
+
+.landing__wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.landing__pill {
+  position: sticky;
+  top: 16px;
+  z-index: 10;
+  max-width: 1120px;
+  margin: 16px auto 0;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 8px 8px 8px 24px;
+  border-radius: 999px;
+}
+
+.landing__word {
+  margin-right: auto;
+  font-weight: 600;
+  font-size: 19px;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.landing__navlink {
+  text-decoration: none;
+  color: var(--color-ink-2);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.landing__navlink:hover {
+  color: var(--color-ink);
+}
+
+/* Pulled up under the sticky pill, as in the design. */
+.landing__header {
+  margin-top: -72px;
+  padding-top: 72px;
+}
+
+.landing__hero {
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  gap: 72px;
+  align-items: center;
+  min-height: 700px;
+  padding-top: 40px;
+  padding-bottom: 56px;
+}
+
+.landing__hero h1 {
+  font-size: 68px;
+}
+
+.landing__lead {
+  max-width: 30ch;
+  margin-top: 20px;
+  font-size: 20px;
+  color: var(--color-ink-2);
+}
+
+.landing__acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.landing__acts .btn {
+  min-height: 48px;
+  padding: 0 24px;
+  font-size: 16px;
+}
+
+.landing__quiet-link {
+  align-self: center;
+  font-weight: 500;
+}
+
+.landing__small {
+  margin-top: 16px;
+  font-size: 14px;
+}
+
+/* The hero's screenshots: the billing desk behind, the driver's phone in front. Sized in
+   percentages of a fixed shape, so the arrangement holds at any width. */
+.landing__shots {
+  position: relative;
+  aspect-ratio: 7 / 6;
+}
+
+.landing__shot {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-stock);
+}
+
+.landing__shot--desk {
+  position: absolute;
+  top: 4%;
+  right: 0;
+  width: 92%;
+}
+
+.landing__shot--phone {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 34%;
+  border-radius: 20px;
+  box-shadow: var(--edge-stock), var(--cast-deep);
+}
+
+.landing__card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 22px;
+  text-decoration: none;
+}
+
+.landing__card--qr {
+  position: absolute;
+  right: 4%;
+  bottom: 6%;
+  transform: rotate(1.5deg);
+  color: var(--color-print);
+}
+
+.landing__card-title {
+  display: block;
+  font-weight: 600;
+  font-size: 17px;
+}
+
+.landing__small-text {
+  display: block;
+  font-size: 14px;
+}
+
+.landing__sec {
+  padding: 120px 0;
+}
+
+.landing__sec--follow {
+  padding-top: 0;
+}
+
+.landing__sec h2 {
+  max-width: 16ch;
+  font-size: 44px;
+}
+
+.landing__pin {
+  display: grid;
+  grid-template-columns: 7fr 5fr;
+  gap: 80px;
+  align-items: start;
+  margin-top: 56px;
+}
+
+.landing__vis {
+  position: sticky;
+  top: 110px;
+  margin: 0;
+}
+
+.landing__phones {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: end;
+}
+
+.landing__phones img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 20px;
+}
+
+.landing__panel {
+  padding: 28px 0;
+  border-top: 1px solid var(--color-rule-2);
+}
+
+.landing__panel--last {
+  border-bottom: 1px solid var(--color-rule-2);
+}
+
+.landing__panel h3 {
+  font-size: 24px;
+}
+
+.landing__panel p {
+  max-width: 46ch;
+  margin-top: 8px;
+  font-size: 17px;
+  color: var(--color-ink-2);
+}
+
+.landing__figure {
+  margin: 48px 0 0;
+}
+
+.landing__figure-flat {
+  margin: 0;
+}
+
+.landing figcaption {
+  max-width: 60ch;
+  margin-top: 16px;
+  font-size: 15px;
+  color: var(--color-muted);
+}
+
+.landing__split {
+  display: grid;
+  gap: 72px;
+}
+
+.landing__split--tally {
+  grid-template-columns: 4fr 6fr;
+  align-items: center;
+}
+
+.landing__split--board {
+  grid-template-columns: 5fr 6fr;
+  align-items: end;
+}
+
+.landing__split--try {
+  grid-template-columns: 1fr auto;
+  gap: 48px;
+  align-items: center;
+}
+
+.landing__body {
+  max-width: 34ch;
+  margin-top: 18px;
+  font-size: 18px;
+  color: var(--color-ink-2);
+}
+
+.landing__code-card {
+  padding: 28px;
+}
+
+.landing__code {
+  margin: 0;
+  overflow-x: auto;
+  font-family: var(--font-outlier);
+  font-size: 14px;
+  line-height: 1.7;
+  white-space: pre;
+  color: var(--color-print);
+}
+
+.landing__file {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-rule);
+  font-size: 15px;
+}
+
+.landing__board {
+  background-color: var(--color-board);
+  color: var(--color-board-type);
+}
+
+.landing__big-fig {
+  font-size: 104px;
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  line-height: 0.85;
+}
+
+.landing__board-note {
+  margin-top: 18px;
+  font-size: 20px;
+  color: var(--color-board-muted);
+}
+
+.landing__ledger {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 17px;
+}
+
+.landing__ledger td {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--color-board-rule);
+  vertical-align: top;
+}
+
+.landing__ledger td.fig {
+  padding-left: 24px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.landing__board-source {
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--color-board-muted);
+}
+
+.landing__qr {
+  display: block;
+  padding: 20px;
+  color: var(--color-print);
+}
+
+.landing__footer {
+  border-top: 1px solid var(--color-rule);
+}
+
+.landing__footer p {
+  max-width: 70ch;
+  padding: 40px 0 56px;
+  font-size: 15px;
+  color: var(--color-ink-2);
+}
+
+.landing__footer strong {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+@media (max-width: 60rem) {
+  .landing__wrap {
+    padding: 0 16px;
+  }
+
+  .landing__pill {
+    margin: 12px 12px 0;
+    gap: 12px;
+  }
+
+  .landing__navlink {
+    display: none;
+  }
+
+  .landing__hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+    min-height: 0;
+    padding-top: 32px;
+  }
+
+  .landing__hero h1 {
+    font-size: 44px;
+  }
+
+  .landing__sec {
+    padding: 72px 0;
+  }
+
+  .landing__sec--follow {
+    padding-top: 0;
+  }
+
+  .landing__sec h2 {
+    font-size: 32px;
+  }
+
+  .landing__pin,
+  .landing__split {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+
+  .landing__vis {
+    position: static;
+  }
+
+  .landing__big-fig {
+    font-size: 64px;
+  }
+
+  /* A phone can't scan its own screen, so the QR codes give way to the links beside them. */
+  .landing__card--qr,
+  .landing__qr {
+    display: none;
+  }
+}

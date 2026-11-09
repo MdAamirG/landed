@@ -2,7 +2,7 @@
   "name": "Landed",
   "short_name": "Landed",
   "description": "Photograph the signed lorry receipt at the gate.",
-  "start_url": "/",
+  "start_url": "/office",
   "display": "standalone",
   "background_color": "#f5f2ef",
   "theme_color": "#f5f2ef",

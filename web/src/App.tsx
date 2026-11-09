@@ -4,6 +4,7 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router";
 import ClientPodsPage from "./client/ClientPods";
 import DemoPicker from "./demo/DemoPicker";
 import DriverTrip from "./driver/DriverTrip";
+import Landing from "./landing/Landing";
 import Billing from "./office/Billing";
 import { DESTINATIONS } from "./office/destinations";
 import MissingPods from "./office/MissingPods";
@@ -27,7 +28,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/office" replace />} />
+        <Route path="/" element={<Landing />} />
         <Route path="/status" element={<Status />} />
         <Route path="/d/:token" element={<DriverTrip />} />
         {/* A client's read-only POD list. The link is the key, so no session is loaded. */}
