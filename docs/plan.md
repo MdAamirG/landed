@@ -63,7 +63,7 @@ Tickets 17 to 20.
 - [ ] Voice prompts: about 8 short prompts in Hindi and Marathi as cached audio files. Browser speech is the fallback. A Hindi and Marathi speaker checks them. Built on 8 Nov 2026 (ticket 17); waiting on the speaker check in `docs/voice-prompts.md`
 - [x] Trip CSV import. Built on 9 Nov 2026 (ticket 18): the Trips screen checks the file row by row, then imports the good rows
 - [x] Client POD link. Built on 9 Nov 2026 (ticket 19): a signed 7-day link from the Missing PODs screen opens a read-only list of one client's checked PODs
-- [ ] Landing page
+- [x] Landing page. Built on 9 Nov 2026 (ticket 20): `/` shows Landing.html with screenshots of the real screens
 
 ## Stretch
 
@@ -75,6 +75,7 @@ Tickets 17 to 20.
 - `Dashboard.html`: every missing-POD row shows "Resend SMS link", because the driver's phone is masked and "Call driver" would be a dead button. The figures cover 90 days, not 30 (spec assumption 26). The client POD link (ticket 19) adds a client picker beside "Copy link", because a link opens one client, and shows the link to copy by hand when the browser has no clipboard. On a phone each row becomes a stacked block, so Resend stays in reach
 - `Review.html`: add "Mark disputed", a Disputed filter and a flag for late photos
 - `Main.html`: "Open the driver demo" leads to the five-scenario picker
+- `Landing.html`: built at `/` (ticket 20). Screenshots of the seeded demo replace the drawn product: the billing desk and the driver's phone in the hero, the trip and retake screens for one delivery, and the review desk on TRP-66141 for "When the AI is unsure". The Tally block is a real export of TRP-66120. "Checked in about five seconds" became "Checked while the driver waits", because only the AI call was measured (median 2.5 s), not the round trip. The QR codes are real and open `/demo`; on a phone they give way to an "Open the driver demo" link, since a phone can't scan itself. The manifest's `start_url` moves to `/office`, so an installed app still opens where it did before `/` became the landing page
 - Office screens: a "Mock SMS sent" toast with an "Open link" button in demo mode
 - Driver result screen: `needs_review` uses the green done screen, with "Sent to office"
 

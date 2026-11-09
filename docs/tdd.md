@@ -234,6 +234,7 @@ The client asked for minimal design, and many drivers don't read well. The desig
 | **Review** | Queue on the left, the photo large in the middle, fields on the right with the AI's value and confidence. The photo is the evidence, so it gets the most space. Reason codes are written as plain sentences. The consignee contact is masked behind a logged reveal. |
 | **Billing** | A table grouped by client, a cycle switch, a running total of the selection and one export button. Tables before cards: billing people compare rows. The count of trips still in review sits above, so nobody exports a cycle that isn't finished. |
 | **Missing PODs** | Three figures against their targets, then the list, oldest first, with over-24-hour rows marked and "Resend SMS link" on each. On a phone each row stacks, so Resend stays in reach. |
+| **Landing** | The public page at `/`: one headline, then one delivery from gate to Tally, shown with screenshots of the real screens rather than drawings. Every figure on it is the brief's own: the ₹1.02 crore, its two parts and the 340 trucks. The QR code opens the driver demo. |
 | **Client PODs** | What a client's link opens: the client's checked PODs in one table, with "View POD" opening the photo over the page. No sign-in and nothing to change, and a dead link says to ask the transporter for a new one. Made from the "Client POD link" panel under the branch bars on Missing PODs. |
 | **Trips** | The day's file, checked row by row before anything is imported. A bad row is marked with its reason in plain words, and the rest still import. The "Driver gets" column became own or hired, because every driver gets the SMS link. |
 
@@ -259,7 +260,7 @@ The tests follow four seams, chosen to test what a caller can see rather than ho
 3. **The pending-photo queue.** Vitest with fake storage and a fake network: one photo per trip, replacement, the same attempt ID on every retry, and clearing only after the server confirms.
 4. **Voice prompts.** Vitest with a fake speaker: which prompt a retake plays, the audio file first, the phone's speech when the file can't play, silence when the browser blocks sound or a newer prompt cuts in, and a file on disk for every prompt.
 
-The Tally export test parses the XML and checks voucher grouping, lines, LR and e-way bill numbers, narration, totals and that a re-download is identical. On 9 November 2026 there were 326 pytest test functions (674 cases with parameters) and 28 Vitest tests. The real Gemini call is measured, not tested (section 5).
+The Tally export test parses the XML and checks voucher grouping, lines, LR and e-way bill numbers, narration, totals and that a re-download is identical. On 9 November 2026 there were 344 pytest test functions (699 cases with parameters) and 28 Vitest tests. The real Gemini call is measured, not tested (section 5).
 
 ## 9. Assumptions
 
@@ -354,11 +355,10 @@ Honest notes on what this build doesn't do, or hasn't proven.
 
 ## 11. What I cut, and what I'd do next
 
-I built the core slice first and cut from the optional depth, in the order planned before building: landing page, trip CSV import, client POD link, operations head role. The operations head role, the trip import and the client POD link made it in. Never cut: the retake flow, the review screen and offline capture.
+I built the core slice first, with a cut order for the optional depth planned before building: landing page, trip CSV import, client POD link, operations head role. In the end all four made it in, the landing page last. What is still left out is below. Never cut: the retake flow, the review screen and offline capture.
 
 | Cut | Why, and what's there instead |
 | --- | --- |
-| **Landing page** | Not part of the core build. |
 | **Real SMS, real Tally connection, payments** | Mocked, as the brief allows. Every SMS writes an audit event, and demo mode shows the link in a toast. |
 
 Next, in order:

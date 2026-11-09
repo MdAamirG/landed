@@ -4,10 +4,10 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Scheduled:** Only if time remains
 
-- [ ] The page matches `Landing.html` and works at phone width
-- [ ] Real screenshots replace the drawn product
-- [ ] It invents no metric, logo or testimonial
+- [x] The page matches `Landing.html` and works at phone width
+- [x] Real screenshots replace the drawn product
+- [x] It invents no metric, logo or testimonial
