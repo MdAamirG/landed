@@ -120,6 +120,12 @@ export default function PhotoCheck({
     void sendAndCheck(photo, alreadySent, () => setSent(true)).then(onEnd);
   }, [photo, alreadySent, onEnd]);
 
+  // A photo already under the limit can come out of compression the same size. Comparing the
+  // labels, not the bytes, avoids "176 KB down to 176 KB".
+  const before = sizeLabel(photo.originalBytes);
+  const after = sizeLabel(photo.blob.size);
+  const shrunk = before !== after;
+
   return (
     <main className="driver-check">
       <div className="cam-top">
@@ -139,8 +145,10 @@ export default function PhotoCheck({
         />
         <Step
           done={sent}
-          title="Made smaller and sent"
-          detail={`${sizeLabel(photo.originalBytes)} down to ${sizeLabel(photo.blob.size)}`}
+          title={shrunk ? "Made smaller and sent" : "Sent"}
+          detail={
+            shrunk ? `${before} down to ${after}` : `${after}, already small enough to send`
+          }
         />
         {sent && (
           <Step
