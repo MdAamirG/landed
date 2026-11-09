@@ -44,7 +44,8 @@ api/
     demo.py       # the five scenarios: starting one, and which trip offers which sample
     tally.py      # Tally XML export
     trip_import.py # the daily trip file: reading it, checking each row, importing the good ones
-    routers/      # health, auth, driver, review, billing, dashboard, demo, trips
+    client_links.py # the signed 7-day client POD link and what it shows
+    routers/      # health, auth, driver, review, billing, dashboard, demo, trips, client_pods
   tests/
   seed.py         # the brief's trips and demo users, then the demo trips and the history
   seed_trips.py   # a sample trip and its photo attempt
@@ -53,7 +54,7 @@ api/
   measure_accuracy.py # real Gemini over the sample sheets; writes docs/accuracy.md
   alembic/
 web/
-  src/driver/ src/office/ src/demo/ src/lib/
+  src/driver/ src/office/ src/client/ src/demo/ src/lib/
   public/manifest.webmanifest
 design/  docs/  samples/pods/
 ```

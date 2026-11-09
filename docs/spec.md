@@ -310,6 +310,10 @@ The docs leave these open. Each is a default to follow unless changed, and each 
 44. **A known lorry keeps its record.** A vehicle is matched by registration number, ignoring spaces and case. The fleet's own or hired wins over the row's, which only sets up a new lorry, and the screen shows the value the trip will use.
 45. **The rows to fix** are copied out of the chosen file in the browser, with a problem column added, so consignee details never come back in a response.
 46. **Every driver gets the link**, own or hired, as `docs/plan.md` says. An imported trip writes a `trip_imported` audit event before its link and SMS events.
+47. **Who makes a client link.** Both office roles. The data model gives it to the operations head, and story 70 gives the billing executive the same dashboard, which is where `Dashboard.html` puts it. The dashboard adds a client picker, because a link opens one client.
+48. **What a client sees.** Its trips in `verified` or `invoiced`, newest delivery first, with no time window. A POD still in review or disputed is the office's to settle first. Each row shows the LR and remark from the POD, as billing uses them, the e-way bill number, the route, the delivery date, the consignee's initials and whether it's invoiced. No phone number is sent. The photo is the one billing used (assumption 2), opened one at a time rather than loaded with the list.
+49. **How the link is signed.** It's a JWT holding the client ID and expiry, signed with the session secret, so no new secret has to be set on Render. An audience claim keeps the two apart: a session token is refused as a client link, and a client link is refused as a session. Changing the session secret ends every client link too.
+50. **The token travels in a header.** The page reads it from its URL and sends it to the API as a bearer token, like a driver's, so it stays out of the API's request logs. Expired, tampered and unknown links all get the same 401, and the page asks for a new link.
 
 ### Screen changes
 

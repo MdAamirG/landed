@@ -62,7 +62,7 @@ Tickets 17 to 20.
 
 - [ ] Voice prompts: about 8 short prompts in Hindi and Marathi as cached audio files. Browser speech is the fallback. A Hindi and Marathi speaker checks them. Built on 8 Nov 2026 (ticket 17); waiting on the speaker check in `docs/voice-prompts.md`
 - [x] Trip CSV import. Built on 9 Nov 2026 (ticket 18): the Trips screen checks the file row by row, then imports the good rows
-- [ ] Client POD link
+- [x] Client POD link. Built on 9 Nov 2026 (ticket 19): a signed 7-day link from the Missing PODs screen opens a read-only list of one client's checked PODs
 - [ ] Landing page
 
 ## Stretch
@@ -72,7 +72,7 @@ Tickets 17 to 20.
 ## Screen changes from the approved designs
 
 - `Trips.html`: replace the "Driver gets" column with own or hired, and send every driver the SMS link. Built (ticket 18) with these differences: the counts read "22 ready, 2 to fix", because a row can have several problems; "checked at" in place of "uploaded at", since nothing is stored until import; a duplicate is marked like any other problem; and in demo mode each imported row has its own "Mock SMS sent" and "Open link" in place of a toast, since one import sends many
-- `Dashboard.html`: every missing-POD row shows "Resend SMS link", because the driver's phone is masked and "Call driver" would be a dead button. The figures cover 90 days, not 30 (spec assumption 26). The client POD link waits for ticket 19, so there's no dead button. On a phone each row becomes a stacked block, so Resend stays in reach
+- `Dashboard.html`: every missing-POD row shows "Resend SMS link", because the driver's phone is masked and "Call driver" would be a dead button. The figures cover 90 days, not 30 (spec assumption 26). The client POD link (ticket 19) adds a client picker beside "Copy link", because a link opens one client, and shows the link to copy by hand when the browser has no clipboard. On a phone each row becomes a stacked block, so Resend stays in reach
 - `Review.html`: add "Mark disputed", a Disputed filter and a flag for late photos
 - `Main.html`: "Open the driver demo" leads to the five-scenario picker
 - Office screens: a "Mock SMS sent" toast with an "Open link" button in demo mode

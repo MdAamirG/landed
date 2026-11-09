@@ -72,6 +72,7 @@ The API is split by job, so each rule has one home:
 | `billing.py`, `tally.py` | Cycles, the billing queue, the export, the XML and the POD ZIP |
 | `dashboard.py` | The missing-POD list, the three figures, resend |
 | `driver_links.py`, `auth.py` | Driver tokens; office passwords, the session cookie and `require_role()` |
+| `client_links.py` | The signed 7-day client POD link and the PODs it shows |
 | `demo.py` | The five demo scenarios |
 
 ## 3. Data model
@@ -233,6 +234,7 @@ The client asked for minimal design, and many drivers don't read well. The desig
 | **Review** | Queue on the left, the photo large in the middle, fields on the right with the AI's value and confidence. The photo is the evidence, so it gets the most space. Reason codes are written as plain sentences. The consignee contact is masked behind a logged reveal. |
 | **Billing** | A table grouped by client, a cycle switch, a running total of the selection and one export button. Tables before cards: billing people compare rows. The count of trips still in review sits above, so nobody exports a cycle that isn't finished. |
 | **Missing PODs** | Three figures against their targets, then the list, oldest first, with over-24-hour rows marked and "Resend SMS link" on each. On a phone each row stacks, so Resend stays in reach. |
+| **Client PODs** | What a client's link opens: the client's checked PODs in one table, with "View POD" opening the photo over the page. No sign-in and nothing to change, and a dead link says to ask the transporter for a new one. Made from the "Client POD link" panel under the branch bars on Missing PODs. |
 | **Trips** | The day's file, checked row by row before anything is imported. A bad row is marked with its reason in plain words, and the rest still import. The "Driver gets" column became own or hired, because every driver gets the SMS link. |
 
 Office screens use a top bar with at most four destinations, not a sidebar. The operations head sees only Missing PODs, since that role can't approve or export. Review, Billing, Missing PODs and Trips each have loading (skeleton rows), empty (what belongs here) and error (what broke and what to do) states.
@@ -241,6 +243,7 @@ Office screens use a top bar with at most four destinations, not a sidebar. The 
 
 - **Office sign-in:** email and password, hashed with argon2. The session is a signed token in an http-only, SameSite cookie that lasts 8 hours. It holds only the user ID, and the role is read from the database on every request, so a changed role applies at once.
 - **Roles on every route:** `require_role()` guards each office route. The operations head is refused on approve and export with a 403. Tests call every office route as every role.
+- **Client POD links:** a signed token for one client that lasts 7 days and opens only reads: that client's checked PODs, with the consignee as initials and no phone. Each link made writes an audit event without the token. Tests refuse expired, tampered, unsigned and forged links, and a session token in place of one.
 - **Driver links:** a random token per trip. Only a keyed HMAC-SHA256 hash is stored, so a database leak alone gives no working link. A link opens one trip only, expires 72 hours after expected delivery, and is checked on every driver route.
 - **Personal data (DPDP Act 2023):** consignee name and phone and the driver's phone are masked in every API response. One endpoint reveals a consignee's contact, and each reveal writes an audit event. Seed data uses sample names and numbers only.
 - **Validated inputs:** Pydantic on every request; uploads must be an image under 300 KB.
@@ -260,7 +263,7 @@ The Tally export test parses the XML and checks voucher grouping, lines, LR and 
 
 ## 9. Assumptions
 
-The brief leaves many details open. Each assumption below is labelled so it can be checked with Company A. A1 to A13 come from `docs/data-model.md`; S1 to S46 come from `docs/spec.md` and keep its numbering.
+The brief leaves many details open. Each assumption below is labelled so it can be checked with Company A. A1 to A13 come from `docs/data-model.md`; S1 to S50 come from `docs/spec.md` and keep its numbering.
 
 ### Data model assumptions
 
@@ -293,7 +296,7 @@ The brief leaves many details open. Each assumption below is labelled so it can 
 - **S11. Export conflicts.** An export is all or nothing. If any selected trip is no longer verified, it's refused and names the trips.
 - **S12. Older cycles.** The cycle switch offers any cycle that still holds verified trips.
 - **S13. Attempt numbering.** Intake locks the trip row while it numbers an attempt, so two photos arriving together can't collide.
-- **S14. Client POD link.** Planned as a signed, stateless link expiring after 7 days, with no new table. It can't be revoked early, and each one made is logged. Not built (section 11).
+- **S14. Client POD link.** A signed, stateless link expiring after 7 days, with no new table. It can't be revoked early, and each one made is logged.
 - **S15. Trip import.** Each imported trip gets a driver link and a mock SMS. A row naming an unknown client or branch is rejected, and a new vehicle or driver is created on first sight.
 - **S16. Demo role buttons.** The sign-in screen shows them only in demo mode.
 - **S17. Session length.** An office session lasts 8 hours, one working day. The role is read from the database on each request.
@@ -326,6 +329,10 @@ The brief leaves many details open. Each assumption below is labelled so it can 
 - **S44. A known lorry keeps its record.** Matched by registration number, ignoring spaces and case. The fleet's own or hired wins over the row's.
 - **S45. The rows to fix** are copied out of the chosen file in the browser, so consignee details never come back in a response.
 - **S46. Every driver gets the link**, own or hired.
+- **S47. Who makes a client link.** Both office roles, from the Missing PODs screen. The data model gives it to the operations head, and the billing executive has the same dashboard. A client picker sits beside "Copy link", because a link opens one client.
+- **S48. What a client sees.** Its verified and invoiced trips, newest first: LR and remark as billing read them, e-way bill, route, delivery date, the consignee's initials and whether it's invoiced. Nothing in review or disputed, and no phone number. The photo is the one billing used, opened one at a time.
+- **S49. How the link is signed.** A JWT with the client ID and expiry, signed with the session secret so no new secret is needed. An audience claim keeps client links and sessions from being swapped. Changing the session secret ends every client link too.
+- **S50. The token travels in a header**, like a driver's, so it stays out of the API's request logs. Expired, tampered and unknown links all get the same refusal.
 
 ## 10. Limits
 
@@ -347,11 +354,10 @@ Honest notes on what this build doesn't do, or hasn't proven.
 
 ## 11. What I cut, and what I'd do next
 
-I built the core slice first and cut from the optional depth, in the order planned before building: landing page, trip CSV import, client POD link, operations head role. The operations head role and the trip import made it in. Never cut: the retake flow, the review screen and offline capture.
+I built the core slice first and cut from the optional depth, in the order planned before building: landing page, trip CSV import, client POD link, operations head role. The operations head role, the trip import and the client POD link made it in. Never cut: the retake flow, the review screen and offline capture.
 
 | Cut | Why, and what's there instead |
 | --- | --- |
-| **Client POD link** | Optional depth. Designed as a signed, expiring link (S14), not built. |
 | **Landing page** | Not part of the core build. |
 | **Real SMS, real Tally connection, payments** | Mocked, as the brief allows. Every SMS writes an audit event, and demo mode shows the link in a toast. |
 
