@@ -293,8 +293,12 @@ def add_waiting_trip(
     session.add(seeded_event(trip.id, PodStatus.AWAITING_POD, trip.dispatched_at))
 
 
-def seed_history(session: Session) -> None:
-    """Add the history to the session. The caller commits."""
+def seed_history(session: Session, commit_every: int | None = None) -> None:
+    """Add the history to the session. The caller commits.
+
+    With commit_every, it also commits after that many trips, so a dropped connection loses one
+    small batch, not the lot. Trips that exist are skipped, so a second run finishes the job.
+    """
     now = datetime.now(UTC)
     rng = random.Random(RANDOM_SEED)
     known = set(session.scalars(select(Trip.trip_code)))
@@ -306,6 +310,8 @@ def seed_history(session: Session) -> None:
     for number in range(HISTORY_TRIPS):
         if history_code(number) not in known:
             add_delivered_trip(session, fleet, rng, number, now)
+        if commit_every and (number + 1) % commit_every == 0:
+            session.commit()
 
     for number, plan in enumerate(MISSING_ROWS + ON_THE_ROAD, start=HISTORY_TRIPS):
         if plan.code not in known:

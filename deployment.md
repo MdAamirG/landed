@@ -112,11 +112,13 @@ cd api && .venv/bin/python seed.py
 
 The seed adds the brief's trips, the five demo trips and the history. It's safe to run twice, and it leaves rows that already exist as they are. When a later commit adds a migration, run it before pushing that commit, so the new code never meets the old schema.
 
-Reviewers' clicks change the sample trips. An approve takes TRP-66141 out of Review, a retake sends it to Missing PODs, and an export marks trips invoiced. Seeded times are set from the day of seeding, so they also age. To put everything back as the brief describes, with fresh times, empty the database and seed it again. This deletes every row in one transaction, so it refuses unless `DEMO_MODE` is `true`. It takes about a minute and a quarter against Neon. Run it close to when reviewers will look.
+Reviewers' clicks change the sample trips. An approve takes TRP-66141 out of Review, a retake sends it to Missing PODs, and an export marks trips invoiced. Seeded times are set from the day of seeding, so they also age. To put everything back as the brief describes, with fresh times, empty the database and seed it again. This deletes every row, so it refuses unless `DEMO_MODE` is `true`. It takes about a minute and a quarter against Neon. Run it close to when reviewers will look.
 
 ```bash
 cd api && .venv/bin/python seed.py --fresh
 ```
+
+It commits in small steps and prints each one, so the site is part-empty for that minute. If the connection drops partway, run `seed.py` without `--fresh`: it skips what's already there and finishes the rest.
 
 ## Deploy the API on Render
 

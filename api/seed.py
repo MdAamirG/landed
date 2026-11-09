@@ -13,6 +13,7 @@ phone numbers, the other quantities, branches and times. No real person's data.
 """
 
 import argparse
+import time
 from datetime import UTC, datetime
 
 from sqlalchemy import text
@@ -140,8 +141,7 @@ def clear_everything(session: Session) -> None:
 
     Only for a demo database. DEMO_MODE is the switch that says the data is sample data, so with it
     off this refuses rather than risk deleting real trips. TRUNCATE ... CASCADE saves ordering the
-    tables by foreign key, and it runs in the caller's transaction, so a seed that fails afterwards
-    rolls the old data back.
+    tables by foreign key. The caller commits.
     """
     if not settings.demo_mode:
         raise RuntimeError("Not emptying the database: DEMO_MODE is off, so it may hold real trips")
@@ -156,13 +156,26 @@ def main() -> None:
     )
     fresh = parser.parse_args().fresh
 
+    # Committed in small steps rather than one transaction. TRUNCATE locks every table until its
+    # transaction ends, and a single transaction for the whole seed kept the live site waiting
+    # until Neon closed the connection, twice. Each step skips rows that exist, so if a step fails,
+    # running plain `python seed.py` again finishes the job.
+    started = time.monotonic()
+
+    def done(step: str) -> None:
+        session.commit()
+        print(f"{time.monotonic() - started:6.1f} s  {step}", flush=True)
+
     with SessionLocal() as session:
         if fresh:
             clear_everything(session)
+            done("emptied every table")
         seed(session)
+        done("the brief's trips and the demo logins")
         seed_demo(session, SAMPLE_TRIPS)
-        seed_history(session)
-        session.commit()  # One transaction: the old rows go only if the new ones arrive.
+        done("the five demo trips")
+        seed_history(session, commit_every=25)
+        done("the history")
     print("Fresh seed complete." if fresh else "Seed complete.")
 
 

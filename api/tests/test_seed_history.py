@@ -8,7 +8,8 @@ from sqlalchemy import func, select
 from app.db import SessionLocal
 from app.models import Driver, PodAttempt, PodField, Trip
 from seed import DEMO_PASSWORD, seed
-from seed_history import seed_history
+import seed_history as seed_history_module
+from seed_history import history_code, seed_history
 from tests.conftest import empty_tables
 
 DESIGN_ROWS = ["TRP-66144", "TRP-66147", "TRP-66149", "TRP-66151", "TRP-66153", "TRP-66155"]
@@ -129,3 +130,41 @@ def test_running_it_again_adds_nothing(db):
     seed_history(db)
 
     assert counts() == before
+
+
+def test_a_run_cut_short_keeps_its_batches_and_a_second_run_finishes(monkeypatch):
+    """As when Neon drops the connection: runs last, because it empties and seeds again."""
+
+    def trip_count(session) -> int:
+        return session.scalar(select(func.count()).select_from(Trip))
+
+    with SessionLocal() as session:
+        full = trip_count(session)
+    empty_tables()
+
+    calls = 0
+    real_add = seed_history_module.add_delivered_trip
+
+    def connection_drops_on_the_60th(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        if calls == 60:
+            raise ConnectionError("server closed the connection unexpectedly")
+        return real_add(*args, **kwargs)
+
+    monkeypatch.setattr(seed_history_module, "add_delivered_trip", connection_drops_on_the_60th)
+    with SessionLocal() as session, pytest.raises(ConnectionError):
+        seed(session)
+        session.commit()
+        seed_history(session, commit_every=25)
+
+    history = {history_code(number) for number in range(60)}
+    with SessionLocal() as session:
+        kept = session.scalar(select(func.count()).where(Trip.trip_code.in_(history)))
+    assert kept == 50  # Two batches of 25 were committed; the third was lost.
+
+    monkeypatch.undo()
+    with SessionLocal() as session:
+        seed_history(session)
+        session.commit()
+        assert trip_count(session) == full
