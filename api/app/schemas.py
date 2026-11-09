@@ -361,3 +361,39 @@ class ImportOut(BaseModel):
     rows_ok: int
     rows: list[ImportRowOut]
     import_batch_id: UUID | None = None  # Empty for a check, which stores nothing.
+
+
+class ClientOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    name: str
+
+
+class ClientLinkIn(BaseModel):
+    client_id: UUID
+
+
+class ClientLinkOut(BaseModel):
+    url: str  # Returned once to the office user who made it. Never stored or logged.
+    expires_at: datetime
+
+
+class ClientPodOut(BaseModel):
+    trip_id: UUID
+    trip_code: str
+    lr_number: str  # From the POD, as on the invoice, so the client can match the two.
+    eway_bill_no: str
+    origin: str
+    destination: str
+    consignee_name: str  # Masked.
+    delivered_at: datetime
+    remark: str | None
+    invoiced: bool
+    voucher_no: str | None
+
+
+class ClientPodsOut(BaseModel):
+    client_name: str
+    expires_at: datetime
+    pods: list[ClientPodOut]

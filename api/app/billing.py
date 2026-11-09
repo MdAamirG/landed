@@ -58,6 +58,7 @@ class BillingRow:
     trip: Trip
     client: Client
     cycle: Cycle
+    delivered_at: datetime  # The first photo's time (spec assumption 1).
     lr_number: str
     remark: str | None
 
@@ -114,6 +115,7 @@ def billing_rows(session: Session, condition: ColumnElement[bool]) -> list[Billi
                 trip=trip,
                 client=client,
                 cycle=cycle_of(delivered_at),
+                delivered_at=delivered_at,
                 lr_number=finals.get((attempt_id, PodFieldName.LR_NUMBER)) or trip.lr_number,
                 remark=remark_note(finals.get((attempt_id, PodFieldName.REMARKS))),
             )

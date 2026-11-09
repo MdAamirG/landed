@@ -65,6 +65,8 @@ OFFICE_ROUTES = [
         "/api/dashboard/trips/{trip_id}/resend-link",
         set(Role),
     ),
+    ("GET", "/api/client-links/clients", "/api/client-links/clients", set(Role)),
+    ("POST", "/api/client-links", "/api/client-links", set(Role)),
 ]
 
 # Each of these takes a driver token, and opens only that token's trip. test_driver.py covers
@@ -77,6 +79,17 @@ DRIVER_ROUTES = [
         "GET",
         "/api/driver/attempts/00000000-0000-0000-0000-000000000000",
         "/api/driver/attempts/{attempt_id}",
+    ),
+]
+
+# Each takes a client link's token and opens only that client's PODs. test_client_links.py
+# covers valid, expired and tampered tokens.
+CLIENT_ROUTES = [
+    ("GET", "/api/client-pods", "/api/client-pods"),
+    (
+        "GET",
+        "/api/client-pods/trips/00000000-0000-0000-0000-000000000000/photo",
+        "/api/client-pods/trips/{trip_id}/photo",
     ),
 ]
 
@@ -100,6 +113,7 @@ def test_every_api_route_is_listed_here():
         | DEMO_ROUTES
         | {(method, path) for method, _, path, _ in OFFICE_ROUTES}
         | {(method, path) for method, _, path in DRIVER_ROUTES}
+        | {(method, path) for method, _, path in CLIENT_ROUTES}
     )
 
     assert declared == listed
@@ -132,4 +146,16 @@ def test_an_office_session_does_not_open_a_driver_route(api_client, db):
     signed_in_as(api_client, db, Role.BILLING_EXECUTIVE)
 
     for method, url, _path in DRIVER_ROUTES:
+        assert api_client.request(method, url).status_code == 401
+
+
+@pytest.mark.parametrize(("method", "url", "_path"), CLIENT_ROUTES)
+def test_client_routes_refuse_a_request_without_a_token(api_client, method, url, _path):
+    assert api_client.request(method, url).status_code == 401
+
+
+def test_an_office_session_does_not_open_a_client_route(api_client, db):
+    signed_in_as(api_client, db, Role.OPERATIONS_HEAD)
+
+    for method, url, _path in CLIENT_ROUTES:
         assert api_client.request(method, url).status_code == 401
