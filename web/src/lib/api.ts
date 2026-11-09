@@ -450,3 +450,50 @@ export function checkTripFile(file: File): Promise<ImportResult> {
 export function importTripFile(file: File): Promise<ImportResult> {
   return sendTripFile("/trips/import", file);
 }
+
+export type ClientChoice = { id: string; name: string };
+
+export async function getLinkClients(): Promise<ClientChoice[]> {
+  return (await (await request("/client-links/clients")).json()) as ClientChoice[];
+}
+
+export type ClientLink = { url: string; expires_at: string };
+
+/** A read-only link to one client's PODs. The server logs who made it. */
+export async function makeClientLink(clientId: string): Promise<ClientLink> {
+  return (await (await postJson("/client-links", { client_id: clientId })).json()) as ClientLink;
+}
+
+export type ClientPod = {
+  trip_id: string;
+  trip_code: string;
+  lr_number: string;
+  eway_bill_no: string;
+  origin: string;
+  destination: string;
+  consignee_name: string; // Masked.
+  delivered_at: string;
+  remark: string | null;
+  invoiced: boolean;
+  voucher_no: string | null;
+};
+
+export type ClientPods = { client_name: string; expires_at: string; pods: ClientPod[] };
+
+function clientHeaders(token: string): HeadersInit {
+  return { Authorization: `Bearer ${token}` };
+}
+
+/** Like a driver's, the client's token goes in a header so it stays out of the API's logs. */
+export async function getClientPods(token: string): Promise<ClientPods> {
+  const response = await request("/client-pods", { headers: clientHeaders(token) });
+  return (await response.json()) as ClientPods;
+}
+
+/** Fetched rather than put in an img src, because an img can't send the token in a header. */
+export async function getClientPodPhoto(token: string, tripId: string): Promise<Blob> {
+  const response = await request(`/client-pods/trips/${tripId}/photo`, {
+    headers: clientHeaders(token),
+  });
+  return response.blob();
+}

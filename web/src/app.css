@@ -1025,6 +1025,130 @@
   }
 }
 
+/* Client POD link, under the branch bars as in Dashboard.html */
+.client-link {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-rule);
+  font-size: 14px;
+}
+
+.client-link__title {
+  font-weight: 600;
+}
+
+.client-link__make {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.client-link__make select {
+  max-width: 200px;
+}
+
+.client-link__made {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.client-link__url {
+  width: 100%;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--color-rule-2);
+  border-radius: var(--radius-input);
+  background-color: var(--color-cotton);
+  font-family: var(--font-outlier);
+  font-size: 12px;
+}
+
+/* The client's POD page */
+.client-pods__table {
+  min-width: 860px;
+}
+
+.client-pods__table .fig {
+  white-space: nowrap;
+}
+
+.client-pods__consignee,
+.client-pods__remark {
+  display: block;
+}
+
+.client-pods__dialog {
+  width: min(720px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 20px;
+  border: 0;
+}
+
+.client-pods__dialog::backdrop {
+  background-color: oklch(21% 0.012 38 / 0.5);
+}
+
+.client-pods__dialog-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.client-pods__dialog-head h2 {
+  font-size: 18px;
+}
+
+.client-pods__photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-input);
+}
+
+/* On a phone each POD becomes a block, as on the missing-POD list. */
+@media (max-width: 40rem) {
+  .client-pods__table {
+    min-width: 0;
+  }
+
+  .client-pods__table thead {
+    display: none;
+  }
+
+  .client-pods__table tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 4px 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .client-pods__table td {
+    display: block;
+    padding: 0;
+    border: 0;
+  }
+
+  .client-pods__table td:nth-child(4),
+  .client-pods__table td.r {
+    grid-column: 1 / -1;
+  }
+
+  .client-pods__table td.r {
+    margin-top: 8px;
+    text-align: left;
+  }
+}
+
 /* Voice prompts: the language switch and speaker button, from Driver_Home.html */
 .voice-bar {
   display: flex;

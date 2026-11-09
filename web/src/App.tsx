@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router";
 
+import ClientPodsPage from "./client/ClientPods";
 import DemoPicker from "./demo/DemoPicker";
 import DriverTrip from "./driver/DriverTrip";
 import Billing from "./office/Billing";
@@ -29,6 +30,8 @@ export default function App() {
         <Route path="/" element={<Navigate to="/office" replace />} />
         <Route path="/status" element={<Status />} />
         <Route path="/d/:token" element={<DriverTrip />} />
+        {/* A client's read-only POD list. The link is the key, so no session is loaded. */}
+        <Route path="/c/:token" element={<ClientPodsPage />} />
         <Route path="/demo" element={<DemoPicker />} />
 
         {/* Only the office area loads the session. The driver area never touches it. */}

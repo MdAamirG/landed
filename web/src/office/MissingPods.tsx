@@ -8,6 +8,7 @@ import {
   type Dashboard,
   type MissingPod,
 } from "../lib/api";
+import ClientLinkPanel from "./ClientLinkPanel";
 import { ErrorState, Skeleton, type Loadable } from "./LoadStates";
 import MockSmsToast from "./MockSmsToast";
 import { useSession } from "./session";
@@ -268,6 +269,7 @@ export default function MissingPods() {
                 Median by branch. The dashed line is the {TARGET_INVOICE_DAYS}-day target.
               </p>
               <BranchBars branches={page.value.branches} onReload={() => void load()} />
+              <ClientLinkPanel onSignedOut={signedOut} />
             </section>
           </div>
         </>
