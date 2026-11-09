@@ -24,7 +24,7 @@ The brief's core build is the slice that must work end to end. All of it is buil
 | Missing-POD dashboard | Trips with no POD, the three target figures, POD-to-invoice days by branch, resend link |
 | Roles: driver and billing executive | Driver links per trip; email and password sign-in for the office; operations head added as depth |
 
-Beyond the core, drivers hear spoken prompts in Hindi, Marathi or English, which the brief's constraints ask for (section 6).
+Beyond the core, drivers hear spoken prompts in Hindi, Marathi or English, which the brief's constraints ask for (section 6), and a billing executive can import the daily trip file (section 4).
 
 ## 2. Architecture and why
 
@@ -86,7 +86,7 @@ Twelve tables in Postgres. `trips` is the centre: a trip has up to three checked
 | `driver_links` | A keyed hash of each driver token, its expiry and revocation |
 | `users` | Office staff, with an argon2 password hash and a role |
 | `clients`, `branches`, `vehicles`, `drivers` | Reference data. Vehicles are own or hired; drivers have a language |
-| `import_batches` | One per daily trip file (the import screen is cut; see section 11) |
+| `import_batches` | One per daily trip file: who uploaded it, the counts, and each rejected row's problems |
 | `export_batches` | One per Tally export: cycle, count, total and the stored XML |
 | `audit_events` | Append-only: every status change, field edit, reveal, export, retake request and mock SMS |
 
@@ -141,6 +141,10 @@ Review lists trips that need a person, oldest first, with the reason. The photo 
 ### Billing and export
 
 Billing groups verified trips by client and by cycle, the 1st to 15th and the 16th to month end, taken from the delivery date. A late approval therefore doesn't move a trip to the wrong period. The executive selects trips, sees the total and exports. Each export makes one draft Sales voucher per client, with a line per trip carrying its LR and e-way bill numbers; a shortage remark goes in the narration and the trip bills full freight. The XML is stored, so downloading it again returns the same file, and exported trips are locked. The POD ZIP holds the photo each line was approved on, strip included.
+
+### Trip import
+
+The billing executive chooses the day's CSV file. The server checks every row and stores nothing: Pydantic reads each cell, then the row is checked against the trips on file and the rows above it. A row with no e-way bill, a repeated LR or trip code, or an unknown client or branch is rejected with its reason, and the rest are ready. Import sends the same file again, so nothing waits on the server between the steps, and the check runs afresh. Each new trip gets a driver link and a mock SMS, and a new lorry or driver is created the first time it appears. `import_batches` records the file, the counts and each rejected row's problems, without consignee or driver details. Importing a file twice adds nothing the second time, because every row is already on file.
 
 ### Missing PODs
 
@@ -229,8 +233,9 @@ The client asked for minimal design, and many drivers don't read well. The desig
 | **Review** | Queue on the left, the photo large in the middle, fields on the right with the AI's value and confidence. The photo is the evidence, so it gets the most space. Reason codes are written as plain sentences. The consignee contact is masked behind a logged reveal. |
 | **Billing** | A table grouped by client, a cycle switch, a running total of the selection and one export button. Tables before cards: billing people compare rows. The count of trips still in review sits above, so nobody exports a cycle that isn't finished. |
 | **Missing PODs** | Three figures against their targets, then the list, oldest first, with over-24-hour rows marked and "Resend SMS link" on each. On a phone each row stacks, so Resend stays in reach. |
+| **Trips** | The day's file, checked row by row before anything is imported. A bad row is marked with its reason in plain words, and the rest still import. The "Driver gets" column became own or hired, because every driver gets the SMS link. |
 
-Office screens use a top bar with at most four destinations, not a sidebar. The operations head sees only Missing PODs, since that role can't approve or export. Review, Billing and Missing PODs each have loading (skeleton rows), empty (what belongs here) and error (what broke and what to do) states.
+Office screens use a top bar with at most four destinations, not a sidebar. The operations head sees only Missing PODs, since that role can't approve or export. Review, Billing, Missing PODs and Trips each have loading (skeleton rows), empty (what belongs here) and error (what broke and what to do) states.
 
 ## 7. Security, privacy and audit
 
@@ -246,16 +251,16 @@ Office screens use a top bar with at most four destinations, not a sidebar. The 
 
 The tests follow four seams, chosen to test what a caller can see rather than how the code does it.
 
-1. **The HTTP API (the main seam).** FastAPI's test client against a real Postgres test branch on Neon, with only the AI reader faked. SQLite would prove less, because idempotency depends on real unique constraints and the schema uses `jsonb` and `bytea`. The suite refuses to run if the test database shares a host with the app's, because it empties tables. It covers upload idempotency, intake limits, every allowed and refused status move, the retake cap, stuck attempts, role checks on every route, masking and reveal logging, stale versions, demo reset and the edge cases in the data model.
+1. **The HTTP API (the main seam).** FastAPI's test client against a real Postgres test branch on Neon, with only the AI reader faked. SQLite would prove less, because idempotency depends on real unique constraints and the schema uses `jsonb` and `bytea`. The suite refuses to run if the test database shares a host with the app's, because it empties tables. It covers upload idempotency, intake limits, every allowed and refused status move, the retake cap, stuck attempts, role checks on every route, masking and reveal logging, stale versions, demo reset, the trip file's row checks and the edge cases in the data model.
 2. **The decision rule.** `decide()` is pure, so it has a table of cases for every check and every order that matters, including a remark at high confidence, a missing location versus a far one, and confidence just below and exactly at 0.80.
 3. **The pending-photo queue.** Vitest with fake storage and a fake network: one photo per trip, replacement, the same attempt ID on every retry, and clearing only after the server confirms.
 4. **Voice prompts.** Vitest with a fake speaker: which prompt a retake plays, the audio file first, the phone's speech when the file can't play, silence when the browser blocks sound or a newer prompt cuts in, and a file on disk for every prompt.
 
-The Tally export test parses the XML and checks voucher grouping, lines, LR and e-way bill numbers, narration, totals and that a re-download is identical. On 8 November 2026 there were 314 pytest test functions (652 cases with parameters) and 28 Vitest tests. The real Gemini call is measured, not tested (section 5).
+The Tally export test parses the XML and checks voucher grouping, lines, LR and e-way bill numbers, narration, totals and that a re-download is identical. On 9 November 2026 there were 326 pytest test functions (674 cases with parameters) and 28 Vitest tests. The real Gemini call is measured, not tested (section 5).
 
 ## 9. Assumptions
 
-The brief leaves many details open. Each assumption below is labelled so it can be checked with Company A. A1 to A13 come from `docs/data-model.md`; S1 to S34 come from `docs/spec.md` and keep its numbering.
+The brief leaves many details open. Each assumption below is labelled so it can be checked with Company A. A1 to A13 come from `docs/data-model.md`; S1 to S46 come from `docs/spec.md` and keep its numbering.
 
 ### Data model assumptions
 
@@ -289,7 +294,7 @@ The brief leaves many details open. Each assumption below is labelled so it can 
 - **S12. Older cycles.** The cycle switch offers any cycle that still holds verified trips.
 - **S13. Attempt numbering.** Intake locks the trip row while it numbers an attempt, so two photos arriving together can't collide.
 - **S14. Client POD link.** Planned as a signed, stateless link expiring after 7 days, with no new table. It can't be revoked early, and each one made is logged. Not built (section 11).
-- **S15. Trip import.** Planned: each imported trip gets a driver link and a mock SMS; a row naming an unknown client or branch is rejected; a new vehicle or driver is created on first sight. Not built (section 11).
+- **S15. Trip import.** Each imported trip gets a driver link and a mock SMS. A row naming an unknown client or branch is rejected, and a new vehicle or driver is created on first sight.
 - **S16. Demo role buttons.** The sign-in screen shows them only in demo mode.
 - **S17. Session length.** An office session lasts 8 hours, one working day. The role is read from the database on each request.
 - **S18. Operations head's top bar.** It shows only Missing PODs. The server enforces roles either way.
@@ -314,6 +319,13 @@ The brief leaves many details open. Each assumption below is labelled so it can 
 - **S37. Nine prompts, and English too.** The brief asks for Hindi or Marathi; English is there because the approved switch offers it.
 - **S38. Marathi is spoken by the phone.** macOS has no Marathi voice and the Gemini key has no speech model, so Marathi has no audio files yet. Hindi and English files come from macOS voices, standing in for recordings.
 - **S39. When a prompt plays.** As a screen opens. Phones block sound before the first tap, so a freshly opened link is silent until the driver taps the speaker or the switch.
+- **S40. Check, then import.** The Trips screen checks the file and stores nothing; the import sends the same file again and the server checks it afresh. Only a file that can't be read as trips is refused whole. Otherwise each row stands alone. Two imports adding the same trip at once: the second is refused whole and checked again.
+- **S41. The file's columns.** The brief names no format, so the file has one row per trip with the columns in the sample file. Times are India time and freight is in rupees. Other columns are ignored, client and branch names match whatever their case, a trip code must be new and delivery can't be before dispatch.
+- **S42. Repeats within a file.** Only a row that will import claims its trip code and LR, so a corrected copy below a broken row still goes in.
+- **S43. Who a driver is.** A driver is known by phone number. A known driver keeps the name and language on file. A blank language means Hindi.
+- **S44. A known lorry keeps its record.** Matched by registration number, ignoring spaces and case. The fleet's own or hired wins over the row's.
+- **S45. The rows to fix** are copied out of the chosen file in the browser, so consignee details never come back in a response.
+- **S46. Every driver gets the link**, own or hired.
 
 ## 10. Limits
 
@@ -335,11 +347,10 @@ Honest notes on what this build doesn't do, or hasn't proven.
 
 ## 11. What I cut, and what I'd do next
 
-I built the core slice first and cut from the optional depth, in the order planned before building: landing page, trip CSV import, client POD link, operations head role. The operations head role made it in. Never cut: the retake flow, the review screen and offline capture.
+I built the core slice first and cut from the optional depth, in the order planned before building: landing page, trip CSV import, client POD link, operations head role. The operations head role and the trip import made it in. Never cut: the retake flow, the review screen and offline capture.
 
 | Cut | Why, and what's there instead |
 | --- | --- |
-| **Daily trip CSV import** | The schema has `import_batches` and the rules are written (S15), but there's no screen; the Trips destination in the top bar is a placeholder. Trips are seeded instead. |
 | **Client POD link** | Optional depth. Designed as a signed, expiring link (S14), not built. |
 | **Landing page** | Not part of the core build. |
 | **Real SMS, real Tally connection, payments** | Mocked, as the brief allows. Every SMS writes an audit event, and demo mode shows the link in a toast. |
@@ -348,7 +359,7 @@ Next, in order:
 
 1. **Field test on real phones and real paper** with a few drivers on one route: tune the phone's blur limits, re-run the accuracy script on real PODs, and set the confidence threshold from that.
 2. **Move to a paid Gemini project** before any real POD is sent (section 10), and add a real SMS gateway, which in India needs DLT registration of the sender and templates.
-3. **Native recordings of the voice prompts**, checked by a Hindi and a Marathi speaker, and **the trip import**, which the client would use daily.
+3. **Native recordings of the voice prompts**, checked by a Hindi and a Marathi speaker, and **the trip import tried on the client's real daily file**, whose format is my assumption (S41).
 4. **Import the XML into a real Tally** with the billing team, and fix what it rejects.
 5. **Photos to object storage**, using the existing `image_key` column, once volume grows: about 2,200 trips a month at up to 300 KB each is roughly 0.5 GB of photos a month.
 6. **Background Sync**, so a closed app still sends its photo.

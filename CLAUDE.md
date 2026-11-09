@@ -43,6 +43,7 @@ api/
     dashboard.py  # the missing-POD list, the three figures, resend, top-bar counts
     demo.py       # the five scenarios: starting one, and which trip offers which sample
     tally.py      # Tally XML export
+    trip_import.py # the daily trip file: reading it, checking each row, importing the good ones
     routers/      # health, auth, driver, review, billing, dashboard, demo, trips
   tests/
   seed.py         # the brief's trips and demo users, then the demo trips and the history

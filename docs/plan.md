@@ -61,7 +61,7 @@ Tickets 13, 14, 15, 16, 09, 21.
 Tickets 17 to 20.
 
 - [ ] Voice prompts: about 8 short prompts in Hindi and Marathi as cached audio files. Browser speech is the fallback. A Hindi and Marathi speaker checks them. Built on 8 Nov 2026 (ticket 17); waiting on the speaker check in `docs/voice-prompts.md`
-- [ ] Trip CSV import
+- [x] Trip CSV import. Built on 9 Nov 2026 (ticket 18): the Trips screen checks the file row by row, then imports the good rows
 - [ ] Client POD link
 - [ ] Landing page
 
@@ -71,7 +71,7 @@ Tickets 17 to 20.
 
 ## Screen changes from the approved designs
 
-- `Trips.html`: replace the "Driver gets" column with own or hired, and send every driver the SMS link
+- `Trips.html`: replace the "Driver gets" column with own or hired, and send every driver the SMS link. Built (ticket 18) with these differences: the counts read "22 ready, 2 to fix", because a row can have several problems; "checked at" in place of "uploaded at", since nothing is stored until import; a duplicate is marked like any other problem; and in demo mode each imported row has its own "Mock SMS sent" and "Open link" in place of a toast, since one import sends many
 - `Dashboard.html`: every missing-POD row shows "Resend SMS link", because the driver's phone is masked and "Call driver" would be a dead button. The figures cover 90 days, not 30 (spec assumption 26). The client POD link waits for ticket 19, so there's no dead button. On a phone each row becomes a stacked block, so Resend stays in reach
 - `Review.html`: add "Mark disputed", a Disputed filter and a flag for late photos
 - `Main.html`: "Open the driver demo" leads to the five-scenario picker
