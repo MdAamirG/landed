@@ -11,6 +11,7 @@ import Placeholder from "./office/Placeholder";
 import Review from "./office/Review";
 import { SessionProvider } from "./office/session";
 import SignIn from "./office/SignIn";
+import Trips from "./office/Trips";
 import Status from "./Status";
 
 // The destinations built so far. Anything else shows the placeholder until its ticket lands.
@@ -18,6 +19,7 @@ const SCREENS: Record<string, ReactNode> = {
   review: <Review />,
   billing: <Billing />,
   "missing-pods": <MissingPods />,
+  trips: <Trips />,
 };
 
 export default function App() {

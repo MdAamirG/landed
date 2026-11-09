@@ -1043,3 +1043,92 @@
 .retake__words {
   flex: 1;
 }
+
+/* Trips: the daily trip file, from Trips.html */
+.trips__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 24px 0 32px;
+  border-top: 1px solid var(--color-rule);
+  color: var(--color-ink-2);
+}
+
+.trips__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 0 20px;
+  border-top: 1px solid var(--color-rule);
+}
+
+.trips__bar > svg {
+  color: var(--color-ink-2);
+}
+
+.trips__counts {
+  margin-left: 16px;
+  font-size: 15px;
+}
+
+.trips__bar > .btn {
+  margin-left: auto;
+}
+
+.trips__table {
+  min-width: 1040px;
+}
+
+.trips__table .fig {
+  white-space: nowrap;
+}
+
+.trips__bad {
+  background-color: var(--color-retake-wash);
+}
+
+.trips__missing,
+.trips__problems {
+  color: var(--color-retake-ink);
+  font-family: var(--font-body);
+  font-weight: 600;
+}
+
+.trips__problems {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+
+.trips__ok {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.trips__ok .btn {
+  margin-left: 6px;
+}
+
+.trips__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.trips__actions > .btn {
+  min-height: 44px;
+}
+
+@media (max-width: 60rem) {
+  .trips__counts {
+    margin-left: 0;
+  }
+}

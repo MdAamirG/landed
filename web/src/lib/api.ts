@@ -409,3 +409,44 @@ export async function resendDriverLink(tripId: string): Promise<Resent> {
   const path = `/dashboard/trips/${tripId}/resend-link`;
   return (await (await request(path, { method: "POST" })).json()) as Resent;
 }
+
+/** One row of the trip file and its check. Never any consignee or driver contact. */
+export type ImportRow = {
+  first_line: number; // Where the row sits in the file, so the rows to fix can be copied out.
+  last_line: number;
+  trip_code: string;
+  lr_number: string;
+  eway_bill_no: string;
+  client_name: string;
+  destination: string;
+  registration_no: string;
+  ownership: string;
+  freight_paise: number | null;
+  problems: string[];
+  imported: boolean;
+  driver_token: string | null; // Only after an import, and only in DEMO_MODE.
+};
+
+export type ImportResult = {
+  filename: string;
+  rows_total: number;
+  rows_ok: number;
+  rows: ImportRow[];
+  import_batch_id: string | null; // Empty for a check, which stores nothing.
+};
+
+async function sendTripFile(path: string, file: File): Promise<ImportResult> {
+  const form = new FormData();
+  form.set("file", file);
+  return (await (await request(path, { method: "POST", body: form })).json()) as ImportResult;
+}
+
+/** What would happen to each row. The server stores nothing. */
+export function checkTripFile(file: File): Promise<ImportResult> {
+  return sendTripFile("/trips/import/check", file);
+}
+
+/** Sends the same file again: the server checks it afresh and adds the good rows. */
+export function importTripFile(file: File): Promise<ImportResult> {
+  return sendTripFile("/trips/import", file);
+}
