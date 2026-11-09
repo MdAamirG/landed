@@ -2,19 +2,26 @@
 
 Run with: cd api && python seed.py
 
+Reviewers' clicks move the sample trips on (an approve, a retake, an export), and seeded times age
+with the clock. To start again from the brief's states, run: cd api && python seed.py --fresh
+That empties every table first, so it refuses unless DEMO_MODE is on.
+
 The trip ID, client, vehicle, destination, freight, status and remark come from the brief.
 LR numbers, e-way bill numbers and the 400 cartons match the approved screens in design/screens.
 Everything else is an assumption, because the brief's sample shows none of it: sample names,
 phone numbers, the other quantities, branches and times. No real person's data.
 """
 
+import argparse
 from datetime import UTC, datetime
 
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.auth import DEMO_EMAILS, hash_password
+from app.config import settings
 from app.db import SessionLocal
-from app.models import Language, Ownership, PodStatus, Role, User
+from app.models import Base, Language, Ownership, PodStatus, Role, User
 from app.rules import ReasonCode
 from seed_demo import seed_demo
 from seed_history import seed_history
@@ -128,10 +135,36 @@ def seed(session: Session) -> None:
     session.flush()
 
 
-if __name__ == "__main__":
+def clear_everything(session: Session) -> None:
+    """Empties every table, users included; the seed adds the demo logins back.
+
+    Only for a demo database. DEMO_MODE is the switch that says the data is sample data, so with it
+    off this refuses rather than risk deleting real trips. TRUNCATE ... CASCADE saves ordering the
+    tables by foreign key, and it runs in the caller's transaction, so a seed that fails afterwards
+    rolls the old data back.
+    """
+    if not settings.demo_mode:
+        raise RuntimeError("Not emptying the database: DEMO_MODE is off, so it may hold real trips")
+    tables = ", ".join(f'"{table.name}"' for table in Base.metadata.sorted_tables)
+    session.execute(text(f"TRUNCATE {tables} CASCADE"))
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument(
+        "--fresh", action="store_true", help="empty every table first (demo databases only)"
+    )
+    fresh = parser.parse_args().fresh
+
     with SessionLocal() as session:
+        if fresh:
+            clear_everything(session)
         seed(session)
         seed_demo(session, SAMPLE_TRIPS)
         seed_history(session)
-        session.commit()
-    print("Seed complete.")
+        session.commit()  # One transaction: the old rows go only if the new ones arrive.
+    print("Fresh seed complete." if fresh else "Seed complete.")
+
+
+if __name__ == "__main__":
+    main()

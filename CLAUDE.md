@@ -80,7 +80,7 @@ Fill these in once the project exists:
 - Web: `cd web && npm run dev`
 - Web tests: `cd web && npm test`
 - Migrate: `cd api && alembic upgrade head`
-- Seed: `cd api && python seed.py`
+- Seed: `cd api && python seed.py` (`--fresh` empties every table first, demo databases only)
 - Measure AI accuracy: `cd api && .venv/bin/python measure_accuracy.py --runs 3` (real paid calls; `--report-only` rebuilds the report from the saved replies)
 - Deploy: see `deployment.md`
 - Build the submission (TDD PDF and ZIP into `submission/`): `uv run docs/build_submission.py`

@@ -19,7 +19,9 @@ from app.models import (
 )
 from app.rules import INDIA, Facts, decide
 from app.schemas import PodReading
-from seed import DEMO_PASSWORD, seed
+from app.config import settings
+from seed import DEMO_PASSWORD, clear_everything, seed
+from tests.factories import make_trip
 from seed_trips import PHOTOS, SHEET_DATE
 
 pytestmark = pytest.mark.usefixtures("empty_db")
@@ -242,3 +244,28 @@ def test_the_brief_trip_in_review_can_be_approved_and_reach_billing(api_client, 
     queue = api_client.get("/api/billing/queue").json()
     codes = {t["trip_code"] for client in queue["clients"] for t in client["trips"]}
     assert codes == {"TRP-66120", "TRP-66141"}
+
+
+def test_a_fresh_seed_puts_the_brief_trips_back_and_clears_everything_else(db, monkeypatch):
+    monkeypatch.setattr(settings, "demo_mode", True)
+    seed(db)
+    trip_by_code(db, "TRP-66141").pod_status = "retake_requested"  # As a reviewer's retake does.
+    db.flush()
+    stray = make_trip(db)  # Commits, like a trip a reviewer imported.
+
+    clear_everything(db)
+    seed(db)
+
+    assert trip_by_code(db, "TRP-66141").pod_status == "needs_review"
+    assert trip_by_code(db, stray.trip_code) is None
+    assert count(db, User) == 2  # Only the demo logins, added back by the seed.
+
+
+def test_a_fresh_seed_refuses_without_demo_mode(db, monkeypatch):
+    monkeypatch.setattr(settings, "demo_mode", False)
+    trip = make_trip(db)
+
+    with pytest.raises(RuntimeError, match="DEMO_MODE is off"):
+        clear_everything(db)
+
+    assert trip_by_code(db, trip.trip_code) is not None
